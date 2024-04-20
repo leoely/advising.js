@@ -1,1 +1,1 @@
-export { default as Server, } from '~/class/Server';
+export { default as Router, } from '~/class/Router';
