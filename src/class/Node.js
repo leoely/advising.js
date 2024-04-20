@@ -46,27 +46,11 @@ class Node {
     if (status === 1 && rate < threshold) {
       this.reduceHash();
     }
-    switch (this.status) {
-      case 0:
-        return this.hash[key];
-      case 1: {
-        let root = this.hash[key.length];
-        const { length, } = key;
-        for (let i = 0; i < length; i += 1) {
-          const code = key.charCodeAt(i);
-          if (i === length - 1) {
-            return root[code - 97];
-          } else {
-            root = root[code - 97];
-          }
-        }
-      }
-    }
+    return this.check(key);
   }
 
   check(key) {
-    const { status, } = this;
-    switch (status) {
+    switch (this.status) {
       case 0:
         return this.hash[key];
       case 1: {

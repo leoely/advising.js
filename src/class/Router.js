@@ -1,4 +1,5 @@
 import Node from '~/class/Node';
+import Thing from '~/class/Thing';
 
 class Router {
   constructor(threshold) {
@@ -11,18 +12,19 @@ class Router {
     const splits = url.split('/');
     const paths = splits.slice(1, splits.length);
     const { root, } = this;
-    let thing;
+    let t;
     let h = root;
     this.total += 1;
     const { total, } = this;
     paths.forEach((p, i) => {
       if (i === paths.length - 1) {
-        thing = h.get(p, total);
+        t = h.get(p, total);
+        t.match(total);
       } else {
         h = h.get(p, total);
       }
     });
-    return thing;
+    return t.thing;
   }
 
   add(url, thing) {
@@ -40,7 +42,8 @@ class Router {
         h = new Node(threshold);
       }
       if (i === paths.length - 1) {
-        h.put(p, thing);
+        const t = new Thing(url, thing);
+        h.put(p, t);
       } else {
         if (h.check(p) === undefined) {
           h.put(p, new Node(threshold));
