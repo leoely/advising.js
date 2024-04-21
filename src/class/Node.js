@@ -45,16 +45,50 @@ class Node {
     }
   }
 
+  greaterThresholdAndBond() {
+    const { threshold, bond, } = this.options;
+    if (threshold === undefined && bond !== undefined) {
+      const { count, } = this;
+      return count >= bond;
+    }
+    if (threshold !== undefined && bond === undefined) {
+      const { rate, } = this;
+      return rate >= threshold;
+    }
+    if (threshold !== undefined && bond !== undefined) {
+      const { rate, count, } = this;
+      return rate >= threshold || count >= bond;
+    }
+    throw Error("Threshold and bond can't is empty together.");
+  }
+
+  lessThresholdAndBond() {
+    const { threshold, bond, } = this.options;
+    if (threshold === undefined && bond !== undefined) {
+      const { count, } = this;
+      return count < bond;
+    }
+    if (threshold !== undefined && bond === undefined) {
+      const { rate, } = this;
+      return rate < threshold;
+    }
+    if (threshold !== undefined && bond !== undefined) {
+      const { rate, count, } = this;
+      return rate < threshold || count < bond;
+    }
+    throw Error("Threshold and bond can't is empty together.");
+  }
+
   get(key, total) {
     this.count += 1;
-    const { threshold, } = this.options;
+    const { threshold, bond, } = this.options;
     const { count, } = this;
     this.rate = count / total;
     const { rate, status, } = this;
-    if (status === 0 && rate >= threshold && os.freemem() > 0) {
+    if (status === 0 && this.greaterThresholdAndBond() && os.freemem() > 0) {
       this.expandHash();
     }
-    if (status === 1 && rate < threshold) {
+    if (status === 1 && this.lessThresholdAndBond()) {
       this.reduceHash();
     }
     return this.check(key);
