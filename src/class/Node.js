@@ -1,5 +1,14 @@
 import os from 'os';
 
+function checkMemory() {
+  if (os.freemem() > 0) {
+    return true;
+  } else {
+    console.log('[Memory] Memory space is exhausted.')
+    return false;
+  }
+}
+
 function dealCharCode(code) {
   if (code >=  65 && code <= 90) {
     return code - 65;
@@ -85,7 +94,7 @@ class Node {
     const { count, } = this;
     this.rate = count / total;
     const { rate, status, } = this;
-    if (status === 0 && this.greaterThresholdAndBond() && os.freemem() > 0) {
+    if (status === 0 && this.greaterThresholdAndBond() && checkMemory()) {
       this.expandHash();
     }
     if (status === 1 && this.lessThresholdAndBond()) {
