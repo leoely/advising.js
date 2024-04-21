@@ -1,5 +1,15 @@
 import os from 'os';
 
+function dealCharCode(code) {
+  if (code >=  65 && code <= 90) {
+    return code - 65;
+  } else if (code >= 97 && code <= 122) {
+    return code - 97;
+  } else {
+    throw Error('Router path is combine with uppercase and lowercase letter.');
+  }
+}
+
 function getExpandHash(key, value) {
   let root = [];
   const ans = root;
@@ -7,18 +17,18 @@ function getExpandHash(key, value) {
   for (let i = 0; i < length; i += 1) {
     const code = key.charCodeAt(i);
     if (i === length - 1) {
-      root[code - 97] = value;
+      root[dealCharCode(code)] = value;
     } else {
-      root[code - 97] = [];
-      root = root[code - 97];
+      root[dealCharCode(code)] = [];
+      root = root[dealCharCode(code)];
     }
   }
   return ans;
 }
 
 class Node {
-  constructor(threshold) {
-    this.threshold = threshold;
+  constructor(options) {
+    this.options = options;
     this.status = 0;
     this.count = 0;
     this.rate = 0;
@@ -37,7 +47,8 @@ class Node {
 
   get(key, total) {
     this.count += 1;
-    const { count, threshold } = this;
+    const { threshold, } = this.options;
+    const { count, } = this;
     this.rate = count / total;
     const { rate, status, } = this;
     if (status === 0 && rate >= threshold && os.freemem() > 0) {
@@ -59,9 +70,9 @@ class Node {
         for (let i = 0; i < length; i += 1) {
           const code = key.charCodeAt(i);
           if (i === length - 1) {
-            return root[code - 97];
+            return root[dealCharCode(code)];
           } else {
-            root = root[code - 97];
+            root = root[dealCharCode(code)];
           }
         }
       }

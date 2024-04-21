@@ -2,9 +2,9 @@ import Node from '~/class/Node';
 import Thing from '~/class/Thing';
 
 class Router {
-  constructor(threshold) {
-    this.threshold = threshold;
-    this.root = new Node(threshold);
+  constructor(options) {
+    this.options = options;
+    this.root = new Node(options);
     this.total = 0;
   }
 
@@ -30,23 +30,23 @@ class Router {
   add(url, thing) {
     const splits = url.split('/');
     const paths = splits.slice(1, splits.length);
-    const { root, threshold, } = this;
+    const { root, options, } = this;
     let h = root;
     paths.forEach((p, i) => {
       if (i === paths.length - 1) {
         if (h === undefined) {
-          h = new Node(threshold);
+          h = new Node(options);
         }
       }
       if (h === undefined) {
-        h = new Node(threshold);
+        h = new Node(options);
       }
       if (i === paths.length - 1) {
-        const t = new Thing(url, thing);
+        const t = new Thing(url, thing, options);
         h.put(p, t);
       } else {
         if (h.check(p) === undefined) {
-          h.put(p, new Node(threshold));
+          h.put(p, new Node(options));
         }
       }
       h = h.hash[p];
