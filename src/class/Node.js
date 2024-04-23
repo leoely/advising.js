@@ -66,7 +66,7 @@ class Node {
     }
     if (threshold !== undefined && bond !== undefined) {
       const { rate, count, } = this;
-      return rate >= threshold || count >= bond;
+      return rate >= threshold && count >= bond;
     }
     throw Error("Threshold and bond can't is empty together.");
   }
@@ -83,7 +83,7 @@ class Node {
     }
     if (threshold !== undefined && bond !== undefined) {
       const { rate, count, } = this;
-      return rate < threshold || count < bond;
+      return rate < threshold && count < bond;
     }
     throw Error("Threshold and bond can't is empty together.");
   }
