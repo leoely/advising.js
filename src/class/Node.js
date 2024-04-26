@@ -1,10 +1,17 @@
 import os from 'os';
+import path from 'path';
+import fs from 'fs';
+import getDateString from '~/lib/getDateString';
+import checkLogPath from '~/lib/checkLogPath';
 
 function checkMemory() {
   if (os.freemem() > 0) {
     return true;
   } else {
-    console.log('[Memory] Memory space is exhausted.')
+    fs.appendFileSync(
+      path.join(logPath, dateString),
+      '[Memory] Memory space is exhausted;\n',
+    );
     return false;
   }
 }
@@ -43,6 +50,8 @@ class Node {
     this.rate = 0;
     this.hash = {};
     this.children = [];
+    const { logPath, } = this.options;
+    checkLogPath(logPath);
   }
 
   put(key, value) {

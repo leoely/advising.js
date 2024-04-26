@@ -3,7 +3,9 @@ import Router from '~/class/Router';
 
 describe('[class] Router', () => {
   test('Router match result should be correct.', () => {
-    const router = new Router({ threshold: 0.5, bond: 5, logLevel: 3, logInterval: 5, });
+    const router = new Router({
+      threshold: 0.5, bond: 5, logLevel: 3, logInterval: 5, logPath: '/tmp/log/'
+    });
     router.add('/find/name/john', { name: 'john', });
     router.add('/find/name/robert', { name: 'robert', });
     router.add('/find/name/david', { name: 'david', });
