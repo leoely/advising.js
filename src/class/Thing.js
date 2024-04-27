@@ -15,13 +15,6 @@ class Thing {
     checkLogPath(logPath);
   }
 
-  checkLogPath() {
-    const { logPath, } = this.options;
-    if (!fs.existsSync(logPath)) {
-      fs.mkdirSync(logPath);
-    }
-  }
-
   writeLog(logPath, logLevel) {
     const { url, } = this;
     const dateString = getDateString();
@@ -39,7 +32,6 @@ class Thing {
         );
         break;
       case 3:
-        console.log(1);
         fs.appendFileSync(
           path.join(logPath, dateString),
           '@['+ url + '] count:|' + this.count + '| & rate:|' + this.rate + '|;\n'
