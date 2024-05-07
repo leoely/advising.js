@@ -60,6 +60,20 @@ class Node {
     switch (status) {
       case 0:
         this.hash[key] = value;
+        break;
+      case 1: {
+        let root = this.hash[key.length];
+        const { length, } = key;
+        for (let i = 0; i < length; i += 1) {
+          const code = key.charCodeAt(i);
+          if (i === length - 1) {
+            root[dealCharCode(code)] = value;
+          } else {
+            root = root[dealCharCode(code)];
+          }
+        }
+        break;
+      }
     }
   }
 
