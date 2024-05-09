@@ -131,7 +131,7 @@ class Node {
       case 0:
         return this.hash[key];
       case 1: {
-        let root = this.hash[key.length];
+        let root = this.hash[key.length - 1];
         const { length, } = key;
         for (let i = 0; i < length; i += 1) {
           const code = key.charCodeAt(i);
@@ -149,7 +149,7 @@ class Node {
     this.hash = [];
     this.children.forEach((e) => {
       const [k, v] = e;
-      this.hash[k.length] = getExpandHash(k, v);
+      this.hash[k.length - 1] = getExpandHash(k, v);
     });
     this.status = 1;
   }

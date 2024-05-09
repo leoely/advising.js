@@ -24,5 +24,11 @@ describe('[class] Router', () => {
     expect(JSON.stringify(router.match('/find/name/david'))).toMatch('{\"name\":\"david\"}');
     expect(JSON.stringify(router.match('/find/name/robert'))).toMatch('{\"name\":\"robert\"}');
     expect(JSON.stringify(router.match('/find/name/john'))).toMatch('{\"name\":\"john\"}');
+    expect(JSON.stringify(router.match('/find/name/john'))).toMatch('{\"name\":\"john\"}');
+    expect(JSON.stringify(router.match('/find/name/john'))).toMatch('{\"name\":\"john\"}');
+    expect(JSON.stringify(router.match('/find/name/john'))).toMatch('{\"name\":\"john\"}');
+    expect(JSON.stringify(router.match('/find/name/robert'))).toMatch('{\"name\":\"robert\"}');
+    expect(JSON.stringify(router.match('/find/name/robert'))).toMatch('{\"name\":\"robert\"}');
+    expect(JSON.stringify(router.match('/find/name/robert'))).toMatch('{\"name\":\"robert\"}');
   });
 });
