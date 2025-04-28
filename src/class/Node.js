@@ -78,9 +78,16 @@ class Node {
     }
   }
 
-  change(key, mixture) {
+  changeFromNode(mixture) {
     const node = mixture.getNode();
     this.hash = node.hash;
+    this.childrens = node.childrens;
+    this.mixture = mixture;
+  }
+
+  changeFromThing(mixture, beforePath) {
+    const node = mixture.getNode();
+    this.hash[beforePath] = node;
     this.childrens = node.childrens;
     this.mixture = mixture;
   }
