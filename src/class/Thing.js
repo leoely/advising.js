@@ -4,11 +4,11 @@ import getDateString from '~/lib/getDateString';
 import checkLogPath from '~/lib/checkLogPath';
 
 class Thing {
-  constructor(url, thing, options) {
+  constructor(url, content, options) {
     this.count = 0;
     this.rate = 0;
     this.url = url;
-    this.thing = thing;
+    this.content = content;
     this.options = options;
     this.interval = 0;
     const { logPath, } = this.options;
@@ -51,6 +51,10 @@ class Thing {
       this.interval = 0;
       this.writeLog(logPath, logLevel);
     }
+  }
+
+  getContent() {
+    return this.content;
   }
 }
 

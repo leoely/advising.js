@@ -1,10 +1,11 @@
 import os from 'os';
 import path from 'path';
 import fs from 'fs';
+import Mixture from '~/class/Mixture';
 import getDateString from '~/lib/getDateString';
 import checkLogPath from '~/lib/checkLogPath';
 
-function checkMemory() {
+function checkMemory(logPath) {
   if (os.freemem() > 0) {
     return true;
   } else {
@@ -49,14 +50,14 @@ class Node {
     this.count = 0;
     this.rate = 0;
     this.hash = {};
-    this.children = [];
+    this.childrens = [];
     const { logPath, } = this.options;
     checkLogPath(logPath);
   }
 
   put(key, value) {
     const { status, } = this;
-    this.children.push([key, value]);
+    this.childrens.push([key, value]);
     switch (status) {
       case 0:
         this.hash[key] = value;
@@ -75,6 +76,13 @@ class Node {
         break;
       }
     }
+  }
+
+  change(key, mixture) {
+    const node = mixture.getNode();
+    this.hash = node.hash;
+    this.childrens = node.childrens;
+    this.mixture = mixture;
   }
 
   greaterThresholdAndBond() {
@@ -113,20 +121,20 @@ class Node {
 
   get(key, total) {
     this.count += 1;
-    const { threshold, bond, } = this.options;
+    const { threshold, bond, logPath, } = this.options;
     const { count, } = this;
     this.rate = count / total;
     const { rate, status, } = this;
-    if (status === 0 && this.greaterThresholdAndBond() && checkMemory()) {
+    if (status === 0 && this.greaterThresholdAndBond() && checkMemory(logPath)) {
       this.expandHash();
     }
     if (status === 1 && this.lessThresholdAndBond()) {
       this.reduceHash();
     }
-    return this.check(key);
+    return this.find(key);
   }
 
-  check(key) {
+  find(key) {
     switch (this.status) {
       case 0:
         return this.hash[key];
@@ -147,7 +155,7 @@ class Node {
 
   expandHash() {
     this.hash = [];
-    this.children.forEach((e) => {
+    this.childrens.forEach((e) => {
       const [k, v] = e;
       this.hash[k.length - 1] = getExpandHash(k, v);
     });
@@ -156,7 +164,7 @@ class Node {
 
   reduceHash() {
     this.hash = {};
-    this.children.forEach((e) => {
+    this.childrens.forEach((e) => {
       const [k, v] = e;
       this.hash[k] = v;
     });

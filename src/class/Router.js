@@ -1,5 +1,6 @@
 import Node from '~/class/Node';
 import Thing from '~/class/Thing';
+import Mixture from '~/class/Mixture';
 
 class Router {
   constructor(options) {
@@ -12,44 +13,56 @@ class Router {
     const splits = url.split('/');
     const paths = splits.slice(1, splits.length);
     const { root, } = this;
-    let t;
-    let h = root;
-    this.total += 1;
-    const { total, } = this;
+    let hash = root;
+    let thing;
     paths.forEach((p, i) => {
       if (i === paths.length - 1) {
-        t = h.get(p, total);
-        t.match(total);
+        this.total += 1;
+        const { total, } = this;
+        if (hash.mixture instanceof Mixture) {
+          hash = hash.mixture;
+          thing = hash.getThing();
+        } else {
+          thing = hash.get(p, total);
+        }
+        thing.match(total);
       } else {
-        h = h.get(p, total);
+        const { total, } = this;
+        hash = hash.get(p, total + 1);
       }
     });
-    return t.thing;
+    return thing.getContent();
   }
 
-  add(url, thing) {
+  add(url, content) {
     const splits = url.split('/');
     const paths = splits.slice(1, splits.length);
     const { root, options, } = this;
-    let h = root;
+    let hash = root;
     paths.forEach((p, i) => {
       if (i === paths.length - 1) {
-        if (h === undefined) {
-          h = new Node(options);
+        if (hash === undefined) {
+          hash = new Node(options);
         }
       }
-      if (h === undefined) {
-        h = new Node(options);
+      if (hash === undefined) {
+        hash = new Node(options);
       }
       if (i === paths.length - 1) {
-        const t = new Thing(url, thing, options);
-        h.put(p, t);
+        if (hash.hash[p] instanceof Node) {
+          const mixture = new Mixture(hash, new Thing(url, content, options));
+          hash.change(p, mixture);
+        } else {
+          const thing = new Thing(url, content, options);
+          hash.put(p, thing);
+        }
+        return;
       } else {
-        if (h.check(p) === undefined) {
-          h.put(p, new Node(options));
+        if (hash.find(p) === undefined) {
+          hash.put(p, new Node(options));
         }
       }
-      h = h.hash[p];
+      hash = hash.hash[p];
     });
   }
 }
