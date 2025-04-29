@@ -22,8 +22,8 @@ function dealCharCode(code) {
     return code - 65;
   } else if (code >= 97 && code <= 122) {
     return code - 97;
-  } else {
-    throw Error('Router path is combine with uppercase and lowercase letter.');
+  } else if (code >= 48 && code <= 57) {
+    return code - 48;
   }
 }
 
@@ -43,10 +43,11 @@ function getExpandHash(key, value) {
   return ans;
 }
 
+
 class Node {
   constructor(options) {
     this.options = options;
-    this.status = 0;
+    this.status = -1;
     this.count = 0;
     this.rate = 0;
     this.hash = {};
@@ -56,13 +57,16 @@ class Node {
   }
 
   put(key, value) {
+    this.checkKey(key);
     const { status, } = this;
     this.childrens.push([key, value]);
     switch (status) {
       case 0:
+      case 2:
         this.hash[key] = value;
         break;
-      case 1: {
+      case 1:
+      case 3: {
         let root = this.hash[key.length];
         const { length, } = key;
         for (let i = 0; i < length; i += 1) {
@@ -74,6 +78,59 @@ class Node {
           }
         }
         break;
+      }
+    }
+  }
+
+  checkKey(key) {
+    if (typeof key !== 'string') {
+      new Error('[Error] Key type must is string.');
+    }
+    let ans = true;
+    let flag;
+    for (let i = 0; i < key.length; i += 1) {
+      const code = key.charCodeAt(i);
+      if ((code >=  65 && code <= 90) || ((code >= 97 && code <= 122))) {
+        if (flag!== undefined) {
+          if (flag !== 0) {
+            ans = false;
+            break;
+          }
+        }
+        flag = 0;
+      } else if (code >= 48 && code <= 57) {
+        if (flag !== undefined) {
+          if (flag !== 1) {
+            ans = false;
+            break;
+          }
+        }
+        flag = 1;
+      } else {
+        flag = 2;
+      }
+    }
+    if (ans === false) {
+      new Error('[Error] Key must is pure numbersor pure letters.');
+    } else {
+      switch (flag) {
+        case 0: {
+          if (this.status === -1) {
+            this.status = 0;
+          } else if (this.status !== 0) {
+            throw new Error('[Error] This node is pure letters node,add content must is letters.');
+          }
+          break;
+        }
+        case 1: {
+          if (this.status === -1) {
+            this.status = 1;
+          } else if (this.status !== 2) {
+            throw new Error('[Error] This node is pure numbers node,add content must is numbers.');
+          }
+          this.status = 2;
+          break;
+        }
       }
     }
   }
@@ -132,10 +189,10 @@ class Node {
     const { count, } = this;
     this.rate = count / total;
     const { rate, status, } = this;
-    if (status === 0 && this.greaterThresholdAndBond() && checkMemory(logPath)) {
+    if ((status === 0 || status === 2) && this.greaterThresholdAndBond() && checkMemory(logPath)) {
       this.expandHash();
     }
-    if (status === 1 && this.lessThresholdAndBond()) {
+    if ((status === 1 || status === 3) && this.lessThresholdAndBond()) {
       this.reduceHash();
     }
     return this.find(key);
@@ -144,8 +201,10 @@ class Node {
   find(key) {
     switch (this.status) {
       case 0:
+      case 2:
         return this.hash[key];
-      case 1: {
+      case 1:
+      case 3: {
         let root = this.hash[key.length - 1];
         const { length, } = key;
         for (let i = 0; i < length; i += 1) {
@@ -166,7 +225,11 @@ class Node {
       const [k, v] = e;
       this.hash[k.length - 1] = getExpandHash(k, v);
     });
-    this.status = 1;
+    if (this.status === 0) {
+      this.status = 1;
+    } else {
+      this.status = 3;
+    }
   }
 
   reduceHash() {
@@ -175,7 +238,11 @@ class Node {
       const [k, v] = e;
       this.hash[k] = v;
     });
-    this.status = 0;
+    if (this.status === 1) {
+      this.status = 0;
+    } else {
+      this.status = 2;
+    }
   }
 }
 
