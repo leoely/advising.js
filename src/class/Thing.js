@@ -3,6 +3,10 @@ import path from 'path';
 import getDateString from '~/lib/getDateString';
 import checkLogPath from '~/lib/checkLogPath';
 
+function getGTMDateString() {
+  return new Date().toString();
+}
+
 class Thing {
   constructor(url, content, options) {
     this.count = 0;
@@ -22,19 +26,19 @@ class Thing {
       case 1:
         fs.appendFileSync(
           path.join(logPath, dateString),
-          '@['+ url + '] rate: |' + this.rate + '|;\n'
+          getGTMDateString() + ' ||  ████ Location:'+ url + ' ████ & ████ RATE:' + this.rate + ' ████ || \n'
         );
         break;
       case 2:
         fs.appendFileSync(
           path.join(logPath, dateString),
-          '@['+ url + '] count: |' + this.count + '|;\n'
+          getGTMDateString() + ' ||  ████ Location:'+ url + ' ████ & ████ COUNT:' + this.count + ' ████ ||\n'
         );
         break;
       case 3:
         fs.appendFileSync(
           path.join(logPath, dateString),
-          '@['+ url + '] count:|' + this.count + '| & rate:|' + this.rate + '|;\n'
+          getGTMDateString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + this.count + ' ████ & ████ RATE:' + this.rate + ' ████ ||\n'
         );
         break;
     }

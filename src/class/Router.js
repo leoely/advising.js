@@ -41,8 +41,8 @@ class Router {
     let beforePath = paths[0];
     let beforeHash = root;
     let hash = root;
-    paths.forEach((p, i) => {
-      if (i === paths.length - 1) {
+    paths.forEach((path, index) => {
+      if (index === paths.length - 1) {
         if (hash === undefined) {
           hash = new Node(options);
         }
@@ -50,31 +50,31 @@ class Router {
       if (hash === undefined) {
         hash = new Node(options);
       }
-      if (i === paths.length - 1) {
+      if (index === paths.length - 1) {
         if (hash instanceof Thing) {
           const node = new Node(options);
           const thing = new Thing(url, content, options);
-          node.put(p, thing);
+          node.put(path, thing);
           const mixture = new Mixture(node, hash);
           beforeHash.changeFromThing(mixture, beforePath);
           return;
         }
-        if (hash && hash.hash && hash.hash[p] && hash.hash[p] instanceof Node) {
+        if (hash && hash.hash && hash.hash[path] && hash.hash[path] instanceof Node) {
           const mixture = new Mixture(hash, new Thing(url, content, options));
           hash.changeFromNode(mixture);
         } else {
           const thing = new Thing(url, content, options);
-          hash.put(p, thing);
+          hash.put(path, thing);
         }
         return;
       } else {
-        if (hash.find(p) === undefined) {
-          hash.put(p, new Node(options));
+        if (hash.find(path) === undefined) {
+          hash.put(path, new Node(options));
         }
       }
       beforeHash = hash;
-      beforePath = p;
-      hash = hash.hash[p];
+      beforePath = path;
+      hash = hash.hash[path];
     });
   }
 }
