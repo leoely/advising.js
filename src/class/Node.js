@@ -33,7 +33,7 @@ class Node {
     this.status = -1;
     this.count = 0;
     this.rate = 0;
-    this.hash = {};
+    this.hash = [];
     this.childrens = [];
     const { logPath, } = this.options;
     checkLogPath(logPath);
@@ -45,12 +45,16 @@ class Node {
     this.childrens.push([key, value]);
     switch (status) {
       case 0:
-      case 2:
-        this.hash[key] = value;
+      case 2: {
+        if (this.hash[key.length - 1] === undefined) {
+          this.hash[key.length - 1] = {};
+        }
+        this.hash[key.length - 1][key] = value;
         break;
+      }
       case 1:
       case 3: {
-        let root = this.hash[key.length];
+        let root = this.hash;
         const { length, } = key;
         for (let i = 0; i < length; i += 1) {
           const code = key.charCodeAt(i);
@@ -127,7 +131,7 @@ class Node {
 
   changeFromThing(mixture, beforePath) {
     const node = mixture.getNode();
-    this.hash[beforePath] = node;
+    this.hash[beforePath.length - 1][beforePath] = node;
     this.childrens = node.childrens;
     this.mixture = mixture;
   }
@@ -184,8 +188,13 @@ class Node {
   find(key) {
     switch (this.status) {
       case 0:
-      case 2:
-        return this.hash[key];
+      case 2: {
+        if (this.hash && this.hash[key.length - 1] && this.hash[key.length - 1][key]) {
+          return this.hash[key.length - 1][key];
+        } else {
+          return undefined;
+        }
+      }
       case 1:
       case 3: {
         let root = this.hash;
@@ -204,9 +213,9 @@ class Node {
 
   expandHash() {
     this.hash = [];
-    this.childrens.forEach((e) => {
-      const [k, v] = e;
-      this.setExpandHash(k, v);
+    this.childrens.forEach((elem) => {
+      const [key, value] = elem;
+      this.setExpandHash(key, value);
     });
     if (this.status === 0) {
       this.status = 1;
@@ -217,9 +226,9 @@ class Node {
 
   reduceHash() {
     this.hash = {};
-    this.childrens.forEach((e) => {
-      const [k, v] = e;
-      this.hash[k] = v;
+    this.childrens.forEach((elem) => {
+      const [key, value] = elem;
+      this.hash[key.length - 1][key] = value;
     });
     if (this.status === 1) {
       this.status = 0;

@@ -59,7 +59,11 @@ class Router {
           beforeHash.changeFromThing(mixture, beforePath);
           return;
         }
-        if (hash && hash.hash && hash.hash[path] && hash.hash[path] instanceof Node) {
+        if (
+          hash && hash.hash && hash.hash[path.length - 1] &&
+          hash.hash[path.length - 1][path] &&
+          hash.hash[path.length - 1][path] instanceof Node
+        ) {
           const mixture = new Mixture(hash, new Thing(url, content, options));
           hash.changeFromNode(mixture);
         } else {
@@ -74,7 +78,7 @@ class Router {
       }
       beforeHash = hash;
       beforePath = path;
-      hash = hash.hash[path];
+      hash = hash.hash[path.length - 1][path];
     });
   }
 }
