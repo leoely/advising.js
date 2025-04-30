@@ -15,20 +15,20 @@ class Router {
     const { root, } = this;
     let hash = root;
     let thing;
-    paths.forEach((p, i) => {
-      if (i === paths.length - 1) {
+    paths.forEach((path, index) => {
+      if (index === paths.length - 1) {
         this.total += 1;
         const { total, } = this;
         if (hash.mixture instanceof Mixture) {
           hash = hash.mixture;
           thing = hash.getThing();
         } else {
-          thing = hash.get(p, total);
+          thing = hash.get(path, total);
         }
         thing.match(total);
       } else {
         const { total, } = this;
-        hash = hash.get(p, total + 1);
+        hash = hash.get(path, total + 1);
       }
     });
     return thing.getContent();

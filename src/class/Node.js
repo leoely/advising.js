@@ -27,23 +27,6 @@ function dealCharCode(code) {
   }
 }
 
-function getExpandHash(key, value) {
-  let root = [];
-  const ans = root;
-  const { length, } = key;
-  for (let i = 0; i < length; i += 1) {
-    const code = key.charCodeAt(i);
-    if (i === length - 1) {
-      root[dealCharCode(code)] = value;
-    } else {
-      root[dealCharCode(code)] = [];
-      root = root[dealCharCode(code)];
-    }
-  }
-  return ans;
-}
-
-
 class Node {
   constructor(options) {
     this.options = options;
@@ -205,7 +188,7 @@ class Node {
         return this.hash[key];
       case 1:
       case 3: {
-        let root = this.hash[key.length - 1];
+        let root = this.hash;
         const { length, } = key;
         for (let i = 0; i < length; i += 1) {
           const code = key.charCodeAt(i);
@@ -223,7 +206,7 @@ class Node {
     this.hash = [];
     this.childrens.forEach((e) => {
       const [k, v] = e;
-      this.hash[k.length - 1] = getExpandHash(k, v);
+      this.setExpandHash(k, v);
     });
     if (this.status === 0) {
       this.status = 1;
@@ -242,6 +225,20 @@ class Node {
       this.status = 0;
     } else {
       this.status = 2;
+    }
+  }
+
+  setExpandHash(key, value) {
+    let root = this.hash;
+    const { length, } = key;
+    for (let i = 0; i < length; i += 1) {
+      const code = key.charCodeAt(i);
+      if (i === length - 1) {
+        root[dealCharCode(code)] = value;
+      } else {
+        root[dealCharCode(code)] = [];
+        root = root[dealCharCode(code)];
+      }
     }
   }
 }
