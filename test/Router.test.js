@@ -1,11 +1,12 @@
 import { describe, expect, test, } from '@jest/globals';
 import Router from '~/class/Router';
 
-describe('[class] Router', () => {
+describe('[class] Router time complex test case.', () => {
   test('Router match result should be correct.', () => {
     const router = new Router({
       threshold: 0.5,
       bond: 5,
+      dutyCycle: 5,
       logLevel: 3,
       logInterval: 5,
       logPath: '/tmp/log/'
@@ -36,6 +37,7 @@ describe('[class] Router', () => {
     const router = new Router({
       threshold: 0.5,
       bond: 5,
+      dutyCycle: 5,
       logLevel: 3,
       logInterval: 5,
       logPath: '/tmp/log/'
@@ -68,6 +70,7 @@ describe('[class] Router', () => {
     const router = new Router({
       threshold: 0.5,
       bond: 5,
+      dutyCycle: 5,
       logLevel: 3,
       logInterval: 5,
       logPath: '/tmp/log/'
@@ -86,6 +89,7 @@ describe('[class] Router', () => {
     const router = new Router({
       threshold: 0.5,
       bond: 5,
+      dutyCycle: 5,
       logLevel: 3,
       logInterval: 5,
       logPath: '/tmp/log/'
@@ -104,6 +108,7 @@ describe('[class] Router', () => {
     const router = new Router({
       threshold: 0.5,
       bond: 5,
+      dutyCycle: 5,
       logLevel: 3,
       logInterval: 5,
       logPath: '/tmp/log/'
@@ -124,6 +129,7 @@ describe('[class] Router', () => {
     const router = new Router({
       threshold: 0.5,
       bond: 5,
+      dutyCycle: 5,
       logLevel: 3,
       logInterval: 5,
       logPath: '/tmp/log/'
@@ -149,11 +155,19 @@ describe('[class] Router', () => {
     expect(JSON.stringify(router.match('/citys/1'))).toMatch('[\"new york\",\"london\",\"tokyo\"]');
     expect(JSON.stringify(router.match('/citys/2'))).toMatch('[\"pairs\",\"beijing\",\"los angeles\"]');
   });
+});
 
+describe('[Class] Router space complex case.', () => {
+  test('', () => {
+  });
+});
+
+describe('[Class] Router miscellaneous case..', () => {
   test('Router should prevent include both numbers and letters.', () => {
     const router = new Router({
       threshold: 0.5,
       bond: 5,
+      dutyCycle: 5,
       logLevel: 3,
       logInterval: 5,
       logPath: '/tmp/log/'
@@ -166,18 +180,20 @@ describe('[class] Router', () => {
     const router = new Router({
       threshold: 0.5,
       bond: 5,
+      dutyCycle: 5,
       logLevel: 3,
       logInterval: 5,
       logPath: '/tmp/log/'
     });
     router.add('/chaos/1', { type: 'number', });
-    expect(() => router.add('/chaos/letter', { type: 'letter' })).toThrow('[Error] This node is pure letters node,add content must is letters.');
+    expect(() => router.add('/chaos/letter', { type: 'letter' })).toThrow('[Error] This node is pure letters node but content must is letters.');
   });
 
   test('Router key should compose of pure numbers and letters.', () => {
     const router = new Router({
       threshold: 0.5,
       bond: 5,
+      dutyCycle: 5,
       logLevel: 3,
       logInterval: 5,
       logPath: '/tmp/log/'
@@ -190,6 +206,7 @@ describe('[class] Router', () => {
     const router = new Router({
       threshold: 0.5,
       bond: 5,
+      dutyCycle: 5,
       logLevel: 3,
       logInterval: 5,
       logPath: '/tmp/log/'
@@ -197,5 +214,10 @@ describe('[class] Router', () => {
     expect(() => router.add(11111, { type: 'numbers' })).toThrow('[Error] Key type must is string.');
     expect(() => router.add({}, { type: 'object' })).toThrow('[Error] Key type must is string.');
     expect(() => router.add([], { type: 'array' })).toThrow('[Error] Key type must is string.');
+  });
+
+  test('Router default options should exist..', () => {
+    const router = new Router();
+    expect(typeof router.options).toMatch('object');
   });
 });

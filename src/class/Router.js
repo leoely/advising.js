@@ -3,8 +3,17 @@ import Thing from '~/class/Thing';
 import Mixture from '~/class/Mixture';
 
 class Router {
-  constructor(options) {
-    this.options = options;
+  constructor(options = {}) {
+    const defaultOptions = {
+      threshold: 0.01,
+      bond: 500,
+      dutyCycle: 500,
+      logLevel: 3,
+      logInterval: 5,
+      logPath: '/tmp/adivising.js/log',
+      startTime: Date.now(),
+    };
+    this.options = Object.assign(defaultOptions, options);
     this.root = new Node(options);
     this.total = 0;
   }

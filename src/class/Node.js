@@ -102,7 +102,7 @@ class Node {
           if (this.status === -1) {
             this.status = 0;
           } else if (this.status !== 0) {
-            throw new Error('[Error] This node is pure letters node,add content must is letters.');
+            throw new Error('[Error] This node is pure letters node but content must is letters.');
           }
           break;
         }
@@ -133,36 +133,72 @@ class Node {
     this.mixture = mixture;
   }
 
-  greaterThresholdAndBond() {
-    const { threshold, bond, } = this.options;
-    if (threshold === undefined && bond !== undefined) {
+  getDutyCycle() {
+    const { count, startTime, } = this;
+    const now = Date.now();
+    return count / ((now - startTime) / 1000 * 60 * 60);
+  }
+
+  greaterThresholdAndBondAndDutyCycle() {
+    const { threshold, bond, dutyCycle, } = this.options;
+    if (threshold === undefined && bond !== undefined && dutyCycle !== undefined) {
+      return this.getDutyCycle >= dutyCycle;
+    }
+    if (threshold === undefined && bond !== undefined && dutyCycle === undefined) {
       const { count, } = this;
       return count >= bond;
     }
-    if (threshold !== undefined && bond === undefined) {
+    if (threshold !== undefined && bond === undefined && dutyCycle === undefined) {
       const { rate, } = this;
       return rate >= threshold;
     }
-    if (threshold !== undefined && bond !== undefined) {
+    if (threshold !== undefined && bond === undefined && dutyCycle === undefined) {
+      const { rate, count, } = this;
+      return count >= bond && this.getDutyCycle() >= dutyCycle;
+    }
+    if (threshold === undefined && bond !== undefined && dutyCycle === undefined) {
+      const { rate, count, } = this;
+      return threshold >= threshold && this.getDutyCycle() >= dutyCycle;
+    }
+    if (threshold === undefined && bond === undefined && dutyCycle !== undefined) {
       const { rate, count, } = this;
       return rate >= threshold && count >= bond;
+    }
+    if (threshold !== undefined && bond !== undefined && dutyCycle !== undefined) {
+      const { rate, count, } = this;
+      return rate >= threshold && count >= bond && this.getDutyCycle() >= dutyCycle;
     }
     throw Error("Threshold and bond can't is empty together.");
   }
 
-  lessThresholdAndBond() {
-    const { threshold, bond, } = this.options;
-    if (threshold === undefined && bond !== undefined) {
+  lessThresholdAndBondAndDutyCycle() {
+    const { threshold, bond, dutyCycle, startTime, } = this.options;
+    if (threshold === undefined && bond !== undefined && dutyCycle !== undefined) {
+      return this.getDutyCycle < dutyCycle;
+    }
+    if (threshold === undefined && bond !== undefined && dutyCycle === undefined) {
       const { count, } = this;
       return count < bond;
     }
-    if (threshold !== undefined && bond === undefined) {
+    if (threshold !== undefined && bond === undefined && dutyCycle === undefined) {
       const { rate, } = this;
       return rate < threshold;
     }
-    if (threshold !== undefined && bond !== undefined) {
+    if (threshold !== undefined && bond === undefined && dutyCycle === undefined) {
+      const { rate, count, } = this;
+      return count < bond && this.getDutyCycle() < dutyCycle;
+    }
+    if (threshold === undefined && bond !== undefined && dutyCycle === undefined) {
+      const { rate, count, } = this;
+      return threshold < threshold && this.getDutyCycle() < dutyCycle;
+    }
+    if (threshold === undefined && bond === undefined && dutyCycle !== undefined) {
       const { rate, count, } = this;
       return rate < threshold && count < bond;
+    }
+    if (threshold !== undefined && bond !== undefined && dutyCycle !== undefined) {
+      const { rate, count, } = this;
+      return rate < threshold && count < bond && this.getDutyCycle() < dutyCycle;
     }
     throw Error("Threshold and bond can't is empty together.");
   }
@@ -173,10 +209,10 @@ class Node {
     const { count, } = this;
     this.rate = count / total;
     const { rate, status, } = this;
-    if ((status === 0 || status === 2) && this.greaterThresholdAndBond() && checkMemory(logPath)) {
+    if ((status === 0 || status === 2) && this.greaterThresholdAndBondAndDutyCycle() && checkMemory(logPath)) {
       this.expandHash();
     }
-    if ((status === 1 || status === 3) && this.lessThresholdAndBond()) {
+    if ((status === 1 || status === 3) && this.lessThresholdAndBondAndDutyCycle()) {
       this.reduceHash();
     }
     return this.find(key);
