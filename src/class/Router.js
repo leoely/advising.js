@@ -14,7 +14,7 @@ class Router {
       startTime: Date.now(),
     };
     this.options = Object.assign(defaultOptions, options);
-    this.root = new Node(options);
+    this.root = new Node(this.options);
     this.total = 0;
   }
 

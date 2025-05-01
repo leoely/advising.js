@@ -127,7 +127,7 @@ describe('[class] Router time complex test case.', () => {
 
   test('Router should support pure numbers and letters formate.', () => {
     const router = new Router({
-      threshold: 0.5,
+      threshold: 0.1,
       bond: 5,
       dutyCycle: 5,
       logLevel: 3,
@@ -142,6 +142,12 @@ describe('[class] Router time complex test case.', () => {
     expect(JSON.stringify(router.match('/male/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
     expect(JSON.stringify(router.match('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(router.match('/male/david'))).toMatch('{\"name\":\"david\",\"age\":40}');
+    expect(JSON.stringify(router.match('/citys/1'))).toMatch('[\"new york\",\"london\",\"tokyo\"]');
+    expect(JSON.stringify(router.match('/citys/2'))).toMatch('[\"pairs\",\"beijing\",\"los angeles\"]');
+    expect(JSON.stringify(router.match('/citys/1'))).toMatch('[\"new york\",\"london\",\"tokyo\"]');
+    expect(JSON.stringify(router.match('/citys/2'))).toMatch('[\"pairs\",\"beijing\",\"los angeles\"]');
+    expect(JSON.stringify(router.match('/citys/1'))).toMatch('[\"new york\",\"london\",\"tokyo\"]');
+    expect(JSON.stringify(router.match('/citys/2'))).toMatch('[\"pairs\",\"beijing\",\"los angeles\"]');
     expect(JSON.stringify(router.match('/citys/1'))).toMatch('[\"new york\",\"london\",\"tokyo\"]');
     expect(JSON.stringify(router.match('/citys/2'))).toMatch('[\"pairs\",\"beijing\",\"los angeles\"]');
     expect(JSON.stringify(router.match('/citys/1'))).toMatch('[\"new york\",\"london\",\"tokyo\"]');

@@ -134,7 +134,7 @@ class Node {
   }
 
   getDutyCycle() {
-    const { count, startTime, } = this;
+    const { count, options: { startTime, }, } = this;
     const now = Date.now();
     return count / ((now - startTime) / 1000 * 60 * 60);
   }
@@ -258,7 +258,7 @@ class Node {
   }
 
   reduceHash() {
-    this.hash = {};
+    this.hash = [];
     this.childrens.forEach((elem) => {
       const [key, value] = elem;
       this.hash[key.length - 1][key] = value;
