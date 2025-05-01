@@ -216,8 +216,25 @@ describe('[Class] Router miscellaneous case..', () => {
     expect(() => router.add([], { type: 'array' })).toThrow('[Error] Key type must is string.');
   });
 
-  test('Router default options should exist..', () => {
+  test('Router default options should exist.', () => {
     const router = new Router();
     expect(typeof router.options).toMatch('object');
+  });
+
+  test('Router logLevel should be setting correct..', () => {
+    const router = new Router({
+      threshold: 0.5,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 4,
+      logInterval: 5,
+      logPath: '/tmp/log/'
+    });
+    router.add('/male/john', { name: 'john', age: 22, });
+    router.match('/male/john');
+    router.match('/male/john');
+    router.match('/male/john');
+    router.match('/male/john');
+    expect(() => router.match('/male/john')).toThrow('[Error] LogLevel must in set {1, 2, 3}.');
   });
 });

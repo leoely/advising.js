@@ -41,6 +41,8 @@ class Thing {
           getGTMDateString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + this.count + ' ████ & ████ RATE:' + this.rate + ' ████ ||\n'
         );
         break;
+      default:
+        throw new Error('[Error] LogLevel must in set {1, 2, 3}.');
     }
   }
 
