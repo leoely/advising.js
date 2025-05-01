@@ -84,43 +84,45 @@ describe('[class] Router', () => {
     expect(JSON.stringify(router.match('/male'))).toMatch('[\"john\",\"robert\",\"david\"]');
   });
 
-  //test('Router middle mixture from thing generate result should be correct.', () => {
-    //const router = new Router({
-      //threshold: 0.5,
-      //bond: 5,
-      //logLevel: 3,
-      //logInterval: 5,
-      //logPath: '/tmp/log/'
-    //});
-    //router.add('/country', ['united kingdom']);
-    //router.add('/country/unitedKingdom/london', { id: 1, name: 'london',});
-    //router.add('/country/unitedKingdom/england', { id: 2, name: 'england',});
-    //router.add('/country/unitedKingdom/liverpool', { id: 3, name: 'liveprool',  });
-    //router.add('/country/unitedKingdom/belfast', { id: 4, name: 'belfast', });
-    //expect(JSON.stringify(router.match('/country'))).toMatch('[\"john\",\"robert\",\"david\"]');
-    //expect(JSON.stringify(router.match('/country/unitedKingdom/london'))).toMatch('{\"name\":\"john\",\"age\":22}');
-    //expect(JSON.stringify(router.match('/country/unitedKingdom/england'))).toMatch('{\"name\":\"robert\",\"age\":18}');
-    //expect(JSON.stringify(router.match('/country/unitedKingdom/england'))).toMatch('{\"name\":\"david\",\"age\":40}');
-  //});
+  test('Router middle mixture from thing generate result should be correct.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      bond: 5,
+      logLevel: 3,
+      logInterval: 5,
+      logPath: '/tmp/log/'
+    });
+    router.add('/country', ['united kingdom']);
+    router.add('/country/unitedKingdom/london', { id: 1, name: 'london',});
+    router.add('/country/unitedKingdom/england', { id: 2, name: 'england',});
+    router.add('/country/unitedKingdom/liverpool', { id: 3, name: 'liveprool',  });
+    router.add('/country/unitedKingdom/belfast', { id: 4, name: 'belfast', });
+    expect(JSON.stringify(router.match('/country'))).toMatch('[\"united kingdom\"]');
+    expect(JSON.stringify(router.match('/country/unitedKingdom/london'))).toMatch('{\"id\":1,\"name\":\"london\"}');
+    expect(JSON.stringify(router.match('/country/unitedKingdom/england'))).toMatch('{\"id\":2,\"name\":\"england\"}');
+    expect(JSON.stringify(router.match('/country/unitedKingdom/liverpool'))).toMatch('{\"id\":3,\"name\":\"liveprool\"}');
+    expect(JSON.stringify(router.match('/country/unitedKingdom/belfast'))).toMatch('{\"id\":4,\"name\":\"belfast\"}');
+  });
 
-  //test('Router middle mixture from node generate result should be correct.', () => {
-    //const router = new Router({
-      //threshold: 0.5,
-      //bond: 5,
-      //logLevel: 3,
-      //logInterval: 5,
-      //logPath: '/tmp/log/'
-    //});
-    //router.add('/country/unitedKingdom/london', { id: 1, name: 'london',});
-    //router.add('/country/unitedKingdom/england', { id: 2, name: 'england',});
-    //router.add('/country/unitedKingdom/liverpool', { id: 3, name: 'liveprool',  });
-    //router.add('/country/unitedKingdom/belfast', { id: 4, name: 'belfast', });
-    //router.add('/country', ['united kingdom']);
-    //expect(JSON.stringify(router.match('/country'))).toMatch('[\"john\",\"robert\",\"david\"]');
-    //expect(JSON.stringify(router.match('/country/unitedKingdom/london'))).toMatch('{\"name\":\"john\",\"age\":22}');
-    //expect(JSON.stringify(router.match('/country/unitedKingdom/england'))).toMatch('{\"name\":\"robert\",\"age\":18}');
-    //expect(JSON.stringify(router.match('/country/unitedKingdom/england'))).toMatch('{\"name\":\"david\",\"age\":40}');
-  //});
+  test('Router middle mixture from node generate result should be correct.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      bond: 5,
+      logLevel: 3,
+      logInterval: 5,
+      logPath: '/tmp/log/'
+    });
+    router.add('/country/unitedKingdom/london', { id: 1, name: 'london',});
+    router.add('/country/unitedKingdom/england', { id: 2, name: 'england',});
+    router.add('/country/unitedKingdom/liverpool', { id: 3, name: 'liveprool',  });
+    router.add('/country/unitedKingdom/belfast', { id: 4, name: 'belfast', });
+    router.add('/country', ['united kingdom']);
+    expect(JSON.stringify(router.match('/country/unitedKingdom/london'))).toMatch('{\"id\":1,\"name\":\"london\"}');
+    expect(JSON.stringify(router.match('/country/unitedKingdom/england'))).toMatch('{\"id\":2,\"name\":\"england\"}');
+    expect(JSON.stringify(router.match('/country/unitedKingdom/liverpool'))).toMatch('{\"id\":3,\"name\":\"liveprool\"}');
+    expect(JSON.stringify(router.match('/country/unitedKingdom/belfast'))).toMatch('{\"id\":4,\"name\":\"belfast\"}');
+    expect(JSON.stringify(router.match('/country'))).toMatch('[\"united kingdom\"]');
+  });
 
   test('Router should support pure number and letter formate.', () => {
     const router = new Router({

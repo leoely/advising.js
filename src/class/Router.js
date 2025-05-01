@@ -61,7 +61,8 @@ class Router {
         }
         const entity = hash.find(path);
         if (entity instanceof Node) {
-          const mixture = new Mixture(hash, new Thing(url, content, options));
+          const thing = new Thing(url, content, options);
+          const mixture = new Mixture(hash, thing);
           hash.changeFromNode(mixture);
         } else {
           const thing = new Thing(url, content, options);
@@ -69,8 +70,14 @@ class Router {
         }
         return;
       } else {
-        if (hash.find(path) === undefined) {
+        if (hash instanceof Node && hash.find(path) === undefined) {
           hash.put(path, new Node(options));
+        } else if (hash instanceof Thing)  {
+          const node = new Node(options);
+          node.put(path, new Node(options));
+          const mixture = new Mixture(node, hash);
+          beforeHash.changeFromThing(mixture, beforePath);
+          hash = node;
         }
       }
       beforeHash = hash;

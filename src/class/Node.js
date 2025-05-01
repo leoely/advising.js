@@ -131,7 +131,7 @@ class Node {
 
   changeFromThing(mixture, beforePath) {
     const node = mixture.getNode();
-    this.hash[beforePath.length - 1][beforePath] = node;
+    this.put(beforePath, node);
     this.childrens = node.childrens;
     this.mixture = mixture;
   }
