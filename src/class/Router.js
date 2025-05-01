@@ -35,6 +35,9 @@ class Router {
   }
 
   add(url, content) {
+    if (typeof url !== 'string') {
+      throw new Error('[Error] Key type must is string.');
+    }
     const splits = url.split('/');
     const paths = splits.slice(1, splits.length);
     const { root, options, } = this;

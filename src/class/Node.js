@@ -70,9 +70,6 @@ class Node {
   }
 
   checkKey(key) {
-    if (typeof key !== 'string') {
-      new Error('[Error] Key type must is string.');
-    }
     let ans = true;
     let flag;
     for (let i = 0; i < key.length; i += 1) {
@@ -98,7 +95,7 @@ class Node {
       }
     }
     if (ans === false) {
-      new Error('[Error] Key must is pure numbersor pure letters.');
+      throw new Error('[Error] Key must is pure numbers or pure letters.');
     } else {
       switch (flag) {
         case 0: {
