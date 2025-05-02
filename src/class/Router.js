@@ -71,14 +71,6 @@ class Router {
     let hash = root;
     paths.forEach((path, index) => {
       if (index === paths.length - 1) {
-        if (hash === undefined) {
-          hash = new Node(options);
-        }
-      }
-      if (hash === undefined) {
-        hash = new Node(options);
-      }
-      if (index === paths.length - 1) {
         if (hash instanceof Thing) {
           const node = new Node(options);
           const thing = new Thing(url, content, options);
