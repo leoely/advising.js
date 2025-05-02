@@ -5,6 +5,7 @@ describe('[class] Router time complex test case.', () => {
   test('Router match result should be correct.', () => {
     const router = new Router({
       threshold: 0.5,
+      number: 1,
       bond: 5,
       dutyCycle: 5,
       logLevel: 3,
@@ -36,6 +37,7 @@ describe('[class] Router time complex test case.', () => {
   test('Router add router after match result should be correct.', () => {
     const router = new Router({
       threshold: 0.5,
+      number: 1,
       bond: 5,
       dutyCycle: 5,
       logLevel: 3,
@@ -69,6 +71,7 @@ describe('[class] Router time complex test case.', () => {
   test('Router root mixture generate from thing result should be correct.', () => {
     const router = new Router({
       threshold: 0.5,
+      number: 1,
       bond: 5,
       dutyCycle: 5,
       logLevel: 3,
@@ -88,6 +91,7 @@ describe('[class] Router time complex test case.', () => {
   test('Router root mixture generate from noderesult should be correct.', () => {
     const router = new Router({
       threshold: 0.5,
+      number: 1,
       bond: 5,
       dutyCycle: 5,
       logLevel: 3,
@@ -107,6 +111,7 @@ describe('[class] Router time complex test case.', () => {
   test('Router middle mixture from node generate result should be correct.', () => {
     const router = new Router({
       threshold: 0.5,
+      number: 1,
       bond: 5,
       dutyCycle: 5,
       logLevel: 3,
@@ -125,9 +130,10 @@ describe('[class] Router time complex test case.', () => {
     expect(JSON.stringify(router.match('/country'))).toMatch('[\"united kingdom\"]');
   });
 
-  test('Router should support pure numbers and letters formate.', () => {
+  test('Router should support pure numbers and pure letters formate.', () => {
     const router = new Router({
       threshold: 0.1,
+      number: 1,
       bond: 5,
       dutyCycle: 5,
       logLevel: 3,
@@ -164,7 +170,16 @@ describe('[class] Router time complex test case.', () => {
 });
 
 describe('[Class] Router space complex case.', () => {
-  test('', () => {
+  test('Router ', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 3,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 3,
+      logInterval: 5,
+      logPath: '/tmp/log/'
+    });
   });
 });
 
@@ -172,6 +187,7 @@ describe('[Class] Router miscellaneous case..', () => {
   test('Router should prevent include both numbers and letters.', () => {
     const router = new Router({
       threshold: 0.5,
+      number: 1,
       bond: 5,
       dutyCycle: 5,
       logLevel: 3,
@@ -179,12 +195,13 @@ describe('[Class] Router miscellaneous case..', () => {
       logPath: '/tmp/log/'
     });
     router.add('/chaos/letter', { type: 'letter', });
-    expect(() => router.add('/chaos/1', { type: 'number' })).toThrow('[Error] This node is pure numbers node,add content must is numbers.');
+    expect(() => router.add('/chaos/1', { type: 'number' })).toThrow('[Error] This node is pure numbers node but content must is numbers.');
   });
 
   test('Router should prevent include both numbers and letters.', () => {
     const router = new Router({
       threshold: 0.5,
+      number: 1,
       bond: 5,
       dutyCycle: 5,
       logLevel: 3,
@@ -198,6 +215,7 @@ describe('[Class] Router miscellaneous case..', () => {
   test('Router key should compose of pure numbers and letters.', () => {
     const router = new Router({
       threshold: 0.5,
+      number: 1,
       bond: 5,
       dutyCycle: 5,
       logLevel: 3,
@@ -211,6 +229,7 @@ describe('[Class] Router miscellaneous case..', () => {
   test('Router key must is string type.', () => {
     const router = new Router({
       threshold: 0.5,
+      number: 1,
       bond: 5,
       dutyCycle: 5,
       logLevel: 3,
@@ -230,6 +249,7 @@ describe('[Class] Router miscellaneous case..', () => {
   test('Router logLevel should be setting correct..', () => {
     const router = new Router({
       threshold: 0.5,
+      number: 1,
       bond: 5,
       dutyCycle: 5,
       logLevel: 4,

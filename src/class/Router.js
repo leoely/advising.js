@@ -1,11 +1,13 @@
 import Node from '~/class/Node';
 import Thing from '~/class/Thing';
 import Mixture from '~/class/Mixture';
+import checkLogPath from '~/lib/checkLogPath';
 
 class Router {
   constructor(options = {}) {
     const defaultOptions = {
       threshold: 0.01,
+      number: 45,
       bond: 500,
       dutyCycle: 500,
       logLevel: 3,
@@ -13,9 +15,10 @@ class Router {
       logPath: '/tmp/adivising.js/log',
       startTime: Date.now(),
     };
-    this.options = Object.assign(defaultOptions, options);
-    this.root = new Node(this.options);
     this.total = 0;
+    this.options = Object.assign(defaultOptions, options);
+    checkLogPath(this.options.logPath);
+    this.root = new Node(this.options);
   }
 
   match(url) {
@@ -24,9 +27,10 @@ class Router {
     const { root, } = this;
     let hash = root;
     let thing;
+    this.total += 1;
+    const { total, } = this;
     paths.forEach((path, index) => {
       if (index === paths.length - 1) {
-        this.total += 1;
         const { total, } = this;
         if (hash.mixture instanceof Mixture) {
           hash = hash.mixture;
@@ -34,13 +38,11 @@ class Router {
         } else {
           thing = hash.get(path, total);
         }
-        thing.match(total);
       } else {
-        const { total, } = this;
-        hash = hash.get(path, total + 1);
+        hash = hash.get(path, total);
       }
     });
-    return thing.getContent();
+    return thing.getContent(total);
   }
 
   add(url, content) {
@@ -50,8 +52,8 @@ class Router {
     const splits = url.split('/');
     const paths = splits.slice(1, splits.length);
     const { root, options, } = this;
-    let beforePath = paths[0];
-    let beforeHash = root;
+    let beforePath;
+    let beforeHash;
     let hash = root;
     paths.forEach((path, index) => {
       if (index === paths.length - 1) {

@@ -11,7 +11,7 @@ function checkMemory(logPath) {
   } else {
     fs.appendFileSync(
       path.join(logPath, dateString),
-      '[Memory] Memory space is exhausted;\n',
+      getGTMDateString() + ' ||  ████ [Memory]: Memory is exhaust. ████ ||\n'
     );
     return false;
   }
@@ -32,28 +32,31 @@ class Node {
     this.options = options;
     this.status = -1;
     this.count = 0;
+    this.number = 0;
     this.rate = 0;
-    this.hash = [];
-    this.childrens = [];
     const { logPath, } = this.options;
     checkLogPath(logPath);
   }
 
   put(key, value) {
     this.checkKey(key);
+    this.number += 1;
+    const { number, } = this;
     const { status, } = this;
-    this.childrens.push([key, value]);
+    if (status === 1 || status === 2 || status === 4 || status === 5) {
+      this.pushChildrens(key, value);
+    }
     switch (status) {
       case 0:
-      case 2: {
-        if (this.hash[key.length - 1] === undefined) {
-          this.hash[key.length - 1] = {};
-        }
-        this.hash[key.length - 1][key] = value;
+      case 3:
+        this.hash[key] = value;
         break;
-      }
       case 1:
-      case 3: {
+      case 4:
+        this.setMiddleHash(key, value);
+        break;
+      case 2:
+      case 5: {
         let root = this.hash;
         const { length, } = key;
         for (let i = 0; i < length; i += 1) {
@@ -67,6 +70,16 @@ class Node {
         break;
       }
     }
+    if (number > this.options.number && (this.status === 0 || this.status === 3)) {
+      this.tweakResetHash();
+    }
+  }
+
+  setMiddleHash(key, value) {
+    if (this.hash[key.length - 1] === undefined) {
+      this.hash[key.length - 1] = {};
+    }
+    this.hash[key.length - 1][key] = value;
   }
 
   checkKey(key) {
@@ -101,18 +114,19 @@ class Node {
         case 0: {
           if (this.status === -1) {
             this.status = 0;
-          } else if (this.status !== 0) {
+            this.hash = {};
+          } else if (this.status !== 0 && this.status !== 1 && this.status !== 2) {
             throw new Error('[Error] This node is pure letters node but content must is letters.');
           }
           break;
         }
         case 1: {
           if (this.status === -1) {
-            this.status = 1;
-          } else if (this.status !== 2) {
-            throw new Error('[Error] This node is pure numbers node,add content must is numbers.');
+            this.status = 3;
+            this.hash = {};
+          } else if (this.status !== 3 && this.status !== 4 && this.status !== 5) {
+            throw new Error('[Error] This node is pure numbers node but content must is numbers.');
           }
-          this.status = 2;
           break;
         }
       }
@@ -209,11 +223,14 @@ class Node {
     const { count, } = this;
     this.rate = count / total;
     const { rate, status, } = this;
-    if ((status === 0 || status === 2) && this.greaterThresholdAndBondAndDutyCycle() && checkMemory(logPath)) {
-      this.expandHash();
+    if ((status === 1 || status === 4) && this.greaterThresholdAndBondAndDutyCycle() && checkMemory(logPath)) {
+      this.expandMiddleHash();
     }
-    if ((status === 1 || status === 3) && this.lessThresholdAndBondAndDutyCycle()) {
-      this.reduceHash();
+    if ((status === 0 || status === 3) && this.greaterThresholdAndBondAndDutyCycle() && checkMemory(logPath)) {
+      this.expandResetHash();
+    }
+    if ((status === 2 || status === 5) && this.lessThresholdAndBondAndDutyCycle()) {
+      this.reduceMiddleHash();
     }
     return this.find(key);
   }
@@ -221,15 +238,18 @@ class Node {
   find(key) {
     switch (this.status) {
       case 0:
-      case 2: {
+      case 3:
+        return this.hash[key];
+      case 1:
+      case 4: {
         if (this.hash && this.hash[key.length - 1] && this.hash[key.length - 1][key]) {
           return this.hash[key.length - 1][key];
         } else {
           return undefined;
         }
       }
-      case 1:
-      case 3: {
+      case 2:
+      case 5: {
         let root = this.hash;
         const { length, } = key;
         for (let i = 0; i < length; i += 1) {
@@ -244,29 +264,66 @@ class Node {
     }
   }
 
-  expandHash() {
+  pushChildrens(key, value) {
+    this.childrens.push([key, value]);
+  }
+
+  tweakResetHash() {
+    const keys = Object.keys(this.hash);
+    const values = keys.map((key) => this.hash[key]);
+    this.hash = [];
+    this.childrens = [];
+    keys.forEach((key, index) => {
+      const value = values[index];
+      this.setMiddleHash(key, value);
+      this.pushChildrens(key, value);
+    });
+    if (this.status === 0) {
+      this.status = 1;
+    } else {
+      this.status = 4;
+    }
+  }
+
+  expandResetHash() {
+    const keys = Object.keys(this.hash);
+    const values = keys.map((key) => this.hash[key]);
+    this.hash = [];
+    this.childrens = [];
+    keys.forEach((key, index) => {
+      const value = values[index];
+      this.setExpandHash(key, value);
+    });
+    if (this.status === 0) {
+      this.status = 2;
+    } else {
+      this.stauts = 5;
+    }
+  }
+
+  expandMiddleHash() {
     this.hash = [];
     this.childrens.forEach((elem) => {
       const [key, value] = elem;
       this.setExpandHash(key, value);
     });
-    if (this.status === 0) {
-      this.status = 1;
+    if (this.status === 1) {
+      this.status = 2;
     } else {
-      this.status = 3;
+      this.status = 5;
     }
   }
 
-  reduceHash() {
+  reduceMiddleHash() {
     this.hash = [];
     this.childrens.forEach((elem) => {
       const [key, value] = elem;
       this.hash[key.length - 1][key] = value;
     });
-    if (this.status === 1) {
-      this.status = 0;
+    if (this.status === 2) {
+      this.status = 1;
     } else {
-      this.status = 2;
+      this.status = 4;
     }
   }
 

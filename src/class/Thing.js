@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import getDateString from '~/lib/getDateString';
-import checkLogPath from '~/lib/checkLogPath';
 
 function getGTMDateString() {
   return new Date().toString();
@@ -15,11 +14,9 @@ class Thing {
     this.content = content;
     this.options = options;
     this.interval = 0;
-    const { logPath, } = this.options;
-    checkLogPath(logPath);
   }
 
-  writeLog(logPath, logLevel) {
+  writeToLog(logPath, logLevel) {
     const { url, } = this;
     const dateString = getDateString();
     switch (logLevel) {
@@ -55,11 +52,12 @@ class Thing {
     const { interval, } = this;
     if (interval === logInterval) {
       this.interval = 0;
-      this.writeLog(logPath, logLevel);
+      this.writeToLog(logPath, logLevel);
     }
   }
 
-  getContent() {
+  getContent(total) {
+    this.match(total);
     return this.content;
   }
 }
