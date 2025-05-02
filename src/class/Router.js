@@ -1,9 +1,9 @@
-import Node from '~/class/Node';
+import Cluster from '~/class/Cluster';
 import Thing from '~/class/Thing';
 import Mixture from '~/class/Mixture';
 import checkLogPath from '~/lib/checkLogPath';
 
-function validateURL(url, operate) {
+function validateUrl(url, operate) {
   if (typeof url !== 'string') {
     throw new Error('[Error] Key type must is string.');
   } else {
@@ -27,12 +27,12 @@ class Router {
     };
     this.total = 0;
     this.options = Object.assign(defaultOptions, options);
-    this.root = new Node(this.options);
+    this.root = new Cluster(this.options);
     checkLogPath(this.options.logPath);
   }
 
   match(url) {
-    validateURL(url);
+    validateUrl(url);
     const splits = url.split('/');
     const paths = splits.slice(1, splits.length);
     const { root, } = this;
@@ -56,7 +56,7 @@ class Router {
   }
 
   add(url, content) {
-    validateURL(url);
+    validateUrl(url);
     const splits = url.split('/');
     const paths = splits.slice(1, splits.length);
     const { root, options, } = this;
@@ -66,7 +66,7 @@ class Router {
     paths.forEach((path, index) => {
       if (index === paths.length - 1) {
         if (hash instanceof Thing) {
-          const node = new Node(options);
+          const node = new Cluster(options);
           const thing = new Thing(url, content, options);
           node.put(path, thing);
           const mixture = new Mixture(node, hash);
@@ -74,21 +74,21 @@ class Router {
           return;
         }
         const entity = hash.find(path);
-        if (entity instanceof Node) {
+        if (entity instanceof Cluster) {
           const thing = new Thing(url, content, options);
           const mixture = new Mixture(hash, thing);
-          hash.changeFromNode(mixture);
+          hash.changeFromCluster(mixture);
         } else {
           const thing = new Thing(url, content, options);
           hash.put(path, thing);
         }
         return;
       } else {
-        if (hash instanceof Node && hash.find(path) === undefined) {
-          hash.put(path, new Node(options));
+        if (hash instanceof Cluster && hash.find(path) === undefined) {
+          hash.put(path, new Cluster(options));
         } else if (hash instanceof Thing)  {
-          const node = new Node(options);
-          node.put(path, new Node(options));
+          const node = new Cluster(options);
+          node.put(path, new Cluster(options));
           const mixture = new Mixture(node, hash);
           beforeHash.changeFromThing(mixture, beforePath);
           hash = node;

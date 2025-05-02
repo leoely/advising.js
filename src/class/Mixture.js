@@ -3,7 +3,7 @@ class Mixture {
     this.hash = [node, thing];
   }
 
-  getNode() {
+  getCluster() {
     return this.hash[0];
   }
 

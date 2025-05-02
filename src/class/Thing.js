@@ -1,13 +1,12 @@
 import fs from 'fs';
 import path from 'path';
+import Node from '~/class/Node';
 import getDateString from '~/lib/getDateString';
+import getGTMDateString from '~/lib/getDateString';
 
-function getGTMDateString() {
-  return new Date().toString();
-}
-
-class Thing {
+class Thing extends Node {
   constructor(url, content, options) {
+    super();
     this.count = 0;
     this.rate = 0;
     this.dutyCycle = 0;
@@ -19,7 +18,6 @@ class Thing {
 
   appendToLog() {
     const {
-      dutyCycle,
       count,
       rate,
       url,
@@ -29,6 +27,7 @@ class Thing {
       },
     } = this;
     const dateString = getDateString();
+    const dutyCycle = this.getDutyCycle();
     switch (logLevel) {
       case 1:
         fs.appendFileSync(
@@ -77,12 +76,6 @@ class Thing {
     }
   }
 
-  setDutyCycle() {
-    const { count, options: { startTime, }, } = this;
-    const now = Date.now();
-    this.dutyCycle = count / ((now - startTime) / 1000 * 60 * 60);
-  }
-
   match(total) {
     this.count += 1
     const { count, } = this;
@@ -98,7 +91,6 @@ class Thing {
       this.interval = 0;
       this.appendToLog();
     }
-    this.setDutyCycle();
   }
 
   getContent(total) {
