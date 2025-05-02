@@ -10,14 +10,24 @@ class Thing {
   constructor(url, content, options) {
     this.count = 0;
     this.rate = 0;
+    this.dutyCycle = 0;
     this.url = url;
     this.content = content;
     this.options = options;
     this.interval = 0;
   }
 
-  writeToLog(logPath, logLevel) {
-    const { url, rate, count, dutyCycle, } = this;
+  appendToLog() {
+    const {
+      dutyCycle,
+      count,
+      rate,
+      url,
+      options: {
+        logLevel,
+        logPath,
+      },
+    } = this;
     const dateString = getDateString();
     switch (logLevel) {
       case 1:
@@ -41,25 +51,25 @@ class Thing {
       case 4:
         fs.appendFileSync(
           path.join(logPath, dateString),
-          getGTMDateString() + ' || ████ Location:'+ url + ' ████  RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n';
+          getGTMDateString() + ' || ████ Location:'+ url + ' ████  RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       case 5:
         fs.appendFileSync(
           path.join(logPath, dateString),
-          getGTMDateString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████  DUTY_CYCLE:' + dutyCycle + ' ████ ||\n';
+          getGTMDateString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████  DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       case 6:
         fs.appendFileSync(
           path.join(logPath, dateString),
-          getGTMDateString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████  ||\n';
+          getGTMDateString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████  ||\n'
         );
         break;
       case 7:
         fs.appendFileSync(
           path.join(logPath, dateString),
-          getGTMDateString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n';
+          getGTMDateString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       default:
@@ -67,17 +77,28 @@ class Thing {
     }
   }
 
+  setDutyCycle() {
+    const { count, options: { startTime, }, } = this;
+    const now = Date.now();
+    this.dutyCycle = count / ((now - startTime) / 1000 * 60 * 60);
+  }
+
   match(total) {
     this.count += 1
     const { count, } = this;
     this.rate = count / total;
-    const { logLevel, logInterval, logPath, } = this.options;
     this.interval += 1;
-    const { interval, } = this;
+    const {
+      interval,
+      options: {
+        logInterval,
+      },
+    } = this;
     if (interval === logInterval) {
       this.interval = 0;
-      this.writeToLog(logPath, logLevel);
+      this.appendToLog();
     }
+    this.setDutyCycle();
   }
 
   getContent(total) {

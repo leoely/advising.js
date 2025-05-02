@@ -8,7 +8,7 @@ describe('[class] Router time complex test case.', () => {
       number: 1,
       bond: 5,
       dutyCycle: 5,
-      logLevel: 3,
+      logLevel: 7,
       logInterval: 5,
       logPath: '/tmp/log/'
     });
@@ -40,7 +40,7 @@ describe('[class] Router time complex test case.', () => {
       number: 1,
       bond: 5,
       dutyCycle: 5,
-      logLevel: 3,
+      logLevel: 7,
       logInterval: 5,
       logPath: '/tmp/log/'
     });
@@ -74,7 +74,7 @@ describe('[class] Router time complex test case.', () => {
       number: 1,
       bond: 5,
       dutyCycle: 5,
-      logLevel: 3,
+      logLevel: 7,
       logInterval: 5,
       logPath: '/tmp/log/'
     });
@@ -94,7 +94,7 @@ describe('[class] Router time complex test case.', () => {
       number: 1,
       bond: 5,
       dutyCycle: 5,
-      logLevel: 3,
+      logLevel: 7,
       logInterval: 5,
       logPath: '/tmp/log/'
     });
@@ -114,7 +114,7 @@ describe('[class] Router time complex test case.', () => {
       number: 1,
       bond: 5,
       dutyCycle: 5,
-      logLevel: 3,
+      logLevel: 7,
       logInterval: 5,
       logPath: '/tmp/log/'
     });
@@ -136,7 +136,7 @@ describe('[class] Router time complex test case.', () => {
       number: 1,
       bond: 5,
       dutyCycle: 5,
-      logLevel: 3,
+      logLevel: 7,
       logInterval: 5,
       logPath: '/tmp/log/'
     });
@@ -176,7 +176,7 @@ describe('[Class] Router space complex case.', () => {
       number: 3,
       bond: 5,
       dutyCycle: 5,
-      logLevel: 3,
+      logLevel: 7,
       logInterval: 5,
       logPath: '/tmp/log/'
     });
@@ -190,7 +190,7 @@ describe('[Class] Router miscellaneous case..', () => {
       number: 1,
       bond: 5,
       dutyCycle: 5,
-      logLevel: 3,
+      logLevel: 7,
       logInterval: 5,
       logPath: '/tmp/log/'
     });
@@ -204,7 +204,7 @@ describe('[Class] Router miscellaneous case..', () => {
       number: 1,
       bond: 5,
       dutyCycle: 5,
-      logLevel: 3,
+      logLevel: 7,
       logInterval: 5,
       logPath: '/tmp/log/'
     });
@@ -218,7 +218,7 @@ describe('[Class] Router miscellaneous case..', () => {
       number: 1,
       bond: 5,
       dutyCycle: 5,
-      logLevel: 3,
+      logLevel: 7,
       logInterval: 5,
       logPath: '/tmp/log/'
     });
@@ -232,7 +232,7 @@ describe('[Class] Router miscellaneous case..', () => {
       number: 1,
       bond: 5,
       dutyCycle: 5,
-      logLevel: 3,
+      logLevel: 7,
       logInterval: 5,
       logPath: '/tmp/log/'
     });
@@ -252,7 +252,7 @@ describe('[Class] Router miscellaneous case..', () => {
       number: 1,
       bond: 5,
       dutyCycle: 5,
-      logLevel: 4,
+      logLevel: 8,
       logInterval: 5,
       logPath: '/tmp/log/'
     });
@@ -261,7 +261,7 @@ describe('[Class] Router miscellaneous case..', () => {
     router.match('/male/john');
     router.match('/male/john');
     router.match('/male/john');
-    expect(() => router.match('/male/john')).toThrow('[Error] LogLevel must in set {1, 2, 3}.');
+    expect(() => router.match('/male/john')).toThrow('[Error] LogLevel must in section [1, 7].');
   });
 
   test('Root path can\'t be operate.', () => {

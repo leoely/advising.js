@@ -3,7 +3,7 @@ import Thing from '~/class/Thing';
 import Mixture from '~/class/Mixture';
 import checkLogPath from '~/lib/checkLogPath';
 
-function URLValidate(url, operate) {
+function validateURL(url, operate) {
   if (typeof url !== 'string') {
     throw new Error('[Error] Key type must is string.');
   } else {
@@ -32,7 +32,7 @@ class Router {
   }
 
   match(url) {
-    URLValidate(url);
+    validateURL(url);
     const splits = url.split('/');
     const paths = splits.slice(1, splits.length);
     const { root, } = this;
@@ -44,8 +44,7 @@ class Router {
       if (index === paths.length - 1) {
         const { total, } = this;
         if (hash.mixture instanceof Mixture) {
-          hash = hash.mixture;
-          thing = hash.getThing();
+          thing = hash.mixture.getThing();
         } else {
           thing = hash.get(path, total);
         }
@@ -57,7 +56,7 @@ class Router {
   }
 
   add(url, content) {
-    URLValidate(url);
+    validateURL(url);
     const splits = url.split('/');
     const paths = splits.slice(1, splits.length);
     const { root, options, } = this;
