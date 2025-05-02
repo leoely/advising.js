@@ -31,13 +31,8 @@ class Router {
     checkLogPath(this.options.logPath);
   }
 
-  static getPathsFromURL(url) {
-    for (let i = 0; i < url.length; i += 1) {
-    }
-  }
-
   match(url) {
-    URLValidate(url, 'match');
+    URLValidate(url);
     const splits = url.split('/');
     const paths = splits.slice(1, splits.length);
     const { root, } = this;
@@ -62,7 +57,7 @@ class Router {
   }
 
   add(url, content) {
-    URLValidate(url, 'add');
+    URLValidate(url);
     const splits = url.split('/');
     const paths = splits.slice(1, splits.length);
     const { root, options, } = this;

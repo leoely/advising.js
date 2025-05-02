@@ -17,29 +17,53 @@ class Thing {
   }
 
   writeToLog(logPath, logLevel) {
-    const { url, } = this;
+    const { url, rate, count, dutyCycle, } = this;
     const dateString = getDateString();
     switch (logLevel) {
       case 1:
         fs.appendFileSync(
           path.join(logPath, dateString),
-          getGTMDateString() + ' ||  ████ Location:'+ url + ' ████ & ████ RATE:' + this.rate + ' ████ || \n'
+          getGTMDateString() + ' ||  ████ Location:'+ url + ' ████ & ████ RATE:' + rate + ' ████ || \n'
         );
         break;
       case 2:
         fs.appendFileSync(
           path.join(logPath, dateString),
-          getGTMDateString() + ' ||  ████ Location:'+ url + ' ████ & ████ COUNT:' + this.count + ' ████ ||\n'
+          getGTMDateString() + ' ||  ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ ||\n'
         );
         break;
       case 3:
         fs.appendFileSync(
           path.join(logPath, dateString),
-          getGTMDateString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + this.count + ' ████ & ████ RATE:' + this.rate + ' ████ ||\n'
+          getGTMDateString() + ' ||  ████ Location:'+ url + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
+        );
+        break;
+      case 4:
+        fs.appendFileSync(
+          path.join(logPath, dateString),
+          getGTMDateString() + ' || ████ Location:'+ url + ' ████  RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n';
+        );
+        break;
+      case 5:
+        fs.appendFileSync(
+          path.join(logPath, dateString),
+          getGTMDateString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████  DUTY_CYCLE:' + dutyCycle + ' ████ ||\n';
+        );
+        break;
+      case 6:
+        fs.appendFileSync(
+          path.join(logPath, dateString),
+          getGTMDateString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████  ||\n';
+        );
+        break;
+      case 7:
+        fs.appendFileSync(
+          path.join(logPath, dateString),
+          getGTMDateString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n';
         );
         break;
       default:
-        throw new Error('[Error] LogLevel must in set {1, 2, 3}.');
+        throw new Error('[Error] LogLevel must in section [1, 7].');
     }
   }
 
