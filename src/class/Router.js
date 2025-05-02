@@ -3,6 +3,16 @@ import Thing from '~/class/Thing';
 import Mixture from '~/class/Mixture';
 import checkLogPath from '~/lib/checkLogPath';
 
+function URLValidate(url, operate) {
+  if (typeof url !== 'string') {
+    throw new Error('[Error] Key type must is string.');
+  } else {
+    if (url === '/') {
+      throw new Error('[Error] Can\'t operate root path.');
+    }
+  }
+}
+
 class Router {
   constructor(options = {}) {
     const defaultOptions = {
@@ -17,11 +27,17 @@ class Router {
     };
     this.total = 0;
     this.options = Object.assign(defaultOptions, options);
-    checkLogPath(this.options.logPath);
     this.root = new Node(this.options);
+    checkLogPath(this.options.logPath);
+  }
+
+  static getPathsFromURL(url) {
+    for (let i = 0; i < url.length; i += 1) {
+    }
   }
 
   match(url) {
+    URLValidate(url, 'match');
     const splits = url.split('/');
     const paths = splits.slice(1, splits.length);
     const { root, } = this;
@@ -46,9 +62,7 @@ class Router {
   }
 
   add(url, content) {
-    if (typeof url !== 'string') {
-      throw new Error('[Error] Key type must is string.');
-    }
+    URLValidate(url, 'add');
     const splits = url.split('/');
     const paths = splits.slice(1, splits.length);
     const { root, options, } = this;

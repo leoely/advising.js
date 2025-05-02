@@ -246,7 +246,7 @@ describe('[Class] Router miscellaneous case..', () => {
     expect(typeof router.options).toMatch('object');
   });
 
-  test('Router logLevel should be setting correct..', () => {
+  test('Router logLevel should be setting correct.', () => {
     const router = new Router({
       threshold: 0.5,
       number: 1,
@@ -262,5 +262,19 @@ describe('[Class] Router miscellaneous case..', () => {
     router.match('/male/john');
     router.match('/male/john');
     expect(() => router.match('/male/john')).toThrow('[Error] LogLevel must in set {1, 2, 3}.');
+  });
+
+  test('Root path can\'t be operate.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 4,
+      logInterval: 5,
+      logPath: '/tmp/log/'
+    });
+    expect(() => router.add('/', { path: '/' })).toThrow('[Error] Can\'t operate root path.');
+    expect(() => router.match('/')).toThrow('[Error] Can\'t operate root path.');
   });
 });
