@@ -239,7 +239,7 @@ class Cluster extends Node {
       case 3:
         return this.hash[key];
       case 1:
-      case 4: {
+      case 4:{
         if (this.hash && this.hash[key.length - 1] && this.hash[key.length - 1][key]) {
           return this.hash[key.length - 1][key];
         } else {

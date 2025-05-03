@@ -53,9 +53,7 @@ class Router {
     const paths = getPathsFromUrl(url);
     this.total += 1;
     const { total, root, } = this;
-    const thing = matchRecursion(root, 0, paths, total);
-    console.log(thing);
-    return thing.getContent();
+    return matchRecursion(root, 0, paths, total).getContent();
   }
 
   add(url, content) {
@@ -72,18 +70,17 @@ class Router {
           cluster.put(path, thing);
           const mixture = new Mixture(cluster, hash);
           beforeHash.changeFromThing(mixture, beforePath);
-          return;
-        }
-        const entity = hash.find(path);
-        if (entity instanceof Cluster) {
-          const thing = new Thing(url, content, options);
-          const mixture = new Mixture(hash, thing);
-          hash.changeFromCluster(mixture);
         } else {
-          const thing = new Thing(url, content, options);
-          hash.put(path, thing);
+          const entity = hash.find(path);
+          if (entity instanceof Cluster) {
+            const thing = new Thing(url, content, options);
+            const mixture = new Mixture(hash, thing);
+            hash.changeFromCluster(mixture);
+          } else {
+            const thing = new Thing(url, content, options);
+            hash.put(path, thing);
+          }
         }
-        return;
       } else {
         if (hash instanceof Cluster && hash.find(path) === undefined) {
           hash.put(path, new Cluster(options));
@@ -94,10 +91,10 @@ class Router {
           beforeHash.changeFromThing(mixture, beforePath);
           hash = cluster;
         }
+        beforeHash = hash;
+        beforePath = path;
+        hash = hash.find(path);
       }
-      beforeHash = hash;
-      beforePath = path;
-      hash = hash.find(path);
     });
   }
 }
