@@ -106,7 +106,7 @@ class Cluster extends Node {
       }
     }
     if (ans === false) {
-      throw new Error('[Error] Key must is pure numbers or pure letters.');
+      throw new Error('[Error] Path must be pure numbers or pure letters.');
     } else {
       switch (flag) {
         case 0: {
@@ -114,7 +114,7 @@ class Cluster extends Node {
             this.status = 0;
             this.hash = {};
           } else if (this.status !== 0 && this.status !== 1 && this.status !== 2) {
-            throw new Error('[Error] This cluster is pure letters cluster but content must is letters.');
+            throw new Error('[Error] Cluster is plain text type but the newly added type is a pure number.');
           }
           break;
         }
@@ -123,7 +123,7 @@ class Cluster extends Node {
             this.status = 3;
             this.hash = {};
           } else if (this.status !== 3 && this.status !== 4 && this.status !== 5) {
-            throw new Error('[Error] This cluster is pure numbers cluster but content must is numbers.');
+            throw new Error('[Error] Cluster is pure numeric type but the newly added is a pure letters.');
           }
           break;
         }
@@ -174,7 +174,7 @@ class Cluster extends Node {
       const { rate, count, } = this;
       return rate >= threshold && count >= bond && this.getDutyCycle() >= dutyCycle;
     }
-    throw Error("Threshold and bond can't is empty together.");
+    throw Error('[Error] Threshold, bond and dutyCycle cannot be empty at the same time.');
   }
 
   lessThresholdAndBondAndDutyCycle() {
@@ -206,7 +206,7 @@ class Cluster extends Node {
       const { rate, count, } = this;
       return rate < threshold && count < bond && this.getDutyCycle() < dutyCycle;
     }
-    throw Error("Threshold and bond can't is empty together.");
+    throw Error('[Error] Threshold, bond and dutyCycle cannot be empty at the same time.');
   }
 
   get(key, total) {

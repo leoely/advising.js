@@ -191,7 +191,7 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
       logInterval: 5,
     });
     router.add('/chaos/letter', { type: 'letters', });
-    expect(() => router.add('/chaos/1', { type: 'numbers', })).toThrow('[Error] This cluster is pure numbers cluster but content must is numbers.');
+    expect(() => router.add('/chaos/1', { type: 'numbers', })).toThrow('[Error] Cluster is pure numeric type but the newly added is a pure letters.');
   });
 
   test('Router path should prevent numbers and letters from coexisting.', () => {
@@ -204,7 +204,7 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
       logInterval: 5,
     });
     router.add('/chaos/1', { type: 'numbers', });
-    expect(() => router.add('/chaos/letter', { type: 'letters', })).toThrow('[Error] This cluster is pure letters cluster but content must is letters.');
+    expect(() => router.add('/chaos/letter', { type: 'letters', })).toThrow('[Error] Cluster is plain text type but the newly added type is a pure number.');
   });
 
   test('Router path should consist of pure numbers or pure letters.', () => {
@@ -216,8 +216,8 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
       logLevel: 7,
       logInterval: 5,
     });
-    expect(() => router.add('/chaos/a1', { type: 'mixture', })).toThrow('[Error] Key must is pure numbers or pure letters.');
-    expect(() => router.add('/chaos/1a', { type: 'mixture', })).toThrow('[Error] Key must is pure numbers or pure letters.');
+    expect(() => router.add('/chaos/a1', { type: 'mixture', })).toThrow('[Error] Path must be pure numbers or pure letters.');
+    expect(() => router.add('/chaos/1a', { type: 'mixture', })).toThrow('[Error] Path must be pure numbers or pure letters.');
   });
 
   test('Router must be a string.', () => {
@@ -229,9 +229,9 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
       logLevel: 7,
       logInterval: 5,
     });
-    expect(() => router.add(11111, { type: 'number', })).toThrow('[Error] Key type must is string.');
-    expect(() => router.add({}, { type: 'object', })).toThrow('[Error] Key type must is string.');
-    expect(() => router.add([], { type: 'array', })).toThrow('[Error] Key type must is string.');
+    expect(() => router.add(11111, { type: 'number', })).toThrow('[Error] Path type must be a string.');
+    expect(() => router.add({}, { type: 'object', })).toThrow('[Error] Path type must be a string.');
+    expect(() => router.add([], { type: 'array', })).toThrow('[Error] Path type must be a string.');
   });
 
   test('Router supports default parameters.', () => {
@@ -265,8 +265,8 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
       logLevel: 4,
       logInterval: 5,
     });
-    expect(() => router.add('/', { path: '/', })).toThrow('[Error] Can\'t operate root path.');
-    expect(() => router.match('/')).toThrow('[Error] Can\'t operate root path.');
+    expect(() => router.add('/', { path: '/', })).toThrow('[Error] Unable to operate the root path.');
+    expect(() => router.match('/')).toThrow('[Error] Unable to operate the root path.');
   });
 
   test('Router url should be parsed correctly.', () => {
@@ -278,7 +278,7 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
       logLevel: 4,
       logInterval: 5,
     });
-    expect(() => router.add('fsadfasdfas', { type: 'letters', })).toThrow('[Error] Url formate is wrong.');
-    expect(() => router.match('fasdfdsa')).toThrow('[Error] Url formate is wrong.');
+    expect(() => router.add('fsadfasdfas', { type: 'letters', })).toThrow('[Error] Path should start with a slash.');
+    expect(() => router.match('fasdfdsa')).toThrow('[Error] Path should start with a slash.');
   });
 });

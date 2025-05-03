@@ -5,15 +5,14 @@ import checkLogPath from '~/lib/checkLogPath';
 
 function getPathsFromUrl(url) {
   if (typeof url !== 'string') {
-    throw new Error('[Error] Key type must is string.');
+    throw new Error('[Error] Path type must be a string.');
   } else {
     if (url === '/') {
-      throw new Error('[Error] Can\'t operate root path.');
+      throw new Error('[Error] Unable to operate the root path.');
     }
   }
-  const error = new Error('[Error] Url formate is wrong.');
   if (url.charAt(0) !== '/') {
-    throw error;
+    throw new Error('[Error] Path should start with a slash.');;
   }
   const paths = [];
   let chars = [];
@@ -28,9 +27,6 @@ function getPathsFromUrl(url) {
   }
   if (chars.length !== 0) {
     paths.push(chars.join(''));
-  }
-  if (paths.length === 0) {
-    throw error;
   }
   return paths;
 }
