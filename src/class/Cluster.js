@@ -13,7 +13,7 @@ function checkMemory(logPath) {
   } else {
     fs.appendFileSync(
       path.join(logPath, dateString),
-      getGTMDateString() + ' ||  ████ [Memory]: Memory is exhausted. ████ ||\n'
+      getGTMDateString() + ' || ████ ❗❗❗❗ @[Memory]: Memory is exhausted. ████ ||\n'
     );
     return false;
   }
@@ -224,10 +224,11 @@ class Cluster extends Node {
       this.expandInitHash();
     }
     if ((status === 2 || status === 5) && this.lessThresholdAndBondAndDutyCycle()) {
-    if (number > this.options.number) {
-      this.reduceMiddleHash();
-    } else {
-      this.reduceInitHash();
+      if (number > this.options.number) {
+        this.reduceMiddleHash();
+      } else {
+        this.reduceInitHash();
+      }
     }
     return this.find(key);
   }
@@ -273,7 +274,6 @@ class Cluster extends Node {
     keys.forEach((key, index) => {
       const value = values[index];
       this.setMiddleHash(key, value);
-      this.pushChildrens(key, value);
     });
     if (this.status === 0) {
       this.status = 1;

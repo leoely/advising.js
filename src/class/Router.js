@@ -14,21 +14,8 @@ function getPathsFromUrl(url) {
   if (url.charAt(0) !== '/') {
     throw new Error('[Error] Path should start with a slash.');;
   }
-  const paths = [];
-  let chars = [];
-  for (let i = 1; i <= url.length; i += 1) {
-    const char = url.charAt(i);
-    if (char === '/') {
-      paths.push(chars.join(''));
-      chars = [];
-    } else {
-      chars.push(char);
-    }
-  }
-  if (chars.length !== 0) {
-    paths.push(chars.join(''));
-  }
-  return paths;
+  const preprocessPaths = url.split('/');
+  return preprocessPaths.slice(1, preprocessPaths.length);
 }
 
 class Router {
