@@ -1,8 +1,8 @@
 import { describe, expect, test, } from '@jest/globals';
 import Router from '~/class/Router';
 
-describe('[class] Router time complex test case.', () => {
-  test('Router match result should be correct.', () => {
+describe('[Class] Router: Time complexity test cases;', () => {
+  test('Router matching result should be correct.', () => {
     const router = new Router({
       threshold: 0.5,
       number: 1,
@@ -10,7 +10,6 @@ describe('[class] Router time complex test case.', () => {
       dutyCycle: 5,
       logLevel: 7,
       logInterval: 5,
-      logPath: '/tmp/log/'
     });
     router.add('/male/john', { name: 'john', age: 22, });
     router.add('/male/robert', { name: 'robert', age: 18, });
@@ -34,7 +33,7 @@ describe('[class] Router time complex test case.', () => {
     expect(JSON.stringify(router.match('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
   });
 
-  test('Router add router after match result should be correct.', () => {
+  test('Router adds results after matching should be correct.', () => {
     const router = new Router({
       threshold: 0.5,
       number: 1,
@@ -42,7 +41,6 @@ describe('[class] Router time complex test case.', () => {
       dutyCycle: 5,
       logLevel: 7,
       logInterval: 5,
-      logPath: '/tmp/log/'
     });
     router.add('/male/john', { name: 'john', age: 22, });
     router.add('/male/robert', { name: 'robert', age: 18, });
@@ -68,7 +66,7 @@ describe('[class] Router time complex test case.', () => {
     expect(JSON.stringify(router.match('/male'))).toMatch('[\"john\",\"robert\",\"david\"]');
   });
 
-  test('Router root mixture generate from thing result should be correct.', () => {
+  test('Router leaf node mixture produces results from thing result should be correct.', () => {
     const router = new Router({
       threshold: 0.5,
       number: 1,
@@ -76,7 +74,6 @@ describe('[class] Router time complex test case.', () => {
       dutyCycle: 5,
       logLevel: 7,
       logInterval: 5,
-      logPath: '/tmp/log/'
     });
     router.add('/male', ['john', 'robert', 'david']);
     router.add('/male/john', { name: 'john', age: 22, });
@@ -88,7 +85,7 @@ describe('[class] Router time complex test case.', () => {
     expect(JSON.stringify(router.match('/male'))).toMatch('[\"john\",\"robert\",\"david\"]');
   });
 
-  test('Router root mixture generate from noderesult should be correct.', () => {
+  test('Router leaf node mixture produces results from cluster should be correct.', () => {
     const router = new Router({
       threshold: 0.5,
       number: 1,
@@ -96,7 +93,6 @@ describe('[class] Router time complex test case.', () => {
       dutyCycle: 5,
       logLevel: 7,
       logInterval: 5,
-      logPath: '/tmp/log/'
     });
     router.add('/male/john', { name: 'john', age: 22, });
     router.add('/male/robert', { name: 'robert', age: 18, });
@@ -108,7 +104,7 @@ describe('[class] Router time complex test case.', () => {
     expect(JSON.stringify(router.match('/male/david'))).toMatch('{\"name\":\"david\",\"age\":40}');
   });
 
-  test('Router middle mixture from node generate result should be correct.', () => {
+  test('Router intermediate node mixture produces resuls should be correct.', () => {
     const router = new Router({
       threshold: 0.5,
       number: 1,
@@ -116,7 +112,6 @@ describe('[class] Router time complex test case.', () => {
       dutyCycle: 5,
       logLevel: 7,
       logInterval: 5,
-      logPath: '/tmp/log/'
     });
     router.add('/country/unitedKingdom/london', { id: 1, name: 'london',});
     router.add('/country/unitedKingdom/england', { id: 2, name: 'england',});
@@ -130,7 +125,7 @@ describe('[class] Router time complex test case.', () => {
     expect(JSON.stringify(router.match('/country'))).toMatch('[\"united kingdom\"]');
   });
 
-  test('Router should support pure numbers and pure letters formate.', () => {
+  test('Router should support pure numbers and pure letters.', () => {
     const router = new Router({
       threshold: 0.1,
       number: 1,
@@ -138,7 +133,6 @@ describe('[class] Router time complex test case.', () => {
       dutyCycle: 5,
       logLevel: 7,
       logInterval: 5,
-      logPath: '/tmp/log/'
     });
     router.add('/male/john', { name: 'john', age: 22, });
     router.add('/male/robert', { name: 'robert', age: 18, });
@@ -169,22 +163,25 @@ describe('[class] Router time complex test case.', () => {
   });
 });
 
-describe('[Class] Router space complex case.', () => {
-  test('Router ', () => {
+describe('[Class] Router: Space complexity test cases;', () => {
+  test('Router initial space is small..', () => {
     const router = new Router({
       threshold: 0.5,
-      number: 3,
+      number: 4,
       bond: 5,
       dutyCycle: 5,
       logLevel: 7,
       logInterval: 5,
-      logPath: '/tmp/log/'
     });
+    router.add('/male/john', { name: 'john', age: 22, });
+    expect(typeof router.root.hash['male']).toMatch('object');
+    expect(typeof router.root.hash['male'].hash['john']).toMatch('object');
+    expect(router.root.hash['male'].childrens).toBe(undefined);
   });
 });
 
-describe('[Class] Router miscellaneous case..', () => {
-  test('Router should prevent include both numbers and letters.', () => {
+describe('[Class] Router: Miscellaneous test cases;', () => {
+  test('Router path should prevent letters and numbers from coexisting.', () => {
     const router = new Router({
       threshold: 0.5,
       number: 1,
@@ -192,13 +189,12 @@ describe('[Class] Router miscellaneous case..', () => {
       dutyCycle: 5,
       logLevel: 7,
       logInterval: 5,
-      logPath: '/tmp/log/'
     });
-    router.add('/chaos/letter', { type: 'letter', });
-    expect(() => router.add('/chaos/1', { type: 'number' })).toThrow('[Error] This node is pure numbers node but content must is numbers.');
+    router.add('/chaos/letter', { type: 'letters', });
+    expect(() => router.add('/chaos/1', { type: 'numbers', })).toThrow('[Error] This cluster is pure numbers cluster but content must is numbers.');
   });
 
-  test('Router should prevent include both numbers and letters.', () => {
+  test('Router path should prevent numbers and letters from coexisting.', () => {
     const router = new Router({
       threshold: 0.5,
       number: 1,
@@ -206,13 +202,12 @@ describe('[Class] Router miscellaneous case..', () => {
       dutyCycle: 5,
       logLevel: 7,
       logInterval: 5,
-      logPath: '/tmp/log/'
     });
-    router.add('/chaos/1', { type: 'number', });
-    expect(() => router.add('/chaos/letter', { type: 'letter' })).toThrow('[Error] This node is pure letters node but content must is letters.');
+    router.add('/chaos/1', { type: 'numbers', });
+    expect(() => router.add('/chaos/letter', { type: 'letters', })).toThrow('[Error] This cluster is pure letters cluster but content must is letters.');
   });
 
-  test('Router key should compose of pure numbers and letters.', () => {
+  test('Router path should consist of pure numbers or pure letters.', () => {
     const router = new Router({
       threshold: 0.5,
       number: 1,
@@ -220,13 +215,12 @@ describe('[Class] Router miscellaneous case..', () => {
       dutyCycle: 5,
       logLevel: 7,
       logInterval: 5,
-      logPath: '/tmp/log/'
     });
-    expect(() => router.add('/chaos/a1', { type: 'numbers' })).toThrow('[Error] Key must is pure numbers or pure letters.');
-    expect(() => router.add('/chaos/1a', { type: 'numbers' })).toThrow('[Error] Key must is pure numbers or pure letters.');
+    expect(() => router.add('/chaos/a1', { type: 'mixture', })).toThrow('[Error] Key must is pure numbers or pure letters.');
+    expect(() => router.add('/chaos/1a', { type: 'mixture', })).toThrow('[Error] Key must is pure numbers or pure letters.');
   });
 
-  test('Router key must is string type.', () => {
+  test('Router must be a string.', () => {
     const router = new Router({
       threshold: 0.5,
       number: 1,
@@ -234,19 +228,18 @@ describe('[Class] Router miscellaneous case..', () => {
       dutyCycle: 5,
       logLevel: 7,
       logInterval: 5,
-      logPath: '/tmp/log/'
     });
-    expect(() => router.add(11111, { type: 'numbers' })).toThrow('[Error] Key type must is string.');
-    expect(() => router.add({}, { type: 'object' })).toThrow('[Error] Key type must is string.');
-    expect(() => router.add([], { type: 'array' })).toThrow('[Error] Key type must is string.');
+    expect(() => router.add(11111, { type: 'number', })).toThrow('[Error] Key type must is string.');
+    expect(() => router.add({}, { type: 'object', })).toThrow('[Error] Key type must is string.');
+    expect(() => router.add([], { type: 'array', })).toThrow('[Error] Key type must is string.');
   });
 
-  test('Router default options should exist.', () => {
+  test('Router supports default parameters.', () => {
     const router = new Router();
     expect(typeof router.options).toMatch('object');
   });
 
-  test('Router logLevel should be setting correct.', () => {
+  test('Router log level must be set correctly.', () => {
     const router = new Router({
       threshold: 0.5,
       number: 1,
@@ -254,7 +247,6 @@ describe('[Class] Router miscellaneous case..', () => {
       dutyCycle: 5,
       logLevel: 8,
       logInterval: 5,
-      logPath: '/tmp/log/'
     });
     router.add('/male/john', { name: 'john', age: 22, });
     router.match('/male/john');
@@ -264,7 +256,7 @@ describe('[Class] Router miscellaneous case..', () => {
     expect(() => router.match('/male/john')).toThrow('[Error] LogLevel must in section [1, 7].');
   });
 
-  test('Root path can\'t be operate.', () => {
+  test('Router root path cannot be manipulated.', () => {
     const router = new Router({
       threshold: 0.5,
       number: 1,
@@ -272,9 +264,21 @@ describe('[Class] Router miscellaneous case..', () => {
       dutyCycle: 5,
       logLevel: 4,
       logInterval: 5,
-      logPath: '/tmp/log/'
     });
-    expect(() => router.add('/', { path: '/' })).toThrow('[Error] Can\'t operate root path.');
+    expect(() => router.add('/', { path: '/', })).toThrow('[Error] Can\'t operate root path.');
     expect(() => router.match('/')).toThrow('[Error] Can\'t operate root path.');
+  });
+
+  test('Router url should be parsed correctly.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 4,
+      logInterval: 5,
+    });
+    expect(() => router.add('fsadfasdfas', { type: 'letters', })).toThrow('[Error] Url formate is wrong.');
+    expect(() => router.match('fasdfdsa')).toThrow('[Error] Url formate is wrong.');
   });
 });

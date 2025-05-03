@@ -1,6 +1,6 @@
 class Mixture {
-  constructor(node, thing) {
-    this.hash = [node, thing];
+  constructor(cluster, thing) {
+    this.hash = [cluster, thing];
   }
 
   getCluster() {

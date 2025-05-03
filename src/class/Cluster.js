@@ -31,14 +31,9 @@ function dealCharCode(code) {
 
 class Cluster extends Node {
   constructor(options) {
-    super();
-    this.options = options;
+    super(options);
     this.status = -1;
-    this.count = 0;
     this.number = 0;
-    this.rate = 0;
-    const { logPath, } = this.options;
-    checkLogPath(logPath);
   }
 
   put(key, value) {
@@ -119,7 +114,7 @@ class Cluster extends Node {
             this.status = 0;
             this.hash = {};
           } else if (this.status !== 0 && this.status !== 1 && this.status !== 2) {
-            throw new Error('[Error] This node is pure letters node but content must is letters.');
+            throw new Error('[Error] This cluster is pure letters cluster but content must is letters.');
           }
           break;
         }
@@ -128,7 +123,7 @@ class Cluster extends Node {
             this.status = 3;
             this.hash = {};
           } else if (this.status !== 3 && this.status !== 4 && this.status !== 5) {
-            throw new Error('[Error] This node is pure numbers node but content must is numbers.');
+            throw new Error('[Error] This cluster is pure numbers cluster but content must is numbers.');
           }
           break;
         }
@@ -137,18 +132,19 @@ class Cluster extends Node {
   }
 
   changeFromCluster(mixture) {
-    const node = mixture.getCluster();
-    this.hash = node.hash;
-    this.childrens = node.childrens;
+    const cluster = mixture.getCluster();
+    this.hash = cluster.hash;
+    this.childrens = cluster.childrens;
     this.mixture = mixture;
   }
 
   changeFromThing(mixture, beforePath) {
-    const node = mixture.getCluster();
-    this.put(beforePath, node);
-    this.childrens = node.childrens;
+    const cluster = mixture.getCluster();
+    this.put(beforePath, cluster);
+    this.childrens = cluster.childrens;
     this.mixture = mixture;
   }
+
   greaterThresholdAndBondAndDutyCycle() {
     const { threshold, bond, dutyCycle, } = this.options;
     if (threshold === undefined && bond !== undefined && dutyCycle !== undefined) {

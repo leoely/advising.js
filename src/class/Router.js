@@ -3,7 +3,7 @@ import Thing from '~/class/Thing';
 import Mixture from '~/class/Mixture';
 import checkLogPath from '~/lib/checkLogPath';
 
-function validateUrl(url, operate) {
+function getPathsFromUrl(url) {
   if (typeof url !== 'string') {
     throw new Error('[Error] Key type must is string.');
   } else {
@@ -11,6 +11,28 @@ function validateUrl(url, operate) {
       throw new Error('[Error] Can\'t operate root path.');
     }
   }
+  const error = new Error('[Error] Url formate is wrong.');
+  if (url.charAt(0) !== '/') {
+    throw error;
+  }
+  const paths = [];
+  let chars = [];
+  for (let i = 1; i <= url.length; i += 1) {
+    const char = url.charAt(i);
+    if (char === '/') {
+      paths.push(chars.join(''));
+      chars = [];
+    } else {
+      chars.push(char);
+    }
+  }
+  if (chars.length !== 0) {
+    paths.push(chars.join(''));
+  }
+  if (paths.length === 0) {
+    throw error;
+  }
+  return paths;
 }
 
 class Router {
@@ -32,9 +54,7 @@ class Router {
   }
 
   match(url) {
-    validateUrl(url);
-    const splits = url.split('/');
-    const paths = splits.slice(1, splits.length);
+    const paths = getPathsFromUrl(url);
     const { root, } = this;
     let hash = root;
     let thing;
@@ -56,9 +76,7 @@ class Router {
   }
 
   add(url, content) {
-    validateUrl(url);
-    const splits = url.split('/');
-    const paths = splits.slice(1, splits.length);
+    const paths = getPathsFromUrl(url);
     const { root, options, } = this;
     let beforePath;
     let beforeHash;
@@ -66,10 +84,10 @@ class Router {
     paths.forEach((path, index) => {
       if (index === paths.length - 1) {
         if (hash instanceof Thing) {
-          const node = new Cluster(options);
+          const cluster = new Cluster(options);
           const thing = new Thing(url, content, options);
-          node.put(path, thing);
-          const mixture = new Mixture(node, hash);
+          cluster.put(path, thing);
+          const mixture = new Mixture(cluster, hash);
           beforeHash.changeFromThing(mixture, beforePath);
           return;
         }
@@ -87,11 +105,11 @@ class Router {
         if (hash instanceof Cluster && hash.find(path) === undefined) {
           hash.put(path, new Cluster(options));
         } else if (hash instanceof Thing)  {
-          const node = new Cluster(options);
-          node.put(path, new Cluster(options));
-          const mixture = new Mixture(node, hash);
+          const cluster = new Cluster(options);
+          cluster.put(path, new Cluster(options));
+          const mixture = new Mixture(cluster, hash);
           beforeHash.changeFromThing(mixture, beforePath);
-          hash = node;
+          hash = cluster;
         }
       }
       beforeHash = hash;

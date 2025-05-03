@@ -2,17 +2,13 @@ import fs from 'fs';
 import path from 'path';
 import Node from '~/class/Node';
 import getDateString from '~/lib/getDateString';
-import getGTMDateString from '~/lib/getDateString';
+import getGTMNowString from '~/lib/getGTMNowString';
 
 class Thing extends Node {
   constructor(url, content, options) {
-    super();
-    this.count = 0;
-    this.rate = 0;
-    this.dutyCycle = 0;
+    super(options);
     this.url = url;
     this.content = content;
-    this.options = options;
     this.interval = 0;
   }
 
@@ -32,43 +28,43 @@ class Thing extends Node {
       case 1:
         fs.appendFileSync(
           path.join(logPath, dateString),
-          getGTMDateString() + ' ||  ████ Location:'+ url + ' ████ & ████ RATE:' + rate + ' ████ || \n'
+          getGTMNowString() + ' ||  ████ Location:'+ url + ' ████ & ████ RATE:' + rate + ' ████ || \n'
         );
         break;
       case 2:
         fs.appendFileSync(
           path.join(logPath, dateString),
-          getGTMDateString() + ' ||  ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ ||\n'
+          getGTMNowString() + ' ||  ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ ||\n'
         );
         break;
       case 3:
         fs.appendFileSync(
           path.join(logPath, dateString),
-          getGTMDateString() + ' ||  ████ Location:'+ url + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
+          getGTMNowString() + ' ||  ████ Location:'+ url + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       case 4:
         fs.appendFileSync(
           path.join(logPath, dateString),
-          getGTMDateString() + ' || ████ Location:'+ url + ' ████  RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
+          getGTMNowString() + ' || ████ Location:'+ url + ' ████  RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       case 5:
         fs.appendFileSync(
           path.join(logPath, dateString),
-          getGTMDateString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████  DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
+          getGTMNowString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████  DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       case 6:
         fs.appendFileSync(
           path.join(logPath, dateString),
-          getGTMDateString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████  ||\n'
+          getGTMNowString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████  ||\n'
         );
         break;
       case 7:
         fs.appendFileSync(
           path.join(logPath, dateString),
-          getGTMDateString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
+          getGTMNowString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       default:
