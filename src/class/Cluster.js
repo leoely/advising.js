@@ -13,7 +13,7 @@ function checkMemory(logPath) {
   } else {
     fs.appendFileSync(
       path.join(logPath, dateString),
-      getGTMDateString() + ' ||  ████ [Memory]: Memory is exhaust. ████ ||\n'
+      getGTMDateString() + ' ||  ████ [Memory]: Memory is exhausted. ████ ||\n'
     );
     return false;
   }
@@ -68,8 +68,10 @@ class Cluster extends Node {
         break;
       }
     }
-    if (number > this.options.number && (this.status === 0 || this.status === 3)) {
-      this.tweakResetHash();
+    if (number > this.options.number) {
+      if (this.status === 0 || this.status === 3) {
+        this.tweakInitHash();
+      }
     }
   }
 
@@ -219,10 +221,13 @@ class Cluster extends Node {
       this.expandMiddleHash();
     }
     if ((status === 0 || status === 3) && this.greaterThresholdAndBondAndDutyCycle() && checkMemory(logPath)) {
-      this.expandResetHash();
+      this.expandInitHash();
     }
     if ((status === 2 || status === 5) && this.lessThresholdAndBondAndDutyCycle()) {
+    if (number > this.options.number) {
       this.reduceMiddleHash();
+    } else {
+      this.reduceInitHash();
     }
     return this.find(key);
   }
@@ -260,7 +265,7 @@ class Cluster extends Node {
     this.childrens.push([key, value]);
   }
 
-  tweakResetHash() {
+  tweakInitHash() {
     const keys = Object.keys(this.hash);
     const values = keys.map((key) => this.hash[key]);
     this.hash = [];
@@ -277,7 +282,7 @@ class Cluster extends Node {
     }
   }
 
-  expandResetHash() {
+  expandInitHash() {
     const keys = Object.keys(this.hash);
     const values = keys.map((key) => this.hash[key]);
     this.hash = [];
@@ -285,6 +290,7 @@ class Cluster extends Node {
     keys.forEach((key, index) => {
       const value = values[index];
       this.setExpandHash(key, value);
+      this.pushChildrens(key, value);
     });
     if (this.status === 0) {
       this.status = 2;
@@ -312,10 +318,22 @@ class Cluster extends Node {
       const [key, value] = elem;
       this.hash[key.length - 1][key] = value;
     });
-    if (this.status === 2) {
-      this.status = 1;
-    } else {
+    if (this.status === 5) {
       this.status = 4;
+    } else {
+      this.status = 1;
+    }
+  }
+
+  reduceMiddleHash() {
+    this.hash = {};
+    this.childrens.forEach((elem) => {
+      this.hash[key] = value;
+    });
+    if (this.status === 5) {
+      this.status = 3;
+    } else {
+      this.status = 0;
     }
   }
 
