@@ -18,6 +18,19 @@ function getPathsFromUrl(url) {
   return preprocessPaths.slice(1, preprocessPaths.length);
 }
 
+function matchRecursion(hash, index, paths, total) {
+  const path = paths[index];
+  if (index === paths.length - 1) {
+    if (hash.mixture instanceof Mixture) {
+      return hash.mixture.getThing();
+    } else {
+      return hash.get(path, total);
+    }
+  } else {
+    return matchRecursion(hash.get(path, total), index + 1, paths, total);
+  }
+}
+
 class Router {
   constructor(options = {}) {
     const defaultOptions = {
@@ -38,24 +51,11 @@ class Router {
 
   match(url) {
     const paths = getPathsFromUrl(url);
-    const { root, } = this;
-    let hash = root;
-    let thing;
     this.total += 1;
-    const { total, } = this;
-    paths.forEach((path, index) => {
-      if (index === paths.length - 1) {
-        const { total, } = this;
-        if (hash.mixture instanceof Mixture) {
-          thing = hash.mixture.getThing();
-        } else {
-          thing = hash.get(path, total);
-        }
-      } else {
-        hash = hash.get(path, total);
-      }
-    });
-    return thing.getContent(total);
+    const { total, root, } = this;
+    const thing = matchRecursion(root, 0, paths, total);
+    console.log(thing);
+    return thing.getContent();
   }
 
   add(url, content) {
