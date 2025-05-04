@@ -31,6 +31,40 @@ function matchRecursion(hash, index, paths, total) {
   }
 }
 
+function addRecursion(hash, index, paths, options, thing, beforePath, beforeHash) {
+  const path = paths[index];
+  const { length, } = paths;
+  if (index === length - 1) {
+    if (hash instanceof Thing) {
+      const cluster = new Cluster(options);
+      cluster.put(path, thing);
+      const mixture = new Mixture(cluster, hash);
+      beforeHash.changeFromThing(mixture, beforePath);
+    } else {
+      const node = hash.find(path);
+      if (node instanceof Cluster) {
+        const mixture = new Mixture(hash, thing);
+        hash.changeFromCluster(mixture);
+      } else {
+        hash.put(path, thing);
+      }
+    }
+  } else {
+    if (hash instanceof Cluster && hash.find(path) === undefined) {
+      hash.put(path, new Cluster(options));
+    } else if (hash instanceof Thing)  {
+      const cluster = new Cluster(options);
+      cluster.put(path, new Cluster(options));
+      const mixture = new Mixture(cluster, hash);
+      beforeHash.changeFromThing(mixture, beforePath);
+      hash = cluster;
+    }
+    addRecursion(
+      hash.find(path), index + 1, paths, options, thing, path, hash
+    );
+  }
+}
+
 class Router {
   constructor(options = {}) {
     const defaultOptions = {
@@ -59,43 +93,8 @@ class Router {
   add(url, content) {
     const paths = getPathsFromUrl(url);
     const { root, options, } = this;
-    let beforePath;
-    let beforeHash;
-    let hash = root;
-    paths.forEach((path, index) => {
-      if (index === paths.length - 1) {
-        if (hash instanceof Thing) {
-          const cluster = new Cluster(options);
-          const thing = new Thing(url, content, options);
-          cluster.put(path, thing);
-          const mixture = new Mixture(cluster, hash);
-          beforeHash.changeFromThing(mixture, beforePath);
-        } else {
-          const entity = hash.find(path);
-          if (entity instanceof Cluster) {
-            const thing = new Thing(url, content, options);
-            const mixture = new Mixture(hash, thing);
-            hash.changeFromCluster(mixture);
-          } else {
-            const thing = new Thing(url, content, options);
-            hash.put(path, thing);
-          }
-        }
-      } else {
-        if (hash instanceof Cluster && hash.find(path) === undefined) {
-          hash.put(path, new Cluster(options));
-        } else if (hash instanceof Thing)  {
-          const cluster = new Cluster(options);
-          cluster.put(path, new Cluster(options));
-          const mixture = new Mixture(cluster, hash);
-          beforeHash.changeFromThing(mixture, beforePath);
-          hash = cluster;
-        }
-        beforeHash = hash;
-        beforePath = path;
-        hash = hash.find(path);
-      }
-    });
+    const thing = new Thing(url, content, options);
+    addRecursion(root, 0, paths, options, thing);
   }
 }
 
