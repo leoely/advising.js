@@ -18,50 +18,55 @@ function getPathsFromUrl(url) {
   return preprocessPaths.slice(1, preprocessPaths.length);
 }
 
-function matchRecursion(hash, index, paths, total) {
+function matchRecursion(node, index, paths, total) {
   const path = paths[index];
   if (index === paths.length - 1) {
-    if (hash.mixture instanceof Mixture) {
-      return hash.mixture.getThing();
+    if (node.mixture instanceof Mixture) {
+      return node.mixture.getThing();
     } else {
-      return hash.get(path, total);
+      return node.get(path, total);
     }
   } else {
-    return matchRecursion(hash.get(path, total), index + 1, paths, total);
+    return matchRecursion(node.get(path, total), index + 1, paths, total);
   }
 }
 
-function addRecursion(hash, index, paths, options, thing, beforePath, beforeHash) {
+function blendFromThing(node, path, thing, options, beforePath, beforeNode) {
+  const cluster = new Cluster(options);
+  cluster.put(path, thing);
+  const mixture = new Mixture(cluster, node);
+  beforeNode.changeFromThing(mixture, beforePath);
+  return cluster;
+}
+
+function addRecursion(node, index, paths, options, thing, beforePath, beforeNode) {
   const path = paths[index];
-  const { length, } = paths;
-  if (index === length - 1) {
-    if (hash instanceof Thing) {
-      const cluster = new Cluster(options);
-      cluster.put(path, thing);
-      const mixture = new Mixture(cluster, hash);
-      beforeHash.changeFromThing(mixture, beforePath);
+  if (index === paths.length - 1) {
+    if (node instanceof Thing) {
+      blendFromThing(node, path, thing, options, beforePath, beforeNode);
     } else {
-      const node = hash.find(path);
-      if (node instanceof Cluster) {
-        const mixture = new Mixture(hash, thing);
-        hash.changeFromCluster(mixture);
+      if (node.find(path) instanceof Cluster) {
+        node.changeFromCluster(new Mixture(node, thing));
       } else {
-        hash.put(path, thing);
+        node.put(path, thing);
       }
     }
   } else {
-    if (hash instanceof Cluster && hash.find(path) === undefined) {
-      hash.put(path, new Cluster(options));
-    } else if (hash instanceof Thing)  {
-      const cluster = new Cluster(options);
-      cluster.put(path, new Cluster(options));
-      const mixture = new Mixture(cluster, hash);
-      beforeHash.changeFromThing(mixture, beforePath);
-      hash = cluster;
+    if (node instanceof Cluster && node.find(path) === undefined) {
+      node.put(path, new Cluster(options));
+      addRecursion(
+        node.find(path), index + 1, paths, options, thing, path, node
+      );
+    } else if (node instanceof Thing)  {
+      const cluster = blendFromThing(node, path, thing, options, beforePath, beforeNode);
+      addRecursion(
+        cluster.find(path), index + 1, paths, options, thing, path, node
+      );
+    } else {
+      addRecursion(
+        node.find(path), index + 1, paths, options, thing, path, node
+      );
     }
-    addRecursion(
-      hash.find(path), index + 1, paths, options, thing, path, hash
-    );
   }
 }
 
