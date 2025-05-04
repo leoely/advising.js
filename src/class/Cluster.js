@@ -263,6 +263,10 @@ class Cluster extends Node {
   }
 
   pushChildrens(key, value) {
+    const { childrens, } = this;
+    if (childrens === undefined) {
+      this.childrens = [];
+    }
     this.childrens.push([key, value]);
   }
 
@@ -270,10 +274,10 @@ class Cluster extends Node {
     const keys = Object.keys(this.hash);
     const values = keys.map((key) => this.hash[key]);
     this.hash = [];
-    this.childrens = [];
     keys.forEach((key, index) => {
       const value = values[index];
       this.setMiddleHash(key, value);
+      this.pushChildrens(key, value);
     });
     if (this.status === 0) {
       this.status = 1;
