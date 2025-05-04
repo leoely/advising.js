@@ -198,7 +198,7 @@ class Cluster extends Node {
     }
     if (threshold === undefined && bond !== undefined && dutyCycle === undefined) {
       const { rate, count, } = this;
-      return threshold < threshold && this.getDutyCycle() < dutyCycle;
+      return rate < threshold && this.getDutyCycle() < dutyCycle;
     }
     if (threshold === undefined && bond === undefined && dutyCycle !== undefined) {
       const { rate, count, } = this;
@@ -224,6 +224,7 @@ class Cluster extends Node {
       this.expandInitHash();
     }
     if ((status === 2 || status === 5) && this.lessThresholdAndBondAndDutyCycle()) {
+      const { number, } = this;
       if (number > this.options.number) {
         this.reduceMiddleHash();
       } else {
@@ -320,6 +321,9 @@ class Cluster extends Node {
     this.hash = [];
     this.childrens.forEach((elem) => {
       const [key, value] = elem;
+      if (this.hash[key.length - 1] === undefined) {
+        this.hash[key.length - 1] = {};
+      }
       this.hash[key.length - 1][key] = value;
     });
     if (this.status === 5) {
@@ -329,9 +333,10 @@ class Cluster extends Node {
     }
   }
 
-  reduceMiddleHash() {
+  reduceInitHash() {
     this.hash = {};
     this.childrens.forEach((elem) => {
+      const [key, value] = elem;
       this.hash[key] = value;
     });
     if (this.status === 5) {

@@ -164,7 +164,7 @@ describe('[Class] Router: Time complexity test cases;', () => {
 });
 
 describe('[Class] Router: Space complexity test cases;', () => {
-  test('Router initial space is small..', () => {
+  test('Router initial space is small.', () => {
     const router = new Router({
       threshold: 0.5,
       number: 4,
@@ -177,6 +177,64 @@ describe('[Class] Router: Space complexity test cases;', () => {
     expect(typeof router.root.hash['male']).toMatch('object');
     expect(typeof router.root.hash['male'].hash['john']).toMatch('object');
     expect(router.root.hash['male'].childrens).toBe(undefined);
+  });
+
+  test('Router is reduced to the initial hash should be correct.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 2,
+      bond: undefined,
+      dutyCycle: undefined,
+      logLevel: 7,
+      logInterval: 5,
+    });
+    router.add('/male/programmer/john', { name: 'john', age: 22, });
+    router.add('/male/hardwareEngineer/robert', { name: 'robert', age: 18, });
+    expect(JSON.stringify(router.match('/male/programmer/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/programmer/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
+    expect(typeof router.root.get('male').get('programmer').hash).toMatch('object');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+  });
+
+  test('Router is reduced to middle hash should be correct.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 0,
+      bond: undefined,
+      dutyCycle: undefined,
+      logLevel: 7,
+      logInterval: 5,
+    });
+    router.add('/male/programmer/john', { name: 'john', age: 22, });
+    router.add('/male/hardwareEngineer/robert', { name: 'robert', age: 18, });
+    expect(JSON.stringify(router.match('/male/programmer/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/programmer/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
+    expect(Array.isArray(router.root.get('male').get('programmer').hash)).toBe(true);
+    expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
   });
 });
 
