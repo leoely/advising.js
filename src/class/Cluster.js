@@ -79,8 +79,7 @@ class Cluster extends Node {
     if (this.find(key) === undefined) {
       throw new Error('[Error] Delete router does not exist.');
     } else {
-      this.number += 1;
-      const { number, } = this;
+      this.number -= 1;
       const { status, } = this;
       if (status === 1 || status === 2 || status === 4 || status === 5) {
         this.removeChildrens(key);
@@ -113,6 +112,7 @@ class Cluster extends Node {
           break;
         }
       }
+      const { number, } = this;
       if (number < this.options.number) {
         if (this.status === 1 || this.status === 4) {
           this.removeMiddleHash();
@@ -272,9 +272,6 @@ class Cluster extends Node {
   }
 
   get(key, total) {
-    if (typeof key !== 'string') {
-      throw new Error('[Error] Cluster acquisition method needs to pass string type paramter total.');
-    }
     if (typeof total !== 'number') {
       throw new Error('[Error] Cluster acquisition method needs to pass numeric type paramter total.');
     }

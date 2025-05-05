@@ -256,7 +256,7 @@ describe('[Class] Router: Space complexity test cases;', () => {
     expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
   });
 
-  test('Router reduction route should be correct.', () => {
+  test('Router delete route should be correct.', () => {
     const router = new Router({
       threshold: 0.5,
       number: 4,
@@ -274,6 +274,27 @@ describe('[Class] Router: Space complexity test cases;', () => {
     router.delete('/male/john');
     router.delete('/male/robert');
     router.delete('/male/david');
+    expect(() => router.match('/male/john')).toThrow('[Error] Router matching the url does not exist.');
+    expect(() => router.match('/male/robert')).toThrow('[Error] Router matching the url does not exist.');
+    expect(() => router.match('/male/david')).toThrow('[Error] Router matching the url does not exist.');
+  });
+
+  test('Router delete all routes should be correct.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 4,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 7,
+      logInterval: 5,
+    });
+    router.add('/male/john', { name: 'john', age: 22, });
+    router.add('/male/robert', { name: 'robert', age: 18, });
+    router.add('/male/david', { name: 'david', age: 40, });
+    expect(JSON.stringify(router.match('/male/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
+    expect(JSON.stringify(router.match('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/david'))).toMatch('{\"name\":\"david\",\"age\":40}');
+    router.deleteAll(['/male/john', '/male/robert', '/male/david']);
     expect(() => router.match('/male/john')).toThrow('[Error] Router matching the url does not exist.');
     expect(() => router.match('/male/robert')).toThrow('[Error] Router matching the url does not exist.');
     expect(() => router.match('/male/david')).toThrow('[Error] Router matching the url does not exist.');

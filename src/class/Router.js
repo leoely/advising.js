@@ -97,8 +97,56 @@ class Router {
     };
     this.total = 0;
     this.options = Object.assign(defaultOptions, options);
+    this.checkOptions();
     this.root = new Cluster(this.options);
     checkLogPath(this.options.logPath);
+  }
+
+  checkOptions() {
+    const {
+      threshold,
+      number,
+      bond,
+      dutyCycle,
+      logLevel,
+      logInterval,
+      logPath,
+    } = this.options;
+    if (threshold !== undefined) {
+      if (typeof threshold !== 'number') {
+        throw new Error('[Error] Router option threshold must be a numeric type or undefined.');
+      }
+    }
+    if (number !== undefined) {
+      if (typeof number !== 'number') {
+        throw new Error('[Error] Router option number must be a numeric type or undefined.');
+      }
+    }
+    if (bond !== undefined) {
+      if (typeof bond !== 'number') {
+        throw new Error('[Error] Router option bond must be a numeric type or undefined.');
+      }
+    }
+    if (dutyCycle !== undefined) {
+      if (typeof dutyCycle !== 'number') {
+        throw new Error('[Error] Router option dutyCycle must be a numeric type or undefined.');
+      }
+    }
+    if (logLevel !== undefined) {
+      if (typeof logLevel !== 'number') {
+        throw new Error('[Error] Router option logLevel must be a numeric type or undefined.');
+      }
+    }
+    if (logInterval !== undefined) {
+      if (typeof logInterval  !== 'number') {
+        throw new Error('[Error] Router option logLevel must be a numeric type or undefined.');
+      }
+    }
+    if (logPath !== undefined) {
+      if (typeof logPath !== 'string') {
+        throw new Error('[Error] Router option logPath must be a string type or undefined.');
+      }
+    }
   }
 
   match(url) {
