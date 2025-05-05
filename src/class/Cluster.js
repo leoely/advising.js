@@ -51,7 +51,7 @@ class Cluster extends Node {
         break;
       case 1:
       case 4:
-        this.setMiddleHash(key, value);
+        this.addMiddleHash(key, value);
         break;
       case 2:
       case 5: {
@@ -68,18 +68,74 @@ class Cluster extends Node {
         break;
       }
     }
-    if (number > this.options.number) {
+    if (number >= this.options.number) {
       if (this.status === 0 || this.status === 3) {
-        this.tweakInitHash();
+        this.addInitHash();
       }
     }
   }
 
-  setMiddleHash(key, value) {
-    if (this.hash[key.length - 1] === undefined) {
-      this.hash[key.length - 1] = {};
+  delete(key) {
+    if (this.find(key) === undefined) {
+      throw new Error('[Error] Delete router does not exist.');
+    } else {
+      this.number += 1;
+      const { number, } = this;
+      const { status, } = this;
+      if (status === 1 || status === 2 || status === 4 || status === 5) {
+        this.removeChildrens(key);
+      }
+      switch (status) {
+        case 0:
+        case 3:
+          delete this.hash[key];
+          break;
+        case 1:
+        case 4:
+          this.removeMiddleHash(key, value);
+          break;
+        case 2:
+        case 5: {
+          let root = this.hash;
+          let beforeRoot;
+          const { length, } = key;
+          for (let i = 0; i < length; i += 1) {
+            const code = key.charCodeAt(i);
+            if (i === length - 1) {
+              delete root[dealCharCode(code)];
+            } else {
+              beforeRoot = root;
+              const index = dealCharCode(code);
+              root = root[index];
+              delete root[index];
+            }
+          }
+          break;
+        }
+      }
+      if (number < this.options.number) {
+        if (this.status === 1 || this.status === 4) {
+          this.removeMiddleHash();
+        }
+      }
     }
-    this.hash[key.length - 1][key] = value;
+  }
+
+  addMiddleHash(key, value) {
+    const index = key.length - 1;
+    if (this.hash[index] === undefined) {
+      this.hash[index] = {};
+    }
+    this.hash[index][key] = value;
+  }
+
+  removeMiddleHash(key) {
+    const index = key.length - 1;
+    const objectHash = this.hash[index];
+    delete objectHash[key];
+    if (Object.keys(objectHash).length === 0) {
+      delete this.hash[index];
+    }
   }
 
   checkKey(key) {
@@ -133,18 +189,22 @@ class Cluster extends Node {
     }
   }
 
-  changeFromCluster(mixture) {
+  blendFromCluster(mixture) {
     const cluster = mixture.getCluster();
     this.hash = cluster.hash;
     this.childrens = cluster.childrens;
     this.mixture = mixture;
   }
 
-  changeFromThing(mixture, beforePath) {
+  blendFromThing(mixture, beforePath) {
     const cluster = mixture.getCluster();
     this.put(beforePath, cluster);
     this.childrens = cluster.childrens;
     this.mixture = mixture;
+  }
+
+  extractToCluster() {
+    this.mixtrue = undefined;
   }
 
   greaterThresholdAndBondAndDutyCycle() {
@@ -176,7 +236,7 @@ class Cluster extends Node {
       const { rate, count, } = this;
       return rate >= threshold && count >= bond && this.getDutyCycle() >= dutyCycle;
     }
-    throw Error('[Error] Threshold, bond and dutyCycle cannot be empty at the same time.');
+    throw new Error('[Error] Threshold, bond and dutyCycle cannot be empty at the same time.');
   }
 
   lessThresholdAndBondAndDutyCycle() {
@@ -208,10 +268,16 @@ class Cluster extends Node {
       const { rate, count, } = this;
       return rate < threshold && count < bond && this.getDutyCycle() < dutyCycle;
     }
-    throw Error('[Error] Threshold, bond and dutyCycle cannot be empty at the same time.');
+    throw new Error('[Error] Threshold, bond and dutyCycle cannot be empty at the same time.');
   }
 
   get(key, total) {
+    if (typeof key !== 'string') {
+      throw new Error('[Error] Cluster acquisition method needs to pass string type paramter total.');
+    }
+    if (typeof total !== 'number') {
+      throw new Error('[Error] Cluster acquisition method needs to pass numeric type paramter total.');
+    }
     this.count += 1;
     const { threshold, bond, logPath, } = this.options;
     const { count, } = this;
@@ -256,9 +322,24 @@ class Cluster extends Node {
           if (i === length - 1) {
             return root[dealCharCode(code)];
           } else {
-            root = root[dealCharCode(code)];
+            if (!Array.isArray(root)) {
+              return undefined;
+            } else {
+              root = root[dealCharCode(code)];
+            }
           }
         }
+      }
+    }
+  }
+
+  removeChildrens(key) {
+    const { childrens, } = this;
+    for (let i = 0; i < childrens.length; i += 1) {
+      const [k] = childrens[i];
+      if (kj === key) {
+        childrens.splice(i, 1);
+        break;
       }
     }
   }
@@ -271,19 +352,34 @@ class Cluster extends Node {
     this.childrens.push([key, value]);
   }
 
-  tweakInitHash() {
+  addInitHash() {
     const keys = Object.keys(this.hash);
     const values = keys.map((key) => this.hash[key]);
     this.hash = [];
     keys.forEach((key, index) => {
       const value = values[index];
-      this.setMiddleHash(key, value);
+      this.addMiddleHash(key, value);
       this.pushChildrens(key, value);
     });
     if (this.status === 0) {
       this.status = 1;
     } else {
       this.status = 4;
+    }
+  }
+
+  removeMiddleHash() {
+    const { childrens, } = this;
+    this.hash = {};
+    childrens.forEach((children) => {
+      const [key, value] = children;
+      this.hash[key] = value;
+    });
+    delete this.childrens;
+    if (this.status === 1) {
+      this.status = 0;
+    } else {
+      this.status = 3;
     }
   }
 
@@ -306,8 +402,8 @@ class Cluster extends Node {
 
   expandMiddleHash() {
     this.hash = [];
-    this.childrens.forEach((elem) => {
-      const [key, value] = elem;
+    this.childrens.forEach((children) => {
+      const [key, value] = children;
       this.setExpandHash(key, value);
     });
     if (this.status === 1) {

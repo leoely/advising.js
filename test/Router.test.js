@@ -104,7 +104,26 @@ describe('[Class] Router: Time complexity test cases;', () => {
     expect(JSON.stringify(router.match('/male/david'))).toMatch('{\"name\":\"david\",\"age\":40}');
   });
 
-  test('Router intermediate node mixture produces resuls should be correct.', () => {
+  test('Router matching containing the mixture should be correct.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 7,
+      logInterval: 5,
+    });
+    router.add('/male/programmer/john', { name: 'john', age: 22, });
+    router.add('/male/programmer/robert', { name: 'robert', age: 18, });
+    router.add('/male/programmer/david', { name: 'david', age: 40, });
+    router.add('/male/programmer', ['john', 'robert', 'david']);
+    expect(JSON.stringify(router.match('/male/programmer'))).toMatch('[\"john\",\"robert\",\"david\"]');
+    expect(JSON.stringify(router.match('/male/programmer/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
+    expect(JSON.stringify(router.match('/male/programmer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/programmer/david'))).toMatch('{\"name\":\"david\",\"age\":40}');
+  });
+
+  test('Router intermediate node mixture produces resuls should be correct.', () => { //const router = new Router({
     const router = new Router({
       threshold: 0.5,
       number: 1,
@@ -204,7 +223,7 @@ describe('[Class] Router: Space complexity test cases;', () => {
     expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(router.match('/male/programmer/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
-    expect(typeof router.root.get('male').get('programmer').hash).toMatch('object');
+    expect(typeof router.root.find('male').find('programmer').hash).toMatch('object');
     expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
   });
 
@@ -233,8 +252,31 @@ describe('[Class] Router: Space complexity test cases;', () => {
     expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(router.match('/male/programmer/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
-    expect(Array.isArray(router.root.get('male').get('programmer').hash)).toBe(true);
+    expect(Array.isArray(router.root.find('male').find('programmer').hash)).toBe(true);
     expect(JSON.stringify(router.match('/male/hardwareEngineer/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+  });
+
+  test('Router reduction route should be correct.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 4,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 7,
+      logInterval: 5,
+    });
+    router.add('/male/john', { name: 'john', age: 22, });
+    router.add('/male/robert', { name: 'robert', age: 18, });
+    router.add('/male/david', { name: 'david', age: 40, });
+    expect(JSON.stringify(router.match('/male/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
+    expect(JSON.stringify(router.match('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(router.match('/male/david'))).toMatch('{\"name\":\"david\",\"age\":40}');
+    router.delete('/male/john');
+    router.delete('/male/robert');
+    router.delete('/male/david');
+    expect(() => router.match('/male/john')).toThrow('[Error] Router matching the url does not exist.');
+    expect(() => router.match('/male/robert')).toThrow('[Error] Router matching the url does not exist.');
+    expect(() => router.match('/male/david')).toThrow('[Error] Router matching the url does not exist.');
   });
 });
 

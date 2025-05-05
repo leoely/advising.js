@@ -35,7 +35,7 @@ function blendFromThing(node, path, thing, options, beforePath, beforeNode) {
   const cluster = new Cluster(options);
   cluster.put(path, thing);
   const mixture = new Mixture(cluster, node);
-  beforeNode.changeFromThing(mixture, beforePath);
+  beforeNode.blendFromThing(mixture, beforePath);
   return cluster;
 }
 
@@ -46,7 +46,7 @@ function addRecursion(node, index, paths, options, thing, beforePath, beforeNode
       blendFromThing(node, path, thing, options, beforePath, beforeNode);
     } else {
       if (node.find(path) instanceof Cluster) {
-        node.changeFromCluster(new Mixture(node, thing));
+        node.blendFromCluster(new Mixture(node, thing));
       } else {
         node.put(path, thing);
       }
@@ -67,6 +67,19 @@ function addRecursion(node, index, paths, options, thing, beforePath, beforeNode
         node.find(path), index + 1, paths, options, thing, path, node
       );
     }
+  }
+}
+
+function deleteRecursion(node, index, paths) {
+  const path = paths[index];
+  if (index === paths.length - 1) {
+    if (node.mixture instanceof Mixture) {
+      node.extractToCluster();
+    } else {
+      node.delete(path);
+    }
+  } else {
+    deleteRecursion(node.find(path), index + 1, paths);
   }
 }
 
@@ -92,7 +105,12 @@ class Router {
     const paths = getPathsFromUrl(url);
     this.total += 1;
     const { total, root, } = this;
-    return matchRecursion(root, 0, paths, total).getContent();
+    const thing = matchRecursion(root, 0, paths, total);
+    if (thing === undefined) {
+      throw Error('[Error] Router matching the url does not exist.');
+    } else {
+      return thing.getContent();
+    }
   }
 
   add(url, content) {
@@ -100,6 +118,18 @@ class Router {
     const { root, options, } = this;
     const thing = new Thing(url, content, options);
     addRecursion(root, 0, paths, options, thing);
+  }
+
+  delete(url) {
+    const paths = getPathsFromUrl(url);
+    const { root, } = this;
+    deleteRecursion(root, 0, paths);
+  }
+
+  deleteAll(urls) {
+    urls.forEach((url) => {
+      this.delete(url);
+    });
   }
 }
 
