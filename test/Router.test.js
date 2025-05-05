@@ -273,10 +273,11 @@ describe('[Class] Router: Space complexity test cases;', () => {
     expect(JSON.stringify(router.match('/male/david'))).toMatch('{\"name\":\"david\",\"age\":40}');
     router.delete('/male/john');
     router.delete('/male/robert');
-    router.delete('/male/david');
     expect(() => router.match('/male/john')).toThrow('[Error] Router matching the url does not exist.');
     expect(() => router.match('/male/robert')).toThrow('[Error] Router matching the url does not exist.');
-    expect(() => router.match('/male/david')).toThrow('[Error] Router matching the url does not exist.');
+    router.delete('/male/david');
+    console.log(router.root);
+    expect(() => router.match('/male/david')).toThrow('[Error] Cluster hash is empty,please add a route first.');
   });
 
   test('Router delete all routes should be correct.', () => {
@@ -295,9 +296,9 @@ describe('[Class] Router: Space complexity test cases;', () => {
     expect(JSON.stringify(router.match('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(router.match('/male/david'))).toMatch('{\"name\":\"david\",\"age\":40}');
     router.deleteAll(['/male/john', '/male/robert', '/male/david']);
-    expect(() => router.match('/male/john')).toThrow('[Error] Router matching the url does not exist.');
-    expect(() => router.match('/male/robert')).toThrow('[Error] Router matching the url does not exist.');
-    expect(() => router.match('/male/david')).toThrow('[Error] Router matching the url does not exist.');
+    expect(() => router.match('/male/john')).toThrow('[Error] Cluster hash is empty,please add a route first.');
+    expect(() => router.match('/male/robert')).toThrow('[Error] Cluster hash is empty,please add a route first.');
+    expect(() => router.match('/male/david')).toThrow('[Error] Cluster hash is empty,please add a route first.');
   });
 });
 

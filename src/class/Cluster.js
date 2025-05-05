@@ -118,6 +118,19 @@ class Cluster extends Node {
           this.removeMiddleHash();
         }
       }
+      if (Object.keys(this.hash).length === 0) {
+        delete this.hash;
+        this.status = -1;
+      }
+    }
+  }
+
+  clean(beforeNode, beforePath) {
+    const { number, } = this;
+    if (number === 0) {
+      if (beforeNode !== undefined && beforePath !== undefined) {
+        beforeNode.delete(beforePath);
+      }
     }
   }
 
@@ -272,6 +285,10 @@ class Cluster extends Node {
   }
 
   get(key, total) {
+    const { status, } = this;
+    if (status === -1) {
+      throw new Error('[Error] Cluster hash is empty,please add a route first.');
+    }
     if (typeof total !== 'number') {
       throw new Error('[Error] Cluster acquisition method needs to pass numeric type paramter total.');
     }
@@ -279,7 +296,7 @@ class Cluster extends Node {
     const { threshold, bond, logPath, } = this.options;
     const { count, } = this;
     this.rate = count / total;
-    const { rate, status, } = this;
+    const { rate, } = this;
     if ((status === 1 || status === 4) && this.greaterThresholdAndBondAndDutyCycle() && checkMemory(logPath)) {
       this.expandMiddleHash();
     }
@@ -298,7 +315,8 @@ class Cluster extends Node {
   }
 
   find(key) {
-    switch (this.status) {
+    const { status, } = this;
+    switch (status) {
       case 0:
       case 3:
         return this.hash[key];

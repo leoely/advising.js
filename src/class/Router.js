@@ -21,10 +21,14 @@ function getPathsFromUrl(url) {
 function matchRecursion(node, index, paths, total) {
   const path = paths[index];
   if (index === paths.length - 1) {
-    if (node.mixture instanceof Mixture) {
-      return node.mixture.getThing();
+    if (node === undefined) {
+      throw Error('[Error] The current url of the router cannot be found.');
     } else {
-      return node.get(path, total);
+      if (node.mixture instanceof Mixture) {
+        return node.mixture.getThing();
+      } else {
+        return node.get(path, total);
+      }
     }
   } else {
     return matchRecursion(node.get(path, total), index + 1, paths, total);
@@ -70,16 +74,17 @@ function addRecursion(node, index, paths, options, thing, beforePath, beforeNode
   }
 }
 
-function deleteRecursion(node, index, paths) {
+function deleteRecursion(node, index, paths, beforePath, beforeNode) {
   const path = paths[index];
   if (index === paths.length - 1) {
     if (node.mixture instanceof Mixture) {
       node.extractToCluster();
     } else {
       node.delete(path);
+      node.clean(beforeNode, beforePath);
     }
   } else {
-    deleteRecursion(node.find(path), index + 1, paths);
+    deleteRecursion(node.find(path), index + 1, paths, path, beforeNode);
   }
 }
 
@@ -171,7 +176,7 @@ class Router {
   delete(url) {
     const paths = getPathsFromUrl(url);
     const { root, } = this;
-    deleteRecursion(root, 0, paths);
+    deleteRecursion(root, 0, paths, paths[0], root);
   }
 
   deleteAll(urls) {
