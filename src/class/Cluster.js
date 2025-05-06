@@ -250,7 +250,7 @@ class Cluster extends Node {
   }
 
   blendFromCluster(mixture) {
-    if (mixture instanceof Mixture) {
+    if (!(mixture instanceof Mixture)) {
       throw new Error(
         '[Error] Mixture of arguments to blendFromCluster function should be of mixture types.'
       );
@@ -263,20 +263,21 @@ class Cluster extends Node {
   }
 
   blendFromThing(mixture, beforePath) {
-    if (mixture instanceof Mixture) {
+    if (!(mixture instanceof Mixture)) {
       throw new Error(
         '[Error] Mixture of arguments to blendFromThing function should be of mixture types.'
       );
     }
-    if (mixture instanceof Mixture) {
+    if (typeof path === 'string') {
       throw new Error(
-        '[Error] beforePath of arguments to blendFromThing function should be an integer.'
+        '[Error] beforePath of arguments to blendFromThing function should be string types..'
       );
+    } else {
+      const cluster = mixture.getCluster();
+      this.put(beforePath, cluster);
+      this.childrens = cluster.childrens;
+      this.mixture = mixture;
     }
-    const cluster = mixture.getCluster();
-    this.put(beforePath, cluster);
-    this.childrens = cluster.childrens;
-    this.mixture = mixture;
   }
 
   extractToCluster() {
