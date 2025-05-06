@@ -90,7 +90,7 @@ function deleteRecursion(node, index, paths, beforePath, beforeNode) {
 
 function updateNewThing(node, path, thing, newThing) {
   if (thing === undefined) {
-    throw new Error();
+    throw new Error('[Error] router update route does not exist.');
   } else {
     node.update(path, newThing);
   }
@@ -105,12 +105,16 @@ function updateRecursion(node, index, paths, newThing, beforePath, beforeNode) {
       let thing;
       if (node.mixture instanceof Mixture) {
         thing = node.mixture.getThing();
-        updateNewThing(beforeNode, beforePath, thing, newThing);
+        updateNewThing(node, path, thing, newThing);
       } else {
         thing = node.find(path);
-        updateNewThing(beforeNode, beforePath, thing, newThing);
+        updateNewThing(node, path, thing, newThing);
       }
-      beforeNode.subtractCount(thing.count);
+      if (newThing.count === 0) {
+        node.subtractCount(thing.count);
+      } else {
+        node.addCount(newThing.count);
+      }
     }
   } else {
     updateRecursion(node.find(path), index + 1, paths, newThing, path, node);
@@ -189,7 +193,7 @@ class Router {
     }
   }
 
-  match(url) {
+  match(url, needThing) {
     const paths = getPathsFromUrl(url);
     this.total += 1;
     const { total, root, } = this;
@@ -197,16 +201,26 @@ class Router {
     if (thing === undefined) {
       throw Error('[Error] Router matching the url does not exist.');
     } else {
-      return thing.getContent(total);
+      if (needThing === true) {
+        return thing;
+      } else {
+        return thing.getContent(total);
+      }
     }
   }
 
-  add(url, content) {
+  add(url, multiple) {
     const paths = getPathsFromUrl(url);
-    checkContent(content);
-    const { root, options, } = this;
-    const thing = new Thing(url, content, options);
-    addRecursion(root, 0, paths, options, thing);
+    if (multiple instanceof Thing) {
+      const thing = multiple;
+      addRecursion(root, 0, paths, options, thing);
+    } else {
+      const content = multiple;
+      checkContent(content);
+      const { root, options, } = this;
+      const thing = new Thing(url, content, options);
+      addRecursion(root, 0, paths, options, thing);
+    }
   }
 
   delete(url) {
@@ -222,13 +236,28 @@ class Router {
     });
   }
 
-  update(url, content) {
+  update(url, multiple) {
     const paths = getPathsFromUrl(url);
-    checkContent(content);
+    const { root, } = this;
     const [path] = paths;
-    const { root, options, } = this;
-    const newThing = new Thing(url, content, options);
-    updateRecursion(root, 0, paths, newThing, path, root);
+    if (multiple instanceof Thing) {
+      const newThing = multiple;
+      updateRecursion(root, 0, paths, newThing, path, root);
+    } else {
+      const content = multiple;
+      checkContent(content);
+      const [path] = paths;
+      const { root, options, } = this;
+      const newThing = new Thing(url, content, options);
+      updateRecursion(root, 0, paths, newThing, path, root);
+    }
+  }
+
+  swap(url1, url2) {
+    const thing1 = this.match(url1, true);
+    const thing2 = this.match(url2, true);
+    this.update(url1, thing2);
+    this.update(url2, thing1);
   }
 }
 

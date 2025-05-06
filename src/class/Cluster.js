@@ -63,6 +63,10 @@ class Cluster extends Node {
         this.addInitHash();
       }
     }
+    const { count, } = value;
+    if (count !== 0) {
+      this.addCount(count);
+    }
   }
 
   update(key, value) {
@@ -142,6 +146,7 @@ class Cluster extends Node {
 
   addCount(count) {
     this.count += count;
+    this.adjust();
   }
 
   checkMemory() {
@@ -395,7 +400,7 @@ class Cluster extends Node {
     for (let i = 0; i < childrens.length; i += 1) {
       const children = childrens[i];
       const [k] = children;
-      if (kj === key) {
+      if (k === key) {
         childrens[i] = [key, value];
         break;
       }
@@ -406,7 +411,7 @@ class Cluster extends Node {
     const { childrens, } = this;
     for (let i = 0; i < childrens.length; i += 1) {
       const [k] = childrens[i];
-      if (kj === key) {
+      if (k === key) {
         childrens.splice(i, 1);
         break;
       }
