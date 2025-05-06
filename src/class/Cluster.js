@@ -130,23 +130,35 @@ class Cluster extends Node {
     }
   }
 
-  clean(beforeNode, beforePath) {
+  clean(node, path) {
     const { number, } = this;
     if (number === 0) {
-      if (beforeNode !== undefined && beforePath !== undefined) {
-        beforeNode.delete(beforePath);
+      if (node instanceof Cluster && typeof path === 'string') {
+        node.delete(path);
       }
     }
   }
 
   subtractCount(count) {
-    this.count -= count;
-    this.adjust();
+    if (!Number.isInteger(count)) {
+      throw new Error(
+        '[Error] Number of arguments to subtractCount function be a integer.'
+      );
+    } else {
+      this.count -= count;
+      this.adjust();
+    }
   }
 
   addCount(count) {
-    this.count += count;
-    this.adjust();
+    if (!Number.isInteger(count)) {
+      throw new Error(
+        '[Error] Number of arguments to addCount function be a integer.'
+      );
+    } else {
+      this.count += count;
+      this.adjust();
+    }
   }
 
   checkMemory() {
@@ -216,7 +228,9 @@ class Cluster extends Node {
             this.status = 0;
             this.hash = {};
           } else if (this.status !== 0 && this.status !== 1 && this.status !== 2) {
-            throw new Error('[Error] Cluster is plain text type but the newly added type is a pure number.');
+            throw new Error(
+              '[Error] Cluster is plain text type but the newly added type is a pure number.'
+            );
           }
           break;
         }
@@ -225,7 +239,9 @@ class Cluster extends Node {
             this.status = 3;
             this.hash = {};
           } else if (this.status !== 3 && this.status !== 4 && this.status !== 5) {
-            throw new Error('[Error] Cluster is pure numeric type but the newly added is a pure letters.');
+            throw new Error(
+              '[Error] Cluster is pure numeric type but the newly added is a pure letters.'
+            );
           }
           break;
         }
@@ -234,13 +250,29 @@ class Cluster extends Node {
   }
 
   blendFromCluster(mixture) {
-    const cluster = mixture.getCluster();
-    this.hash = cluster.hash;
-    this.childrens = cluster.childrens;
-    this.mixture = mixture;
+    if (mixture instanceof Mixture) {
+      throw new Error(
+        '[Error] Mixture of arguments to blendFromCluster function should be of mixture types.'
+      );
+    } else {
+      const cluster = mixture.getCluster();
+      this.hash = cluster.hash;
+      this.childrens = cluster.childrens;
+      this.mixture = mixture;
+    }
   }
 
   blendFromThing(mixture, beforePath) {
+    if (mixture instanceof Mixture) {
+      throw new Error(
+        '[Error] Mixture of arguments to blendFromThing function should be of mixture types.'
+      );
+    }
+    if (mixture instanceof Mixture) {
+      throw new Error(
+        '[Error] beforePath of arguments to blendFromThing function should be an integer.'
+      );
+    }
     const cluster = mixture.getCluster();
     this.put(beforePath, cluster);
     this.childrens = cluster.childrens;
@@ -248,7 +280,7 @@ class Cluster extends Node {
   }
 
   extractToCluster() {
-    this.mixtrue = undefined;
+    delete this.mixtrue;
   }
 
   greaterThresholdAndBondAndDutyCycle() {
