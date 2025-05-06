@@ -276,7 +276,6 @@ describe('[Class] Router: Space complexity test cases;', () => {
     expect(() => router.match('/male/john')).toThrow('[Error] Router matching the url does not exist.');
     expect(() => router.match('/male/robert')).toThrow('[Error] Router matching the url does not exist.');
     router.delete('/male/david');
-    console.log(router.root);
     expect(() => router.match('/male/david')).toThrow('[Error] Cluster hash is empty,please add a route first.');
   });
 
@@ -299,6 +298,23 @@ describe('[Class] Router: Space complexity test cases;', () => {
     expect(() => router.match('/male/john')).toThrow('[Error] Cluster hash is empty,please add a route first.');
     expect(() => router.match('/male/robert')).toThrow('[Error] Cluster hash is empty,please add a route first.');
     expect(() => router.match('/male/david')).toThrow('[Error] Cluster hash is empty,please add a route first.');
+  });
+
+  test('Router update routes should be correct.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 4,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 7,
+      logInterval: 5,
+    });
+    router.add('/male', ['john', 'robert', 'david']);
+    expect(JSON.stringify(router.match('/male'))).toMatch('[\"john\",\"robert\",\"david\"]');
+    router.update('/male', ['jason', 'kevin', 'eric']);
+    expect(router.root.find('male').count).toBe(0);
+    expect(router.root.count).toBe(0);
+    expect(JSON.stringify(router.match('/male'))).toMatch('[\"jason\",\"kevin\",\"eric\"]');
   });
 });
 

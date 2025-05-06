@@ -90,7 +90,9 @@ class Thing extends Node {
   }
 
   getContent(total) {
-    this.match(total);
+    if (typeof total === 'number') {
+      this.match(total);
+    }
     return this.content;
   }
 }

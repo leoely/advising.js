@@ -36,14 +36,8 @@ class Cluster extends Node {
     this.number = 0;
   }
 
-  put(key, value) {
-    this.checkKey(key);
-    this.number += 1;
-    const { number, } = this;
+  set(key, value) {
     const { status, } = this;
-    if (status === 1 || status === 2 || status === 4 || status === 5) {
-      this.pushChildrens(key, value);
-    }
     switch (status) {
       case 0:
       case 3:
@@ -68,11 +62,30 @@ class Cluster extends Node {
         break;
       }
     }
+  }
+
+  put(key, value) {
+    this.checkKey(key);
+    this.number += 1;
+    const { status, } = this;
+    if (status === 1 || status === 2 || status === 4 || status === 5) {
+      this.pushChildrens(key, value);
+    }
+    this.set(key, value);
+    const { number, } = this;
     if (number >= this.options.number) {
       if (this.status === 0 || this.status === 3) {
         this.addInitHash();
       }
     }
+  }
+
+  update(key, value) {
+    const { status, } = this;
+    if (status === 1 || status === 2 || status === 4 || status === 5) {
+      this.updateChildrens(key, value);
+    }
+    this.set(key, value);
   }
 
   delete(key) {
@@ -132,6 +145,11 @@ class Cluster extends Node {
         beforeNode.delete(beforePath);
       }
     }
+  }
+
+  subtractCount(count) {
+    this.count -= count;
+    this.adjust();
   }
 
   addMiddleHash(key, value) {
@@ -293,10 +311,19 @@ class Cluster extends Node {
       throw new Error('[Error] Cluster acquisition method needs to pass numeric type paramter total.');
     }
     this.count += 1;
-    const { threshold, bond, logPath, } = this.options;
     const { count, } = this;
     this.rate = count / total;
-    const { rate, } = this;
+    this.adjust();
+    return this.find(key);
+  }
+
+  adjust() {
+    const {
+      status,
+      options: {
+        logPath,
+      },
+    } = this;
     if ((status === 1 || status === 4) && this.greaterThresholdAndBondAndDutyCycle() && checkMemory(logPath)) {
       this.expandMiddleHash();
     }
@@ -311,7 +338,6 @@ class Cluster extends Node {
         this.reduceInitHash();
       }
     }
-    return this.find(key);
   }
 
   find(key) {
@@ -344,6 +370,18 @@ class Cluster extends Node {
             }
           }
         }
+      }
+    }
+  }
+
+  updateChildrens(key, value) {
+    const { childrens, } = this;
+    for (let i = 0; i < childrens.length; i += 1) {
+      const children = childrens[i];
+      const [k] = children;
+      if (kj === key) {
+        childrens[i] = [key, value];
+        break;
       }
     }
   }
