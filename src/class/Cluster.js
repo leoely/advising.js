@@ -6,18 +6,7 @@ import Node from '~/class/Node';
 import getDateString from '~/lib/getDateString';
 import getGTMNowString from '~/lib/getGTMNowString';
 import checkLogPath from '~/lib/checkLogPath';
-
-function checkMemory(logPath) {
-  if (os.freemem() > 0) {
-    return true;
-  } else {
-    fs.appendFileSync(
-      path.join(logPath, dateString),
-      getGTMDateString() + ' || ████ ❗❗❗❗ @[Memory]: Memory is exhausted. ████ ||\n'
-    );
-    return false;
-  }
-}
+import appendToLog from '~/lib/appendToLog';
 
 function dealCharCode(code) {
   if (code >=  65 && code <= 90) {
@@ -86,6 +75,9 @@ class Cluster extends Node {
       this.updateChildrens(key, value);
     }
     this.set(key, value);
+    appendToLog(
+      getGTMDateString() + ' || ████ ✨✨✨✨ ⮕ [Router]: Current route is updated with the new content. ████ ||\n'
+    );
   }
 
   delete(key) {
@@ -150,6 +142,22 @@ class Cluster extends Node {
   subtractCount(count) {
     this.count -= count;
     this.adjust();
+  }
+
+  checkMemory() {
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    if (os.freemem() > 0) {
+      return true;
+    } else {
+      appendToLog(
+        getGTMDateString() + ' || ████ ❗❗❗❗ ⮕ [Memory]: Insuficient memory space. ████ ||\n'
+      );
+      return false;
+    }
   }
 
   addMiddleHash(key, value) {
@@ -239,7 +247,11 @@ class Cluster extends Node {
   }
 
   greaterThresholdAndBondAndDutyCycle() {
-    const { threshold, bond, dutyCycle, } = this.options;
+    const {
+      options: {
+        threshold, bond, dutyCycle,
+      },
+    } = this;
     if (threshold === undefined && bond !== undefined && dutyCycle !== undefined) {
       return this.getDutyCycle() >= dutyCycle;
     }
@@ -271,7 +283,11 @@ class Cluster extends Node {
   }
 
   lessThresholdAndBondAndDutyCycle() {
-    const { threshold, bond, dutyCycle, startTime, } = this.options;
+    const {
+      options: {
+        threshold, bond, dutyCycle, startTime,
+      },
+    } = this;
     if (threshold === undefined && bond !== undefined && dutyCycle !== undefined) {
       return this.getDutyCycle() < dutyCycle;
     }
@@ -324,10 +340,10 @@ class Cluster extends Node {
         logPath,
       },
     } = this;
-    if ((status === 1 || status === 4) && this.greaterThresholdAndBondAndDutyCycle() && checkMemory(logPath)) {
+    if ((status === 1 || status === 4) && this.greaterThresholdAndBondAndDutyCycle() && this.checkMemory()) {
       this.expandMiddleHash();
     }
-    if ((status === 0 || status === 3) && this.greaterThresholdAndBondAndDutyCycle() && checkMemory(logPath)) {
+    if ((status === 0 || status === 3) && this.greaterThresholdAndBondAndDutyCycle() && this.checkMemory()) {
       this.expandInitHash();
     }
     if ((status === 2 || status === 5) && this.lessThresholdAndBondAndDutyCycle()) {

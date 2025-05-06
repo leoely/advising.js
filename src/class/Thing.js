@@ -3,6 +3,7 @@ import path from 'path';
 import Node from '~/class/Node';
 import getDateString from '~/lib/getDateString';
 import getGTMNowString from '~/lib/getGTMNowString';
+import appendToLog from '~/lib/appendToLog';
 
 class Thing extends Node {
   constructor(url, content, options) {
@@ -26,32 +27,27 @@ class Thing extends Node {
     const dutyCycle = this.getDutyCycle();
     switch (logLevel) {
       case 1:
-        fs.appendFileSync(
-          path.join(logPath, dateString),
+        appendToLog(
           getGTMNowString() + ' ||  ████ Location:'+ url + ' ████ & ████ RATE:' + rate + ' ████ || \n'
         );
         break;
       case 2:
-        fs.appendFileSync(
-          path.join(logPath, dateString),
+        appendToLog(
           getGTMNowString() + ' ||  ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ ||\n'
         );
         break;
       case 3:
-        fs.appendFileSync(
-          path.join(logPath, dateString),
+        appendToLog(
           getGTMNowString() + ' ||  ████ Location:'+ url + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       case 4:
-        fs.appendFileSync(
-          path.join(logPath, dateString),
+        appendToLog(
           getGTMNowString() + ' || ████ Location:'+ url + ' ████  RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       case 5:
-        fs.appendFileSync(
-          path.join(logPath, dateString),
+        appendToLog(
           getGTMNowString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████  DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
@@ -62,8 +58,7 @@ class Thing extends Node {
         );
         break;
       case 7:
-        fs.appendFileSync(
-          path.join(logPath, dateString),
+        appendToLog(
           getGTMNowString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
