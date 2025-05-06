@@ -74,7 +74,7 @@ function addRecursion(node, index, paths, options, thing, beforePath, beforeNode
   }
 }
 
-function deleteRecursion(node, index, paths, beforePath, beforeNode) {
+function deleteRecursion(node, index, paths, thing, beforePath, beforeNode) {
   const path = paths[index];
   if (index === paths.length - 1) {
     if (node.mixture instanceof Mixture) {
@@ -83,8 +83,10 @@ function deleteRecursion(node, index, paths, beforePath, beforeNode) {
       node.delete(path);
       node.clean(beforeNode, beforePath);
     }
+    node.subtractCount(thing.count + 1);
   } else {
-    deleteRecursion(node.find(path), index + 1, paths, path, beforeNode);
+    deleteRecursion(node.find(path), index + 1, paths, thing, path, beforeNode);
+    node.subtractCount(thing.count + 1);
   }
 }
 
@@ -96,7 +98,17 @@ function updateNewThing(node, path, thing, newThing) {
   }
 }
 
-function updateRecursion(node, index, paths, newThing, beforePath, beforeNode) {
+function updateCount(node, thing, newThing) {
+  const { count, } = newThing;
+  if (count === 0) {
+    node.subtractCount(thing.count + 1);
+  } else {
+    node.subtractCount(thing.count + 2);
+    node.addCount(newThing.count);
+  }
+}
+
+function updateRecursion(node, index, paths, thing, newThing, beforePath, beforeNode) {
   const path = paths[index];
   if (index === paths.length - 1) {
     if (node === undefined) {
@@ -110,14 +122,11 @@ function updateRecursion(node, index, paths, newThing, beforePath, beforeNode) {
         thing = node.find(path);
         updateNewThing(node, path, thing, newThing);
       }
-      if (newThing.count === 0) {
-        node.subtractCount(thing.count);
-      } else {
-        node.addCount(newThing.count);
-      }
+      updateCount(node, thing, newThing);
     }
   } else {
-    updateRecursion(node.find(path), index + 1, paths, newThing, path, node);
+    updateRecursion(node.find(path), index + 1, paths, thing, newThing, path, node);
+    updateCount(node, thing, newThing);
   }
 }
 
@@ -224,10 +233,11 @@ class Router {
   }
 
   delete(url) {
+    const thing = this.match(url, true);
     const paths = getPathsFromUrl(url);
     const { root, } = this;
     const [path] = paths;
-    deleteRecursion(root, 0, paths, path, root);
+    deleteRecursion(root, 0, paths, thing, path, root);
   }
 
   deleteAll(urls) {
@@ -237,19 +247,20 @@ class Router {
   }
 
   update(url, multiple) {
+    const thing = this.match(url, true);
     const paths = getPathsFromUrl(url);
     const { root, } = this;
     const [path] = paths;
     if (multiple instanceof Thing) {
       const newThing = multiple;
-      updateRecursion(root, 0, paths, newThing, path, root);
+      updateRecursion(root, 0, paths, thing, newThing, path, root);
     } else {
       const content = multiple;
       checkContent(content);
       const [path] = paths;
       const { root, options, } = this;
       const newThing = new Thing(url, content, options);
-      updateRecursion(root, 0, paths, newThing, path, root);
+      updateRecursion(root, 0, paths, thing, newThing, path, root);
     }
   }
 

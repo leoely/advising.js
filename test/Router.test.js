@@ -272,7 +272,10 @@ describe('[Class] Router: Space complexity test cases;', () => {
     expect(JSON.stringify(router.match('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(router.match('/male/david'))).toMatch('{\"name\":\"david\",\"age\":40}');
     router.delete('/male/john');
+    expect(router.root.count).toBe(2);
     router.delete('/male/robert');
+    expect(router.root.count).toBe(1);
+    expect(router.root.find('male').count).toBe(1);
     expect(() => router.match('/male/john')).toThrow('[Error] Router matching the url does not exist.');
     expect(() => router.match('/male/robert')).toThrow('[Error] Router matching the url does not exist.');
     router.delete('/male/david');
@@ -309,13 +312,12 @@ describe('[Class] Router: Space complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
     });
-    router.add('/male', ['john', 'robert', 'david']);
-    expect(JSON.stringify(router.match('/male'))).toMatch('[\"john\",\"robert\",\"david\"]');
-    router.update('/male', ['jason', 'kevin', 'eric']);
-    expect(router.root.find('male').count).toBe(0);
+    router.add('/world/male', ['john', 'robert', 'david']);
+    expect(JSON.stringify(router.match('/world/male'))).toMatch('[\"john\",\"robert\",\"david\"]');
+    router.update('/world/male', ['jason', 'kevin', 'eric']);
     expect(router.root.count).toBe(0);
-    expect(JSON.stringify(router.match('/male'))).toMatch('[\"jason\",\"kevin\",\"eric\"]');
-    expect(() => router.update('/female', ['amani', 'tiffany', 'carolyn'])).toThrow('[Error] router update route does not exist.');
+    expect(JSON.stringify(router.match('/world/male'))).toMatch('[\"jason\",\"kevin\",\"eric\"]');
+    expect(() => router.update('/world/female', ['amani', 'tiffany', 'carolyn'])).toThrow('[Error] Router matching the url does not exist.');
   });
 
   test('Router exchange routes should be correct.', () => {
@@ -335,6 +337,7 @@ describe('[Class] Router: Space complexity test cases;', () => {
     router.swap('/male/john', '/male/robert');
     expect(router.root.find('male').find('john').count).toBe(1);
     expect(router.root.find('male').find('robert').count).toBe(2);
+    expect(router.root.find('male').count).toBe(3);
     expect(JSON.stringify(router.match('/male/john'))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(router.match('/male/robert'))).toMatch('{\"name\":\"john\",\"age\":22}');
   });
