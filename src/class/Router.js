@@ -117,6 +117,12 @@ function updateRecursion(node, index, paths, newThing, beforePath, beforeNode) {
   }
 }
 
+function checkContent(content) {
+  if (content === undefined || content === null || Number.isNaN(content)) {
+    throw Error('[Error] Value should be reasonable value.');
+  }
+}
+
 class Router {
   constructor(options = {}) {
     const defaultOptions = {
@@ -197,6 +203,7 @@ class Router {
 
   add(url, content) {
     const paths = getPathsFromUrl(url);
+    checkContent(content);
     const { root, options, } = this;
     const thing = new Thing(url, content, options);
     addRecursion(root, 0, paths, options, thing);
@@ -217,6 +224,7 @@ class Router {
 
   update(url, content) {
     const paths = getPathsFromUrl(url);
+    checkContent(content);
     const [path] = paths;
     const { root, options, } = this;
     const newThing = new Thing(url, content, options);

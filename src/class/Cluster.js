@@ -1,12 +1,8 @@
 import os from 'os';
-import path from 'path';
-import fs from 'fs';
 import Mixture from '~/class/Mixture';
 import Node from '~/class/Node';
-import getDateString from '~/lib/getDateString';
 import getGTMNowString from '~/lib/getGTMNowString';
 import checkLogPath from '~/lib/checkLogPath';
-import appendToLog from '~/lib/appendToLog';
 
 function dealCharCode(code) {
   if (code >=  65 && code <= 90) {
@@ -75,8 +71,8 @@ class Cluster extends Node {
       this.updateChildrens(key, value);
     }
     this.set(key, value);
-    appendToLog(
-      getGTMDateString() + ' || ████ ✨✨✨✨ ⮕ [Router]: Current route is updated with the new content. ████ ||\n'
+    this.appendToLog(
+      getGTMNowString() + ' || ████ ✨✨✨✨ ⮕ [Router]: Current route is updated with the new content. ████ ||\n'
     );
   }
 
@@ -142,6 +138,10 @@ class Cluster extends Node {
   subtractCount(count) {
     this.count -= count;
     this.adjust();
+  }
+
+  addCount(count) {
+    this.count += count;
   }
 
   checkMemory() {

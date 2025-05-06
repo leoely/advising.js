@@ -1,9 +1,5 @@
-import fs from 'fs';
-import path from 'path';
 import Node from '~/class/Node';
-import getDateString from '~/lib/getDateString';
 import getGTMNowString from '~/lib/getGTMNowString';
-import appendToLog from '~/lib/appendToLog';
 
 class Thing extends Node {
   constructor(url, content, options) {
@@ -13,7 +9,7 @@ class Thing extends Node {
     this.interval = 0;
   }
 
-  appendToLog() {
+  log() {
     const {
       count,
       rate,
@@ -23,42 +19,40 @@ class Thing extends Node {
         logPath,
       },
     } = this;
-    const dateString = getDateString();
     const dutyCycle = this.getDutyCycle();
     switch (logLevel) {
       case 1:
-        appendToLog(
+        this.appendToLog(
           getGTMNowString() + ' ||  ████ Location:'+ url + ' ████ & ████ RATE:' + rate + ' ████ || \n'
         );
         break;
       case 2:
-        appendToLog(
+        this.appendToLog(
           getGTMNowString() + ' ||  ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ ||\n'
         );
         break;
       case 3:
-        appendToLog(
+        this.appendToLog(
           getGTMNowString() + ' ||  ████ Location:'+ url + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       case 4:
-        appendToLog(
+        this.appendToLog(
           getGTMNowString() + ' || ████ Location:'+ url + ' ████  RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       case 5:
-        appendToLog(
+        this.appendToLog(
           getGTMNowString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████  DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       case 6:
-        fs.appendFileSync(
-          path.join(logPath, dateString),
+        appendToLog(
           getGTMNowString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████  ||\n'
         );
         break;
       case 7:
-        appendToLog(
+        this.appendToLog(
           getGTMNowString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
@@ -80,7 +74,7 @@ class Thing extends Node {
     } = this;
     if (interval === logInterval) {
       this.interval = 0;
-      this.appendToLog();
+      this.log();
     }
   }
 

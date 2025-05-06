@@ -419,4 +419,18 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
     expect(() => router.add('fsadfasdfas', { type: 'letters', })).toThrow('[Error] Path should start with a slash.');
     expect(() => router.match('fasdfdsa')).toThrow('[Error] Path should start with a slash.');
   });
+
+  test('Router content operation should be a reasonable value.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 4,
+      logInterval: 5,
+    });
+    expect(() => router.add('/male', undefined)).toThrow('[Error] Value should be reasonable value.');
+    expect(() => router.add('/male', null)).toThrow('[Error] Value should be reasonable value.');
+    expect(() => router.add('/male', NaN)).toThrow('[Error] Value should be reasonable value.');
+  });
 });
