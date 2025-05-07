@@ -4,6 +4,7 @@ import Mixture from '~/class/Mixture';
 import Node from '~/class/Node';
 import getGTMNowString from '~/lib/getGTMNowString';
 import checkLogPath from '~/lib/checkLogPath';
+import checkMemory from '~/lib/checkMemory';
 
 function dealCharCode(code) {
   if (code >=  65 && code <= 90) {
@@ -57,6 +58,12 @@ class Cluster extends Node {
     super(options);
     this.status = -1;
     this.number = 0;
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    checkMemory(logPath);
   }
 
   set(key, value) {
@@ -105,17 +112,31 @@ class Cluster extends Node {
     if (count !== 0) {
       this.addCount(count);
     }
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    checkMemory(logPath);
   }
 
-  update(key, value) {
+  update(key, value, swap) {
     const { status, } = this;
     if (status === 1 || status === 2 || status === 4 || status === 5) {
       this.updateChildrens(key, value);
     }
     this.set(key, value);
-    this.appendToLog(
-      getGTMNowString() + ' || ████ ✨✨✨✨ ⮕ [Router]: Current route is updated with the new content. ████ ||\n'
-    );
+    if (swap === true) {
+      this.appendToLog(
+        getGTMNowString() + ' || ████ ✨✨✨✨ ⮕ [Router]: Current route is updated with the new content. ████ ||\n'
+      );
+    }
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    checkMemory(logPath);
   }
 
   delete(key) {
@@ -166,6 +187,9 @@ class Cluster extends Node {
         this.status = -1;
       }
     }
+    this.appendToLog(
+      getGTMNowString() + ' || ████ ✨✨✨✨ ⮕ [Router]: Current route is deleted. ████ ||\n'
+    );
   }
 
   clean(node, path) {
@@ -197,6 +221,12 @@ class Cluster extends Node {
       this.count += count;
       this.adjust();
     }
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    checkMemory(logPath);
   }
 
   estimateChildrensInc() {
@@ -333,6 +363,12 @@ class Cluster extends Node {
         }
       }
     }
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    checkMemory(logPath);
   }
 
   blendFromCluster(mixture) {
@@ -340,6 +376,12 @@ class Cluster extends Node {
     this.hash = cluster.hash;
     this.childrens = cluster.childrens;
     this.mixture = mixture;
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    checkMemory(logPath);
   }
 
   blendFromThing(mixture, beforePath) {
@@ -347,6 +389,11 @@ class Cluster extends Node {
     this.put(beforePath, cluster);
     this.childrens = cluster.childrens;
     this.mixture = mixture;
+    const { options: {
+        logPath,
+      },
+    } = this;
+    checkMemory(logPath);
   }
 
   extractToCluster() {
@@ -438,6 +485,12 @@ class Cluster extends Node {
     this.rate = count / total;
     this.adjust();
     return this.find(key);
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    checkMemory(logPath);
   }
 
   adjust() {
@@ -504,6 +557,12 @@ class Cluster extends Node {
         break;
       }
     }
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    checkMemory(logPath);
   }
 
   removeChildrens(key) {
@@ -523,6 +582,12 @@ class Cluster extends Node {
       this.childrens = [];
     }
     this.childrens.push([key, value]);
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    checkMemory(logPath);
   }
 
   addInitHash() {

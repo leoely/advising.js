@@ -1,6 +1,5 @@
-import fs from 'fs';
-import path from 'path';
 import getDateString from '~/lib/getDateString';
+import appendToLog from '~/lib/appendToLog';
 
 class Node {
   constructor(options) {
@@ -26,8 +25,7 @@ class Node {
         logPath,
       },
     } = this;
-    const dateString = getDateString();
-    fs.appendFileSync(path.join(logPath, dateString), content);
+    appendToLog(logPath, content);
   }
 };
 

@@ -2,6 +2,9 @@ import Cluster from '~/class/Cluster';
 import Thing from '~/class/Thing';
 import Mixture from '~/class/Mixture';
 import checkLogPath from '~/lib/checkLogPath';
+import checkMemory from '~/lib/checkMemory';
+import appendToLog from '~/lib/appendToLog';
+import getGTMNowString from '~/lib/getGTMNowString';
 
 function getPathsFromUrl(url) {
   if (typeof url !== 'string') {
@@ -152,7 +155,13 @@ class Router {
     this.options = Object.assign(defaultOptions, options);
     this.checkOptions();
     this.root = new Cluster(this.options);
-    checkLogPath(this.options.logPath);
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    checkLogPath(logPath);
+    checkMemory(logPath);
   }
 
   checkOptions() {
@@ -267,8 +276,17 @@ class Router {
   swap(url1, url2) {
     const thing1 = this.match(url1, true);
     const thing2 = this.match(url2, true);
-    this.update(url1, thing2);
-    this.update(url2, thing1);
+    this.update(url1, thing2, true);
+    this.update(url2, thing1, true);
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    appendToLog(
+      logPath,
+      getGTMNowString() + ' || ████ ✨✨✨✨ ⮕ [Router]: Current route is switched. ████ ||\n'
+    );
   }
 }
 

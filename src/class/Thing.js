@@ -1,5 +1,6 @@
 import Node from '~/class/Node';
 import getGTMNowString from '~/lib/getGTMNowString';
+import checkMemory from '~/lib/checkMemory';
 
 class Thing extends Node {
   constructor(url, content, options) {
@@ -7,6 +8,12 @@ class Thing extends Node {
     this.url = url;
     this.content = content;
     this.interval = 0;
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    checkMemory(logPath);
   }
 
   log() {
@@ -49,7 +56,7 @@ class Thing extends Node {
         );
         break;
       case 6:
-        appendToLog(
+        this.appendToLog(
           getGTMNowString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████  ||\n'
         );
         break;
