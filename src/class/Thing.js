@@ -21,6 +21,8 @@ class Thing extends Node {
     } = this;
     const dutyCycle = this.getDutyCycle();
     switch (logLevel) {
+      case 0:
+        break;
       case 1:
         this.appendToLog(
           getGTMNowString() + ' ||  ████ Location:'+ url + ' ████ & ████ RATE:' + rate + ' ████ || \n'
@@ -57,7 +59,7 @@ class Thing extends Node {
         );
         break;
       default:
-        throw new Error('[Error] LogLevel must in section [1, 7].');
+        throw new Error('[Error] LogLevel must in section [0, 7].');
     }
   }
 

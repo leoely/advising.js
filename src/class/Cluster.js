@@ -1,4 +1,5 @@
 import os from 'os';
+import childProcess from 'child_process';
 import Mixture from '~/class/Mixture';
 import Node from '~/class/Node';
 import getGTMNowString from '~/lib/getGTMNowString';
@@ -12,6 +13,43 @@ function dealCharCode(code) {
   } else if (code >= 48 && code <= 57) {
     return code - 48;
   }
+}
+
+function bitToByte(bit) {
+  return bit / 8;
+}
+
+function estimateArray(multiple) {
+  let length;
+  if (Array.isArray(multiple)) {
+    const array = multiple;
+    length = array.length;
+  } else {
+    length = multiple;
+  }
+  return (length * 2 + 1) * 64;
+}
+
+function estimateString(string) {
+  const { length, } = string;
+  return (length + 1) * 4 * 8;
+}
+
+function estimatePointer() {
+  return 64;
+}
+
+function estimateExpandHashInc(key) {
+  const { length, } = key;
+  return length * estimateArray(26);
+}
+
+function estimateObjectHashInc(hash) {
+  let ans = estimateArray(5);
+  Object.keys(hash).forEach((key) => {
+    ans += estimatePointer() + estimateString(key);
+  });
+  return ans;
 }
 
 class Cluster extends Node {
@@ -161,17 +199,65 @@ class Cluster extends Node {
     }
   }
 
-  checkMemory() {
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    if (os.freemem() > 0) {
+  estimateChildrensInc() {
+    const { hash, } = this;
+    let ans = 0;
+    const keys = Object.keys(hash);
+    ans += estimateArray(keys);
+    ans += 2 * estimateArray(keys);
+    keys.forEach((key) => {
+      ans += estimateString(key);
+      ans += estimatePointer();
+    });
+    return ans;
+  }
+
+  estimateExpandInitInc() {
+    const { hash, } = this;
+    const keys = Object.keys(hash);
+    let ans = this.estimateChildrensInc();
+    keys.forEach((key) => {
+      ans += estimateExpandHashInc(key) - estimateString(key);
+    });
+    ans -= estimateObjectHashInc(hash);
+    return ans;
+  }
+
+  estimateExpandMiddleInc() {
+    const { hash, } = this;
+    let ans = -estimateArray(hash);
+    hash.forEach((multiple) => {
+      if (typeof multiple === 'object') {
+        const object = multiple;
+        ans -= estimateObjectHashInc(object);
+        Object.keys(object).forEach((key) => {
+          ans += estimateExpandHashInc(key);
+        });
+      }
+    });
+    return ans;
+  }
+
+  checkExpandInitMemory() {
+    const childrensInc = this.estimateChildrensInc();
+    const expandHashInc = this.estimateExpandInitInc();
+    if (os.freemem() > bitToByte(childrensInc + expandHashInc)) {
       return true;
     } else {
-      appendToLog(
-        getGTMDateString() + ' || ████ ❗❗❗❗ ⮕ [Memory]: Insuficient memory space. ████ ||\n'
+      this.appendToLog(
+        getGTMNowString() + ' || ████ ❗❗❗❗ ⮕ [Memory]: Insuficient memory space. ████ ||\n'
+      );
+      return false;
+    }
+  }
+
+  checkExpandMiddleMemory() {
+    const expandHashInc = this.estimateExpandMiddleInc();
+    if (os.freemem() > expandHashInc) {
+      return true;
+    } else {
+      this.appendToLog(
+        getGTMNowString() + ' || ████ ❗❗❗❗ ⮕ [Memory]: Insuficient memory space. ████ ||\n'
       );
       return false;
     }
@@ -357,15 +443,12 @@ class Cluster extends Node {
   adjust() {
     const {
       status,
-      options: {
-        logPath,
-      },
     } = this;
-    if ((status === 1 || status === 4) && this.greaterThresholdAndBondAndDutyCycle() && this.checkMemory()) {
-      this.expandMiddleHash();
-    }
-    if ((status === 0 || status === 3) && this.greaterThresholdAndBondAndDutyCycle() && this.checkMemory()) {
+    if ((status === 0 || status === 3) && this.greaterThresholdAndBondAndDutyCycle() && this.checkExpandInitMemory()) {
       this.expandInitHash();
+    }
+    if ((status === 1 || status === 4) && this.greaterThresholdAndBondAndDutyCycle() && this.checkExpandMiddleMemory()) {
+      this.expandMiddleHash();
     }
     if ((status === 2 || status === 5) && this.lessThresholdAndBondAndDutyCycle()) {
       const { number, } = this;

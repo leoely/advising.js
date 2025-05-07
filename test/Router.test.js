@@ -416,7 +416,7 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
     router.match('/male/john');
     router.match('/male/john');
     router.match('/male/john');
-    expect(() => router.match('/male/john')).toThrow('[Error] LogLevel must in section [1, 7].');
+    expect(() => router.match('/male/john')).toThrow('[Error] LogLevel must in section [0, 7].');
   });
 
   test('Router root path cannot be manipulated.', () => {
