@@ -39,7 +39,12 @@ function estimatePointer() {
 
 function estimateExpandHashInc(key) {
   const { length, } = key;
-  return length * estimateArray(26);
+  let ans = 0;
+  for (let i = 0; i < length; i += 1) {
+    const value = dealCharCode(key.charCodeAt(i));
+    ans += estimateArray(value + 1);
+  }
+  return ans;
 }
 
 function estimateObjectHashInc(hash) {
@@ -274,7 +279,7 @@ class Cluster extends Node {
       return true;
     } else {
       this.appendToLog(
-        ' || ████ ❗❗❗❗FREEMEN:' + freemen + ' & ████ REASON: Out fo memory ████ ||\n'
+        ' || ████ ❗❗❗❗FREEMEM:' + freemem + ' & ████ REASON: Out fo memory ████ ||\n'
       );
       return false;
     }
