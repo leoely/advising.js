@@ -1,9 +1,6 @@
 import os from 'os';
-import childProcess from 'child_process';
 import Mixture from '~/class/Mixture';
 import Node from '~/class/Node';
-import getGTMNowString from '~/lib/getGTMNowString';
-import checkLogPath from '~/lib/checkLogPath';
 import checkMemory from '~/lib/checkMemory';
 
 function dealCharCode(code) {

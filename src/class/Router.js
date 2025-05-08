@@ -4,7 +4,6 @@ import Mixture from '~/class/Mixture';
 import checkLogPath from '~/lib/checkLogPath';
 import checkMemory from '~/lib/checkMemory';
 import appendToLog from '~/lib/appendToLog';
-import getGTMNowString from '~/lib/getGTMNowString';
 
 function getPathsFromUrl(url) {
   if (typeof url !== 'string') {
@@ -263,7 +262,7 @@ class Router {
     } = this;
     appendToLog(
       logPath,
-      ' || ████ Location:' + url + ' ████ & ████ OPERATE: delete ████ ||\n'
+      ' || ████ Location:' + url + ' ████ & ████ OPERATE:delete ████ ||\n'
     );
   }
 
@@ -296,7 +295,7 @@ class Router {
     } = this;
     appendToLog(
       logPath,
-      ' || ████ Location:' + url + ' ████ & ████ OPERATE: update ████ ||\n'
+      ' || ████ Location:' + url + ' ████ & ████ OPERATE:update ████ ||\n'
     );
   }
 
@@ -312,11 +311,11 @@ class Router {
     } = this;
     appendToLog(
       logPath,
-      ' || ████ Location:' + url1 + ' ████ & ████ OPERATE: swap ████ ||\n'
+      ' || ████ Location:' + url1 + ' ████ & ████ OPERATE:swap ████ ||\n'
     );
     appendToLog(
       logPath,
-      ' || ████ Location:' + url2 + ' ████ & ████ OPERATE: swap ████ ||\n'
+      ' || ████ Location:' + url2 + ' ████ & ████ OPERATE:swap ████ ||\n'
     );
   }
 
@@ -330,7 +329,7 @@ class Router {
     } = this;
     appendToLog(
       logPath,
-      ' || ████ Location:' + url + ' ████ & ████ OPERATE: fix ████ ||\n'
+      ' || ████ Location:' + url + ' ████ & ████ OPERATE:fix ████ ||\n'
     );
   }
 }

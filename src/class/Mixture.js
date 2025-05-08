@@ -1,5 +1,3 @@
-import Cluster from '~/class/Cluster';
-import Thing from '~/class/Thing';
 import checkMemory from '~/lib/checkMemory';
 
 class Mixture {
