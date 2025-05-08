@@ -2,9 +2,10 @@ import os from 'os';
 import appendToLog from '~/lib/appendToLog';
 
 export default function checkMemory() {
-  if (os.freemem() <= 0) {
+  const freemem = os.freemem();
+  if (freemem <= 0) {
     appendToLog(
-      getGTMDateString() + ' || ████ ❗❗❗❗ ⮕ [Memory]: Insuficient memory space. ████ ||\n'
+      getGTMDateString() + ' || ████ ❗❗❗❗FREEMEN:' + freemen + ' & ████ REASON: Out fo memory ████ ||\n'
     );
   }
 }
