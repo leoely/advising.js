@@ -160,7 +160,6 @@ class Router {
         logPath,
       },
     } = this;
-    checkLogPath(logPath);
     checkMemory(logPath);
   }
 
@@ -207,6 +206,8 @@ class Router {
     if (logPath !== undefined) {
       if (typeof logPath !== 'string') {
         throw new Error('[Error] Router option logPath must be a string type or undefined.');
+      } else {
+        checkLogPath(logPath);
       }
     }
   }
@@ -287,6 +288,11 @@ class Router {
       logPath,
       getGTMNowString() + ' || ████ ✨✨✨✨ ⮕ [Router]: Current route is switched. ████ ||\n'
     );
+  }
+
+  fix(url, content) {
+    const thing = this.match(url, true);
+    thing.setContent(content)
   }
 }
 

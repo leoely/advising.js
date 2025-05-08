@@ -31,6 +31,9 @@ describe('[Class] Router: Time complexity test cases;', () => {
     expect(JSON.stringify(router.match('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(router.match('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(router.match('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(router.root.count).toBe(17);
+    expect(router.root.find('male').count).toBe(17);
+    expect(router.root.find('male').find('john').count).toBe(5);
   });
 
   test('Router adds results after matching should be correct.', () => {
@@ -340,6 +343,26 @@ describe('[Class] Router: Space complexity test cases;', () => {
     expect(router.root.find('male').count).toBe(3);
     expect(JSON.stringify(router.match('/male/john'))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(router.match('/male/robert'))).toMatch('{\"name\":\"john\",\"age\":22}');
+  });
+
+  test('Router fix route should be correct.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 4,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 7,
+      logInterval: 5,
+    });
+    router.add('/male/john', { name: 'robert', age: 18, });
+    expect(JSON.stringify(router.match('/male/john'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    router.fix('/male/john', { name: 'john', age: 22, });
+    expect(JSON.stringify(router.match('/male/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
+    expect(JSON.stringify(router.match('/male/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
+    expect(JSON.stringify(router.match('/male/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
+    expect(JSON.stringify(router.match('/male/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
+    expect(router.root.find('male').find('john').count).toBe(5);
+    expect(router.root.find('male').count).toBe(5);
   });
 });
 

@@ -93,6 +93,10 @@ class Thing extends Node {
     }
     return this.content;
   }
+
+  setContent(content) {
+    this.content = content;
+  }
 }
 
 export default Thing;
