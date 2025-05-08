@@ -263,23 +263,21 @@ class Cluster extends Node {
   checkExpandInitMemory() {
     const childrensInc = this.estimateChildrensInc();
     const expandHashInc = this.estimateExpandInitInc();
-    if (os.freemem() > bitToByte(childrensInc + expandHashInc)) {
-      return true;
-    } else {
-      this.appendToLog(
-        ' || ████ ❗❗❗❗ ⮕ [Memory]: Insuficient memory space. ████ ||\n'
-      );
-      return false;
-    }
+    this.checkMemory(childrensInc + expandHashInc);
   }
 
   checkExpandMiddleMemory() {
     const expandHashInc = this.estimateExpandMiddleInc();
-    if (os.freemem() > expandHashInc) {
+    this.checkMemory(expandHashInc);
+  }
+
+  checkMemory(occupy) {
+    const freemem = os.freemem();
+    if (freemem > bitToByte(occupy)) {
       return true;
     } else {
       this.appendToLog(
-        ' || ████ ❗❗❗❗ ⮕ [Memory]: Insuficient memory space. ████ ||\n'
+        ' || ████ ❗❗❗❗FREEMEN:' + freemen + ' & ████ REASON: Out fo memory ████ ||\n'
       );
       return false;
     }
