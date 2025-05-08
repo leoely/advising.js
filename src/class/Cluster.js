@@ -126,11 +126,6 @@ class Cluster extends Node {
       this.updateChildrens(key, value);
     }
     this.set(key, value);
-    if (swap === true) {
-      this.appendToLog(
-        getGTMNowString() + ' || ████ ✨✨✨✨ ⮕ [Router]: Current route is updated with the new content. ████ ||\n'
-      );
-    }
     const {
       options: {
         logPath,
@@ -187,9 +182,6 @@ class Cluster extends Node {
         this.status = -1;
       }
     }
-    this.appendToLog(
-      getGTMNowString() + ' || ████ ✨✨✨✨ ⮕ [Router]: Current route is deleted. ████ ||\n'
-    );
   }
 
   clean(node, path) {
@@ -275,7 +267,7 @@ class Cluster extends Node {
       return true;
     } else {
       this.appendToLog(
-        getGTMNowString() + ' || ████ ❗❗❗❗ ⮕ [Memory]: Insuficient memory space. ████ ||\n'
+        ' || ████ ❗❗❗❗ ⮕ [Memory]: Insuficient memory space. ████ ||\n'
       );
       return false;
     }
@@ -287,7 +279,7 @@ class Cluster extends Node {
       return true;
     } else {
       this.appendToLog(
-        getGTMNowString() + ' || ████ ❗❗❗❗ ⮕ [Memory]: Insuficient memory space. ████ ||\n'
+        ' || ████ ❗❗❗❗ ⮕ [Memory]: Insuficient memory space. ████ ||\n'
       );
       return false;
     }

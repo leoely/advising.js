@@ -32,37 +32,37 @@ class Thing extends Node {
         break;
       case 1:
         this.appendToLog(
-          getGTMNowString() + ' ||  ████ Location:'+ url + ' ████ & ████ RATE:' + rate + ' ████ || \n'
+          ' ||  ████ Location:'+ url + ' ████ & ████ RATE:' + rate + ' ████ || \n'
         );
         break;
       case 2:
         this.appendToLog(
-          getGTMNowString() + ' ||  ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ ||\n'
+          ' ||  ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ ||\n'
         );
         break;
       case 3:
         this.appendToLog(
-          getGTMNowString() + ' ||  ████ Location:'+ url + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
+          ' ||  ████ Location:'+ url + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       case 4:
         this.appendToLog(
-          getGTMNowString() + ' || ████ Location:'+ url + ' ████  RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
+          ' || ████ Location:'+ url + ' ████  RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       case 5:
         this.appendToLog(
-          getGTMNowString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████  DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
+          ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████  DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       case 6:
         this.appendToLog(
-          getGTMNowString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████  ||\n'
+          ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████  ||\n'
         );
         break;
       case 7:
         this.appendToLog(
-          getGTMNowString() + ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
+          ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       default:

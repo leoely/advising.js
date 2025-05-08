@@ -256,6 +256,15 @@ class Router {
     const { root, } = this;
     const [path] = paths;
     deleteRecursion(root, 0, paths, thing, path, root);
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    appendToLog(
+      logPath,
+      ' || ████ Location:' + url + ' ████ & ████ OPERATE: delete ████ ||\n'
+    );
   }
 
   deleteAll(urls) {
@@ -280,6 +289,15 @@ class Router {
       const newThing = new Thing(url, content, options);
       updateRecursion(root, 0, paths, thing, newThing, path, root);
     }
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    appendToLog(
+      logPath,
+      ' || ████ Location:' + url + ' ████ & ████ OPERATE: update ████ ||\n'
+    );
   }
 
   swap(url1, url2) {
@@ -294,13 +312,26 @@ class Router {
     } = this;
     appendToLog(
       logPath,
-      getGTMNowString() + ' || ████ ✨✨✨✨ ⮕ [Router]: Current route is switched. ████ ||\n'
+      ' || ████ Location:' + url1 + ' ████ & ████ OPERATE: swap ████ ||\n'
+    );
+    appendToLog(
+      logPath,
+      ' || ████ Location:' + url2 + ' ████ & ████ OPERATE: swap ████ ||\n'
     );
   }
 
   fix(url, content) {
     const thing = this.match(url, true);
     thing.setContent(content)
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    appendToLog(
+      logPath,
+      ' || ████ Location:' + url + ' ████ & ████ OPERATE: fix ████ ||\n'
+    );
   }
 }
 
