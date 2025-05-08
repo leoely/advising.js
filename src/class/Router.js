@@ -21,7 +21,7 @@ function getPathsFromUrl(url) {
   return preprocessPaths.slice(1, preprocessPaths.length);
 }
 
-function matchRecursion(node, index, paths, total) {
+function matchRecursion(node, index, paths, total, needThing) {
   const path = paths[index];
   if (index === paths.length - 1) {
     if (node === undefined) {
@@ -30,11 +30,19 @@ function matchRecursion(node, index, paths, total) {
       if (node.mixture instanceof Mixture) {
         return node.mixture.getThing();
       } else {
-        return node.get(path, total);
+        if (needThing === true) {
+          return node.find(path);
+        } else {
+          return node.get(path, total);
+        }
       }
     }
   } else {
-    return matchRecursion(node.get(path, total), index + 1, paths, total);
+    if (needThing === true) {
+      return matchRecursion(node.find(path, total), index + 1, paths, total, needThing);
+    } else {
+      return matchRecursion(node.get(path, total), index + 1, paths, total, needThing);
+    }
   }
 }
 
@@ -86,10 +94,10 @@ function deleteRecursion(node, index, paths, thing, beforePath, beforeNode) {
       node.delete(path);
       node.clean(beforeNode, beforePath);
     }
-    node.subtractCount(thing.count + 1);
+    node.subtractCount(thing.count);
   } else {
     deleteRecursion(node.find(path), index + 1, paths, thing, path, beforeNode);
-    node.subtractCount(thing.count + 1);
+    node.subtractCount(thing.count);
   }
 }
 
@@ -104,9 +112,9 @@ function updateNewThing(node, path, thing, newThing) {
 function updateCount(node, thing, newThing) {
   const { count, } = newThing;
   if (count === 0) {
-    node.subtractCount(thing.count + 1);
+    node.subtractCount(thing.count);
   } else {
-    node.subtractCount(thing.count + 2);
+    node.subtractCount(thing.count);
     node.addCount(newThing.count);
   }
 }
@@ -216,7 +224,7 @@ class Router {
     const paths = getPathsFromUrl(url);
     this.total += 1;
     const { total, root, } = this;
-    const thing = matchRecursion(root, 0, paths, total);
+    const thing = matchRecursion(root, 0, paths, total, needThing);
     if (thing === undefined) {
       throw Error('[Error] Router matching the url does not exist.');
     } else {
