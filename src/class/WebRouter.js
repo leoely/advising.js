@@ -31,7 +31,7 @@ function parsePathKeys(url) {
           chars = [];
           status = 3;
         } else {
-          throw ;
+          throw new Error('[Error] There should be a slash line there.');
         }
         break;
       }

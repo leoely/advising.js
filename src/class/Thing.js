@@ -1,7 +1,12 @@
 import Node from '~/class/Node';
 import getGTMNowString from '~/lib/getGTMNowString';
 import checkMemory from '~/lib/checkMemory';
-import checkContent from '~/lib/checkContent';
+
+function checkContent(content) {
+  if (content === undefined || content === null || Number.isNaN(content)) {
+    throw Error('[Error] Value should be reasonable value.');
+  }
+}
 
 class Thing extends Node {
   constructor(url, content, options, pathKeys) {
