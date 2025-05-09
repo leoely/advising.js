@@ -12,7 +12,7 @@ describe('[Class] WebRouter;', () => {
       logInterval: 5,
     });
     webRouter.add('/movie/action//{page}/{index}', ['Thunderbolts', 'Sinners', 'Havoc']);
-    expect(JSON.stringify(webRouter.router.root.find('movie').find('action').pathKeys)).toMatch('[\"page\"]');
+    expect(JSON.stringify(webRouter.router.root.find('movie').find('action').pathKeys)).toMatch('[\"page\",\"index\"]');
   });
 
   test('WebRouter additions require additional support for path variables.', () => {
