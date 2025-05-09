@@ -105,6 +105,15 @@ class Thing extends Node {
     }
   }
 
+  getPathKeys() {
+    const { pathKeys, } = this;
+    if (pathKeys !== undefined) {
+      return pathKeys;
+    } else {
+      throw new Error('[Error] Unable to get path keys because it is not set.');
+    }
+  }
+
   getContent(total) {
     if (typeof total === 'number') {
       this.match(total);

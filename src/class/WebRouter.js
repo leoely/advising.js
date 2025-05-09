@@ -127,8 +127,8 @@ class WebRouter {
   }
 
   add(url, content) {
-    const [remainUrl, pathKeys] = parsePathKeys(url);
-    this.router.add(remainUrl, content, pathKeys);
+    const [url1, pathKeys] = parsePathKeys(url);
+    this.router.add(url1, content, pathKeys);
   }
 
   delete(url) {
@@ -151,28 +151,41 @@ class WebRouter {
     this.router.fix(url, content);
   }
 
-  match(url) {
-    const [restUrl, queryParams] = parseQueryParams(url);
-    const [remainUrl, pathValues] = parsePathValues(restUrl);
-    const { router, } = this;
-    const thing = router.match(remainUrl, true);
-    const content = thing.getContent();
-    const { pathKeys, } = thing;
-    const pathVariables = {};
+  setPathKeys(pathsString, pathKeysString) {
+    const thing = this.router.match(pathsString, true);
+    const [_, pathKeys] = parsePathKeys(pathKeysString);
+    thing.setPathKeys(pathKeys);
+  }
+
+  match(url, needThing) {
+    const [url1, queryParams] = parseQueryParams(url);
+    const [url2, pathValues] = parsePathValues(url1);
+    const thing = this.router.match(url2, true);
+    const pathKeys = thing.getPathKeys();
     if (pathKeys.length === pathValues.length) {
+      const pathVariables = {};
       for (let i = 0; i < pathKeys.length; i += 1) {
         const key = pathKeys[i];
         const value = pathValues[i];
         pathVariables[key] = value;
       }
+      if (needThing === true) {
+        return {
+          thing,
+          queryParams,
+          pathVariables,
+        };
+      } else {
+        const content = thing.getContent();
+        return {
+          content,
+          queryParams,
+          pathVariables,
+        };
+      }
     } else {
       throw new Error('[Error] Format of the URL is incorrect.');
     }
-    return {
-      content,
-      queryParams,
-      pathVariables,
-    };
   }
 }
 
