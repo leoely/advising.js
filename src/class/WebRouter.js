@@ -125,11 +125,11 @@ class WebRouter {
   constructor(options = {}) {
     this.router = new Router(options);
     const { router, } = this;
-    this.delete = router.delete.bind(this);
-    this.deleteAll = router.delete.bind(this);
-    this.update = router.update.bind(this);
-    this.swap = router.swap.bind(this);
-    this.fix = router.fix.bind(this);
+    this.delete = router.delete.bind(router);
+    this.deleteAll = router.delete.bind(router);
+    this.update = router.update.bind(router);
+    this.swap = router.swap.bind(router);
+    this.fix = router.fix.bind(router);
   }
 
   add(url, content) {
