@@ -121,24 +121,18 @@ function parseQueryParams(url) {
   return [url1, queryParams];
 }
 
-class WebRouter {
+class WebRouter extends Router {
   constructor(options = {}) {
-    this.router = new Router(options);
-    const { router, } = this;
-    this.delete = router.delete.bind(router);
-    this.deleteAll = router.delete.bind(router);
-    this.update = router.update.bind(router);
-    this.swap = router.swap.bind(router);
-    this.fix = router.fix.bind(router);
+    super(options);
   }
 
   add(url, content) {
     const [url1, pathKeys] = parsePathKeys(url);
-    this.router.add(url1, content, pathKeys);
+    super.add(url1, content, pathKeys);
   }
 
   setPathKeys(pathsString, pathKeysString) {
-    const thing = this.router.match(pathsString, true);
+    const thing = super.match(pathsString, true);
     const [_, pathKeys] = parsePathKeys(pathKeysString);
     thing.setPathKeys(pathKeys);
   }
@@ -146,7 +140,7 @@ class WebRouter {
   match(url, needThing) {
     const [url1, queryParams] = parseQueryParams(url);
     const [url2, pathValues] = parsePathValues(url1);
-    const thing = this.router.match(url2, true);
+    const thing = super.match(url2, true);
     const pathKeys = thing.getPathKeys();
     if (pathKeys.length === pathValues.length) {
       const pathVariables = {};

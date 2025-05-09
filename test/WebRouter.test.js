@@ -12,7 +12,7 @@ describe('[Class] WebRouter;', () => {
       logInterval: 5,
     });
     webRouter.add('/movie/action//{page}/{index}', ['Thunderbolts', 'Sinners', 'Havoc']);
-    expect(JSON.stringify(webRouter.router.root.find('movie').find('action').pathKeys)).toMatch('[\"page\",\"index\"]');
+    expect(JSON.stringify(webRouter.root.find('movie').find('action').pathKeys)).toMatch('[\"page\",\"index\"]');
   });
 
   test('WebRouter nedd to support both query parameters and path variables.', () => {
@@ -39,6 +39,6 @@ describe('[Class] WebRouter;', () => {
     });
     webRouter.add('/movie/action//{page}/{index}', ['Thunderbolts', 'Sinners', 'Havoc']);
     webRouter.setPathKeys('/movie/action', '//{start}/{end}');
-    expect(JSON.stringify(webRouter.router.root.find('movie').find('action').pathKeys)).toMatch('[\"start\",\"end\"]');
+    expect(JSON.stringify(webRouter.root.find('movie').find('action').pathKeys)).toMatch('[\"start\",\"end\"]');
   });
 });
