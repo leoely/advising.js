@@ -124,31 +124,17 @@ function parseQueryParams(url) {
 class WebRouter {
   constructor(options = {}) {
     this.router = new Router(options);
+    const { router, } = this;
+    this.delete = router.delete.bind(this);
+    this.deleteAll = router.delete.bind(this);
+    this.update = router.update.bind(this);
+    this.swap = router.swap.bind(this);
+    this.fix = router.fix.bind(this);
   }
 
   add(url, content) {
     const [url1, pathKeys] = parsePathKeys(url);
     this.router.add(url1, content, pathKeys);
-  }
-
-  delete(url) {
-    this.router.delete(url);
-  }
-
-  deleteAll(urls) {
-    this.router.deleteAll(urls);
-  }
-
-  update(url, multiple) {
-    this.router.update(url, multiple);
-  }
-
-  swap(url1, url2) {
-    this.router.swap(url1, url2);
-  }
-
-  fix(url, content) {
-    this.router.fix(url, content);
   }
 
   setPathKeys(pathsString, pathKeysString) {
