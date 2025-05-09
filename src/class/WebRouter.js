@@ -3,7 +3,7 @@ import Router from '~/class/Router';
 function parsePathKeys(url) {
   let status = 0;
   let chars = [];
-  let remainUrl = url;
+  let url1 = url;
   const pathKeys = [];
   outer: for (let i = url.length - 1; i >= 0; i -= 1) {
     const char = url.charAt(i);
@@ -37,7 +37,7 @@ function parsePathKeys(url) {
       }
       case 3: {
         if (char === '/') {
-          remainUrl = url.substring(0, i);
+          url1 = url.substring(0, i);
           break outer;
         } else if (char === '}') {
           status = 1;
@@ -46,13 +46,13 @@ function parsePathKeys(url) {
       }
     }
   }
-  return [remainUrl, pathKeys];
+  return [url1, pathKeys];
 }
 
 function parsePathValues(url) {
   let status = 0;
   let chars = [];
-  let remainUrl = url;
+  let url1 = url;
   const pathValues = [];
   outer: for (let i = url.length - 1; i >= 0; i -= 1) {
     const char = url.charAt(i);
@@ -69,7 +69,7 @@ function parsePathValues(url) {
       }
       case 1: {
         if (char === '/') {
-          remainUrl = url.substring(0 , i);
+          url1 = url.substring(0 , i);
           break outer;
         } else {
           chars.unshift(char);
@@ -79,14 +79,14 @@ function parsePathValues(url) {
       }
     }
   }
-  return [remainUrl, pathValues];
+  return [url1, pathValues];
 }
 
 function parseQueryParams(url) {
   let status = 0;
   let chars = [];
   let value;
-  let restUrl = url;
+  let url1 = url;
   const queryParams = {};
   outer: for (let i = url.length - 1; i >= 0; i -= 1) {
     const char = url.charAt(i);
@@ -109,7 +109,7 @@ function parseQueryParams(url) {
           status = 0;
         } else if (char === '?') {
           queryParams[chars.join('')] = value;
-          restUrl = url.substring(0, i);
+          url1 = url.substring(0, i);
           break outer;
         } else {
           chars.unshift(char);
@@ -118,7 +118,7 @@ function parseQueryParams(url) {
       }
     }
   }
-  return [restUrl, queryParams];
+  return [url1, queryParams];
 }
 
 class WebRouter {
