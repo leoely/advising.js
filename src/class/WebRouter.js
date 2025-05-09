@@ -131,6 +131,26 @@ class WebRouter {
     this.router.add(remainUrl, content, pathKeys);
   }
 
+  delete(url) {
+    this.router.delete(url);
+  }
+
+  deleteAll(urls) {
+    this.router.deleteAll(urls);
+  }
+
+  update(url, multiple) {
+    this.router.update(url, multiple);
+  }
+
+  swap(url1, url2) {
+    this.router.swap(url1, url2);
+  }
+
+  fix(url, content) {
+    this.router.fix(url, content);
+  }
+
   match(url) {
     const [restUrl, queryParams] = parseQueryParams(url);
     const [remainUrl, pathValues] = parsePathValues(restUrl);
