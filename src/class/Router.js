@@ -140,12 +140,6 @@ function updateRecursion(node, index, paths, thing, newThing, beforePath, before
   }
 }
 
-function checkContent(content) {
-  if (content === undefined || content === null || Number.isNaN(content)) {
-    throw Error('[Error] Value should be reasonable value.');
-  }
-}
-
 class Router {
   constructor(options = {}) {
     const defaultOptions = {
@@ -235,16 +229,15 @@ class Router {
     }
   }
 
-  add(url, multiple) {
+  add(url, multiple, pathVariables) {
     const paths = getPathsFromUrl(url);
     if (multiple instanceof Thing) {
       const thing = multiple;
       addRecursion(root, 0, paths, options, thing);
     } else {
       const content = multiple;
-      checkContent(content);
       const { root, options, } = this;
-      const thing = new Thing(url, content, options);
+      const thing = new Thing(url, content, options, pathVariables);
       addRecursion(root, 0, paths, options, thing);
     }
   }
@@ -262,7 +255,7 @@ class Router {
     } = this;
     appendToLog(
       logPath,
-      ' || ████ Location:' + url + ' ████ & ████ OPERATE:delete ████ ||\n'
+      ' || ████ Location:' + url + ' ████ & ████ OPERATE:delete ████ ||\n',
     );
   }
 
@@ -282,7 +275,6 @@ class Router {
       updateRecursion(root, 0, paths, thing, newThing, path, root);
     } else {
       const content = multiple;
-      checkContent(content);
       const [path] = paths;
       const { root, options, } = this;
       const newThing = new Thing(url, content, options);
@@ -295,7 +287,7 @@ class Router {
     } = this;
     appendToLog(
       logPath,
-      ' || ████ Location:' + url + ' ████ & ████ OPERATE:update ████ ||\n'
+      ' || ████ Location:' + url + ' ████ & ████ OPERATE:update ████ ||\n',
     );
   }
 
@@ -311,11 +303,11 @@ class Router {
     } = this;
     appendToLog(
       logPath,
-      ' || ████ Location:' + url1 + ' ████ & ████ OPERATE:swap ████ ||\n'
+      ' || ████ Location:' + url1 + ' ████ & ████ OPERATE:swap ████ ||\n',
     );
     appendToLog(
       logPath,
-      ' || ████ Location:' + url2 + ' ████ & ████ OPERATE:swap ████ ||\n'
+      ' || ████ Location:' + url2 + ' ████ & ████ OPERATE:swap ████ ||\n',
     );
   }
 
@@ -329,7 +321,7 @@ class Router {
     } = this;
     appendToLog(
       logPath,
-      ' || ████ Location:' + url + ' ████ & ████ OPERATE:fix ████ ||\n'
+      ' || ████ Location:' + url + ' ████ & ████ OPERATE:fix ████ ||\n',
     );
   }
 }

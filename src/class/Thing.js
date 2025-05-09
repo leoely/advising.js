@@ -1,13 +1,16 @@
 import Node from '~/class/Node';
 import getGTMNowString from '~/lib/getGTMNowString';
 import checkMemory from '~/lib/checkMemory';
+import checkContent from '~/lib/checkContent';
 
 class Thing extends Node {
-  constructor(url, content, options) {
+  constructor(url, content, options, pathKeys) {
+    checkContent(content);
     super(options);
     this.url = url;
     this.content = content;
     this.interval = 0;
+    this.setPathKeys(pathKeys);
     const {
       options: {
         logPath,
@@ -87,6 +90,16 @@ class Thing extends Node {
     }
   }
 
+  setPathKeys(pathKeys) {
+    if (pathKeys !== undefined) {
+      if (!Array.isArray(pathKeys)) {
+        throw new Error('[Error] Path variables needs to be a string type.');
+      } else {
+        this.pathKeys = pathKeys;
+      }
+    }
+  }
+
   getContent(total) {
     if (typeof total === 'number') {
       this.match(total);
@@ -95,6 +108,7 @@ class Thing extends Node {
   }
 
   setContent(content) {
+    checkContent(content);
     this.content = content;
   }
 }

@@ -17,7 +17,7 @@ function bitToByte(bit) {
   return bit / 8;
 }
 
-function estimateArray(multiple) {
+function estimateArrayInc(multiple) {
   let length;
   if (Array.isArray(multiple)) {
     const array = multiple;
@@ -42,13 +42,13 @@ function estimateExpandHashInc(key) {
   let ans = 0;
   for (let i = 0; i < length; i += 1) {
     const value = dealCharCode(key.charCodeAt(i));
-    ans += estimateArray(value + 1);
+    ans += estimateArrayInc(value + 1);
   }
   return ans;
 }
 
-function estimateObjectHashInc(hash) {
-  let ans = estimateArray(5);
+function estimateObjectInc(hash) {
+  let ans = estimateArrayInc(5);
   Object.keys(hash).forEach((key) => {
     ans += estimatePointer() + estimateString(key);
   });
@@ -227,8 +227,8 @@ class Cluster extends Node {
     const { hash, } = this;
     let ans = 0;
     const keys = Object.keys(hash);
-    ans += estimateArray(keys);
-    ans += 2 * estimateArray(keys);
+    ans += estimateArrayInc(keys);
+    ans += 2 * estimateArrayInc(keys);
     keys.forEach((key) => {
       ans += estimateString(key);
       ans += estimatePointer();
@@ -243,17 +243,17 @@ class Cluster extends Node {
     keys.forEach((key) => {
       ans += estimateExpandHashInc(key) - estimateString(key);
     });
-    ans -= estimateObjectHashInc(hash);
+    ans -= estimateObjectInc(hash);
     return ans;
   }
 
   estimateExpandMiddleInc() {
     const { hash, } = this;
-    let ans = -estimateArray(hash);
+    let ans = -estimateArrayInc(hash);
     hash.forEach((multiple) => {
       if (typeof multiple === 'object') {
         const object = multiple;
-        ans -= estimateObjectHashInc(object);
+        ans -= estimateObjectInc(object);
         Object.keys(object).forEach((key) => {
           ans += estimateExpandHashInc(key);
         });
