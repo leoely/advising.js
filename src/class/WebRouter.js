@@ -1,7 +1,5 @@
 import Router from '~/class/Router';
 
-const error = new Error('[Error] Format of the URL is incorrect.');
-
 function parsePathKeys(url) {
   let status = 0;
   let chars = [];
@@ -33,7 +31,7 @@ function parsePathKeys(url) {
           chars = [];
           status = 3;
         } else {
-          throw error;
+          throw ;
         }
         break;
       }
@@ -148,7 +146,7 @@ class WebRouter {
         pathVariables[key] = value;
       }
     } else {
-      throw error;
+      throw new Error('[Error] Format of the URL is incorrect.');
     }
     return {
       content,
