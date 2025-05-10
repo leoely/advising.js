@@ -1,7 +1,7 @@
+import fs from 'fs';
 import Cluster from '~/class/Cluster';
 import Thing from '~/class/Thing';
 import Mixture from '~/class/Mixture';
-import checkLogPath from '~/lib/checkLogPath';
 import checkMemory from '~/lib/checkMemory';
 import appendToLog from '~/lib/appendToLog';
 
@@ -137,6 +137,12 @@ function updateRecursion(node, index, paths, thing, newThing, beforePath, before
   } else {
     updateRecursion(node.find(path), index + 1, paths, thing, newThing, path, node);
     updateCount(node, thing, newThing);
+  }
+}
+
+function checkLogPath(logPath) {
+  if (!fs.existsSync(logPath)) {
+    fs.mkdirSync(logPath, { recursive: true });
   }
 }
 

@@ -364,6 +364,19 @@ describe('[Class] Router: Space complexity test cases;', () => {
     expect(router.root.find('male').find('john').count).toBe(5);
     expect(router.root.find('male').count).toBe(5);
   });
+
+  test('Router truncation function should work correctly.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 4,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 7,
+      logInterval: 5,
+      interception: 3,
+    });
+    router.add('/long', { type: 'long', });
+  });
 });
 
 describe('[Class] Router: Miscellaneous test cases;', () => {
