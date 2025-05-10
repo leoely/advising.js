@@ -100,7 +100,7 @@ class Cluster extends Node {
             }
           }
         } else {
-          let { hash: root, }= this;
+          let { hash: root, } = this;
           const { length, } = key;
           for (let i = 0; i < length; i += 1) {
             const code = key.charCodeAt(i);
@@ -205,7 +205,8 @@ class Cluster extends Node {
           break;
         }
       }
-      if (Object.keys(this.hash).length === 0) {
+      const { hash, } = this;
+      if (Object.keys(hash).length === 0) {
         delete this.hash;
         this.status = -1;
       }
@@ -511,7 +512,7 @@ class Cluster extends Node {
       case 7: {
         const { length, } = key;
         const { hash, } = this;
-        if (hash && hash[length - 1] && hash[length - 1][key]) {
+        if (hash && hash[length - 1]) {
           return hash[length - 1][key];
         } else {
           return undefined;
@@ -541,7 +542,7 @@ class Cluster extends Node {
             }
           }
         } else {
-          let root = this.hash;
+          let { hash: root, } = this;
           const { length, } = key;
           for (let i = 0; i < length; i += 1) {
             const code = key.charCodeAt(i);
@@ -603,22 +604,12 @@ class Cluster extends Node {
       this.addMiddleHash(key, value);
       this.pushChildrens(key, value);
     });
-    if (this.status === 0) {
+    const { status, } = this;
+    if (status === 0) {
       this.status = 1;
-    } else {
+    } else if (status === 3) {
       this.status = 4;
-    }
-  }
-
-  addFullCharInitHash() {
-    const keys = Object.keys(this.hash);
-    const values = keys.map((key) => this.hash[key]);
-    this.hash = [];
-    keys.forEach((key, index) => {
-      const value = values[index];
-      this.addMiddleHash(key, value);
-    });
-    if (this.status === 6) {
+    } else {
       this.status = 7;
     }
   }
@@ -631,10 +622,13 @@ class Cluster extends Node {
       this.hash[key] = value;
     });
     delete this.childrens;
-    if (this.status === 1) {
+    const { status, } = this;
+    if (status === 1) {
       this.status = 0;
-    } else {
+    } else if (status === 4) {
       this.status = 3;
+    } else {
+      this.status = 6;
     }
   }
 
@@ -648,7 +642,8 @@ class Cluster extends Node {
       this.setExpandHash(key, value);
       this.pushChildrens(key, value);
     });
-    if (this.status === 0) {
+    const { status, } = this;
+    if (status === 0) {
       this.status = 2;
     } else {
       this.stauts = 5;
@@ -661,7 +656,8 @@ class Cluster extends Node {
       const [key, value] = children;
       this.setExpandHash(key, value);
     });
-    if (this.status === 1) {
+    const { status, } = this;
+    if (status === 1) {
       this.status = 2;
     } else {
       this.status = 5;
@@ -677,10 +673,13 @@ class Cluster extends Node {
       }
       this.hash[key.length - 1][key] = value;
     });
-    if (this.status === 5) {
+    const { status, } = this;
+    if (status === 5) {
       this.status = 4;
-    } else {
+    } else if (status === 2) {
       this.status = 1;
+    } else {
+      this.status = 6;
     }
   }
 
@@ -690,7 +689,8 @@ class Cluster extends Node {
       const [key, value] = elem;
       this.hash[key] = value;
     });
-    if (this.status === 5) {
+    const { status, } = this;
+    if (status === 5) {
       this.status = 3;
     } else {
       this.status = 0;
