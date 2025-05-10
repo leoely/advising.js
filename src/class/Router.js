@@ -250,7 +250,7 @@ class Router {
       if (needThing === true) {
         return thing;
       } else {
-        return thing.getContent(total);
+        return thing.getContent(total, url);
       }
     }
   }

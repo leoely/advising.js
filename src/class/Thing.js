@@ -10,18 +10,16 @@ class Thing extends Node {
   constructor(url, content, options, pathKeys) {
     checkContent(content);
     super(options);
-    this.url = url;
     this.content = content;
     this.interval = 0;
     this.setPathKeys(pathKeys);
     this.checkMemory();
   }
 
-  log() {
+  log(url) {
     const {
       count,
       rate,
-      url,
       options: {
         logLevel,
         logPath,
@@ -71,7 +69,7 @@ class Thing extends Node {
     }
   }
 
-  match(total) {
+  match(total, url) {
     this.count += 1
     const { count, } = this;
     this.rate = count / total;
@@ -84,7 +82,7 @@ class Thing extends Node {
     } = this;
     if (interval === logInterval) {
       this.interval = 0;
-      this.log();
+      this.log(url);
     }
   }
 
@@ -107,9 +105,9 @@ class Thing extends Node {
     }
   }
 
-  getContent(total) {
+  getContent(total, url) {
     if (typeof total === 'number') {
-      this.match(total);
+      this.match(total, url);
     }
     return this.content;
   }

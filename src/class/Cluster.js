@@ -12,7 +12,7 @@ function dealCharCode(code) {
 }
 
 function bitToByte(bit) {
-  return bit / 8;
+  return Math.floor(bit / 8);
 }
 
 function estimateArrayInc(multiple) {
@@ -68,9 +68,11 @@ class Cluster extends Node {
     switch (status) {
       case 0:
       case 3:
-      case 6:
-        this.hash[key] = value;
+      case 6: {
+        const { hash, } = this;
+        hash[key] = value;
         break;
+      }
       case 1:
       case 4:
       case 7:
@@ -297,18 +299,20 @@ class Cluster extends Node {
 
   addMiddleHash(key, value) {
     const index = key.length - 1;
-    if (this.hash[index] === undefined) {
-      this.hash[index] = {};
+    const { hash, } = this;
+    if (hash[index] === undefined) {
+      hash[index] = {};
     }
-    this.hash[index][key] = value;
+    hash[index][key] = value;
   }
 
   removeMiddleHash(key) {
     const index = key.length - 1;
-    const objectHash = this.hash[index];
+    const { hash, } = this;
+    const objectHash = hash[index];
     delete objectHash[key];
     if (Object.keys(objectHash).length === 0) {
-      delete this.hash[index];
+      delete hash[index];
     }
   }
 
@@ -340,17 +344,19 @@ class Cluster extends Node {
       }
     }
     if (ans === false) {
-      if (this.status === -1) {
+      const { status, } = this;
+      if (status === -1) {
         this.status = 6;
         this.hash = {};
       }
     } else {
       switch (flag) {
         case 0: {
-          if (this.status === -1) {
+          const { status, } = this;
+          if (status === -1) {
             this.status = 0;
             this.hash = {};
-          } else if (this.status !== 0 && this.status !== 1 && this.status !== 2) {
+          } else if (status !== 0 && status !== 1 && status !== 2) {
             throw new Error(
               '[Error] Cluster is plain text type but the newly added type is a pure number.'
             );
@@ -358,10 +364,11 @@ class Cluster extends Node {
           break;
         }
         case 1: {
-          if (this.status === -1) {
+          const { status, } = this;
+          if (status === -1) {
             this.status = 3;
             this.hash = {};
-          } else if (this.status !== 3 && this.status !== 4 && this.status !== 5) {
+          } else if (status !== 3 && status !== 4 && status !== 5) {
             throw new Error(
               '[Error] Cluster is pure numeric type but the newly added is a pure letters.'
             );
@@ -375,8 +382,9 @@ class Cluster extends Node {
 
   blendFromCluster(mixture) {
     const cluster = mixture.getCluster();
-    this.hash = cluster.hash;
-    this.childrens = cluster.childrens;
+    const { hash, childrens, } = cluster;
+    this.hash = hash;
+    this.childrens = childrens;
     this.mixture = mixture;
     this.checkMemory();
   }
@@ -432,7 +440,7 @@ class Cluster extends Node {
   lessThresholdAndBondAndDutyCycle() {
     const {
       options: {
-        threshold, bond, dutyCycle, startTime,
+        threshold, bond, dutyCycle,
       },
     } = this;
     if (threshold === undefined && bond === undefined) {
@@ -596,8 +604,9 @@ class Cluster extends Node {
   }
 
   addInitHash() {
-    const keys = Object.keys(this.hash);
-    const values = keys.map((key) => this.hash[key]);
+    const { hash, } = this;
+    const keys = Object.keys(hash);
+    const values = keys.map((key) => hash[key]);
     this.hash = [];
     keys.forEach((key, index) => {
       const value = values[index];
@@ -617,9 +626,10 @@ class Cluster extends Node {
   removeMiddleHash() {
     const { childrens, } = this;
     this.hash = {};
+    const { hash, } = this;
     childrens.forEach((children) => {
       const [key, value] = children;
-      this.hash[key] = value;
+      hash[key] = value;
     });
     delete this.childrens;
     const { status, } = this;
@@ -633,8 +643,9 @@ class Cluster extends Node {
   }
 
   expandInitHash() {
-    const keys = Object.keys(this.hash);
-    const values = keys.map((key) => this.hash[key]);
+    const { hash, } = this;
+    const keys = Object.keys(hash);
+    const values = keys.map((key) => hash[key]);
     this.hash = [];
     this.childrens = [];
     keys.forEach((key, index) => {
@@ -652,7 +663,8 @@ class Cluster extends Node {
 
   expandMiddleHash() {
     this.hash = [];
-    this.childrens.forEach((children) => {
+    const { childrens, } = this;
+    childrens.forEach((children) => {
       const [key, value] = children;
       this.setExpandHash(key, value);
     });
@@ -666,12 +678,15 @@ class Cluster extends Node {
 
   reduceMiddleHash() {
     this.hash = [];
-    this.childrens.forEach((elem) => {
+    const { childrens, } = this;
+    childrens.forEach((elem) => {
       const [key, value] = elem;
-      if (this.hash[key.length - 1] === undefined) {
-        this.hash[key.length - 1] = {};
+      const { hash, } = this;
+      const { length, } = key;
+      if (hash[length - 1] === undefined) {
+        hash[length - 1] = {};
       }
-      this.hash[key.length - 1][key] = value;
+      hash[length - 1][key] = value;
     });
     const { status, } = this;
     if (status === 5) {
@@ -685,9 +700,11 @@ class Cluster extends Node {
 
   reduceInitHash() {
     this.hash = {};
+    const { childrens, } = this;
     this.childrens.forEach((elem) => {
       const [key, value] = elem;
-      this.hash[key] = value;
+      const { hash, } = this;
+      hash[key] = value;
     });
     const { status, } = this;
     if (status === 5) {
