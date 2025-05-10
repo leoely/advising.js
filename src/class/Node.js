@@ -16,7 +16,7 @@ class Node {
       },
     } = this;
     const now = Date.now();
-    return count / ((now - startTime) / 1000 * 60 * 60);
+    return count * 1000 * 60 * 60 / (now - startTime);
   }
 
   appendToLog(content) {
@@ -34,7 +34,7 @@ class Node {
         logPath,
       },
     } = this;
-    checkMemory(logPath, value);
+    return checkMemory(logPath, value);
   }
 };
 

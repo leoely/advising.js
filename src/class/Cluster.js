@@ -74,14 +74,37 @@ class Cluster extends Node {
         break;
       case 2:
       case 5: {
-        let root = this.hash;
-        const { length, } = key;
-        for (let i = 0; i < length; i += 1) {
-          const code = key.charCodeAt(i);
-          if (i === length - 1) {
-            root[dealCharCode(code)] = value;
-          } else {
-            root = root[dealCharCode(code)];
+        const {
+          options: {
+            interception,
+          },
+        } = this;
+        if (Number.isInteger(interception)) {
+          let { hash: root, } = this;
+          const { length, } = key;
+          for (let i = 0; i < interception; i += 1) {
+            const code = key.charCodeAt(i);
+            if (i === interception - 1) {
+              let tail = root[dealCharCode(code)];
+              if (tail === undefined) {
+                root[dealCharCode(code)] = {};
+              }
+              tail = root[dealCharCode(code)];
+              tail[key.substring(interception - 1, length)] = value;
+            } else {
+              root = root[dealCharCode(code)];
+            }
+          }
+        } else {
+          let { hash: root, }= this;
+          const { length, } = key;
+          for (let i = 0; i < length; i += 1) {
+            const code = key.charCodeAt(i);
+            if (i === length - 1) {
+              root[dealCharCode(code)] = value;
+            } else {
+              root = root[dealCharCode(code)];
+            }
           }
         }
         break;
@@ -135,31 +158,44 @@ class Cluster extends Node {
           break;
         case 1:
         case 4:
-          this.removeMiddleHash(key, value);
+          this.removeMiddleHash(key);
           break;
         case 2:
         case 5: {
-          let root = this.hash;
-          let beforeRoot;
-          const { length, } = key;
-          for (let i = 0; i < length; i += 1) {
-            const code = key.charCodeAt(i);
-            if (i === length - 1) {
-              delete root[dealCharCode(code)];
-            } else {
-              beforeRoot = root;
-              const index = dealCharCode(code);
-              root = root[index];
-              delete root[index];
+          const {
+            options: {
+              interception,
+            },
+          } = this;
+          if (Number.isInteger(interception)) {
+            let { hash: root, } = this;
+            const { length, } = key;
+            for (let i = 0; i < interception; i += 1) {
+              const code = key.charCodeAt(i);
+              if (i === interception - 1) {
+                delete root[dealCharCode(code)];
+              } else {
+                const index = dealCharCode(code);
+                delete root[index];
+              }
+            }
+          } else {
+            let beforeRoot;
+            let { hash: root, } = this;
+            const { length, } = key;
+            for (let i = 0; i < length; i += 1) {
+              const code = key.charCodeAt(i);
+              if (i === length - 1) {
+                delete root[dealCharCode(code)];
+              } else {
+                const index = dealCharCode(code);
+                beforeRoot = root;
+                root = root[index];
+                delete beforeRoot[index];
+              }
             }
           }
           break;
-        }
-      }
-      const { number, } = this;
-      if (number < this.options.number) {
-        if (this.status === 1 || this.status === 4) {
-          this.removeMiddleHash();
         }
       }
       if (Object.keys(this.hash).length === 0) {
@@ -243,12 +279,12 @@ class Cluster extends Node {
   checkExpandInitMemory() {
     const childrensInc = this.estimateChildrensInc();
     const expandHashInc = this.estimateExpandInitInc();
-    this.checkMemory(childrensInc + expandHashInc);
+    return this.checkMemory(childrensInc + expandHashInc);
   }
 
   checkExpandMiddleMemory() {
     const expandHashInc = this.estimateExpandMiddleInc();
-    this.checkMemory(expandHashInc);
+    return this.checkMemory(expandHashInc);
   }
 
   addMiddleHash(key, value) {
@@ -350,26 +386,26 @@ class Cluster extends Node {
         threshold, bond, dutyCycle,
       },
     } = this;
-    if (threshold === undefined && bond !== undefined && dutyCycle !== undefined) {
+    if (threshold === undefined && bond === undefined) {
       return this.getDutyCycle() >= dutyCycle;
     }
-    if (threshold === undefined && bond !== undefined && dutyCycle === undefined) {
+    if (threshold === undefined && dutyCycle === undefined) {
       const { count, } = this;
       return count >= bond;
     }
-    if (threshold !== undefined && bond === undefined && dutyCycle === undefined) {
+    if (bond === undefined && dutyCycle === undefined) {
       const { rate, } = this;
       return rate >= threshold;
     }
-    if (threshold !== undefined && bond === undefined && dutyCycle === undefined) {
+    if (bond !== undefined && dutyCycle !== undefined) {
       const { rate, count, } = this;
       return count >= bond && this.getDutyCycle() >= dutyCycle;
     }
-    if (threshold === undefined && bond !== undefined && dutyCycle === undefined) {
+    if (threshold !== undefined && dutyCycle !== undefined) {
       const { rate, count, } = this;
       return threshold >= threshold && this.getDutyCycle() >= dutyCycle;
     }
-    if (threshold === undefined && bond === undefined && dutyCycle !== undefined) {
+    if (threshold !== undefined && bond !== undefined) {
       const { rate, count, } = this;
       return rate >= threshold && count >= bond;
     }
@@ -386,26 +422,26 @@ class Cluster extends Node {
         threshold, bond, dutyCycle, startTime,
       },
     } = this;
-    if (threshold === undefined && bond !== undefined && dutyCycle !== undefined) {
+    if (threshold === undefined && bond === undefined) {
       return this.getDutyCycle() < dutyCycle;
     }
-    if (threshold === undefined && bond !== undefined && dutyCycle === undefined) {
+    if (threshold === undefined && dutyCycle === undefined) {
       const { count, } = this;
       return count < bond;
     }
-    if (threshold !== undefined && bond === undefined && dutyCycle === undefined) {
+    if (dutyCycle === undefined && bond === undefined) {
       const { rate, } = this;
       return rate < threshold;
     }
-    if (threshold !== undefined && bond === undefined && dutyCycle === undefined) {
+    if (bond !== undefined && dutyCycle !== undefined) {
       const { rate, count, } = this;
       return count < bond && this.getDutyCycle() < dutyCycle;
     }
-    if (threshold === undefined && bond !== undefined && dutyCycle === undefined) {
+    if (threshold !== undefined && dutyCycle !== undefined) {
       const { rate, count, } = this;
       return rate < threshold && this.getDutyCycle() < dutyCycle;
     }
-    if (threshold === undefined && bond === undefined && dutyCycle !== undefined) {
+    if (threshold !== undefined && bond !== undefined) {
       const { rate, count, } = this;
       return rate < threshold && count < bond;
     }
@@ -467,20 +503,44 @@ class Cluster extends Node {
       }
       case 2:
       case 5: {
-        let root = this.hash;
-        const { length, } = key;
-        for (let i = 0; i < length; i += 1) {
-          const code = key.charCodeAt(i);
-          if (i === length - 1) {
-            return root[dealCharCode(code)];
-          } else {
-            if (!Array.isArray(root)) {
-              return undefined;
+        const {
+          options: {
+            interception,
+          },
+        } = this;
+        if (Number.isInteger(interception)) {
+          let root = this.hash;
+          const { length, } = key;
+          for (let i = 0; i < interception; i += 1) {
+            const code = key.charCodeAt(i);
+            if (i === interception - 1) {
+              const tail = root[dealCharCode(code)];
+              return tail[key.substring(interception - 1, length)];
             } else {
-              root = root[dealCharCode(code)];
+              if (!Array.isArray(root)) {
+                return undefined;
+              } else {
+                root = root[dealCharCode(code)];
+              }
+            }
+          }
+        } else {
+          let root = this.hash;
+          const { length, } = key;
+          for (let i = 0; i < length; i += 1) {
+            const code = key.charCodeAt(i);
+            if (i === length - 1) {
+              return root[dealCharCode(code)];
+            } else {
+              if (!Array.isArray(root)) {
+                return undefined;
+              } else {
+                root = root[dealCharCode(code)];
+              }
             }
           }
         }
+        break;
       }
     }
   }
@@ -609,15 +669,39 @@ class Cluster extends Node {
   }
 
   setExpandHash(key, value) {
-    let root = this.hash;
-    const { length, } = key;
-    for (let i = 0; i < length; i += 1) {
-      const code = key.charCodeAt(i);
-      if (i === length - 1) {
-        root[dealCharCode(code)] = value;
-      } else {
-        root[dealCharCode(code)] = [];
-        root = root[dealCharCode(code)];
+    const {
+      options: {
+        interception,
+      },
+    } = this;
+    if (Number.isInteger(interception)) {
+      let { hash: root, } = this;
+      const { length, } = key;
+      for (let i = 0; i < interception; i += 1) {
+        const code = key.charCodeAt(i);
+        if (i === interception - 1) {
+          let tail = root[dealCharCode(code)];
+          if (tail === undefined) {
+            root[dealCharCode(code)] = {};
+          }
+          tail = root[dealCharCode(code)];
+          tail[key.substring(interception - 1, length)] = value;
+        } else {
+          root[dealCharCode(code)] = [];
+          root = root[dealCharCode(code)];
+        }
+      }
+    } else {
+      let { hash: root, } = this;
+      const { length, } = key;
+      for (let i = 0; i < length; i += 1) {
+        const code = key.charCodeAt(i);
+        if (i === length - 1) {
+          root[dealCharCode(code)] = value;
+        } else {
+          root[dealCharCode(code)] = [];
+          root = root[dealCharCode(code)];
+        }
       }
     }
   }
