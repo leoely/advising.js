@@ -127,11 +127,8 @@ class Cluster extends Node {
     const { number, } = this;
     if (number >= this.options.number) {
       const { status, } = this;
-      if (status === 0 || status === 3) {
+      if (status === 0 || status === 3 || status === 6) {
         this.addInitHash();
-      }
-      if (status === 6) {
-        this.addFullCharInitHash();
       }
     }
     const { count, } = value;
@@ -492,7 +489,7 @@ class Cluster extends Node {
     if ((status === 1 || status === 4) && this.greaterThresholdAndBondAndDutyCycle() && this.checkExpandMiddleMemory()) {
       this.expandMiddleHash();
     }
-    if ((status === 2 || status === 5) && this.lessThresholdAndBondAndDutyCycle()) {
+    if ((status === 2 || status === 5 || status === 7) && this.lessThresholdAndBondAndDutyCycle()) {
       const { number, } = this;
       if (number > this.options.number) {
         this.reduceMiddleHash();
