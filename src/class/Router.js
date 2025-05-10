@@ -149,6 +149,7 @@ class Router {
       dutyCycle: 500,
       logLevel: 3,
       logInterval: 5,
+      interception: 8,
       logPath: '/tmp/adivising.js/log',
       startTime: Date.now(),
     };
@@ -185,6 +186,7 @@ class Router {
       dutyCycle,
       logLevel,
       logInterval,
+      interception,
       logPath,
     } = this.options;
     if (threshold !== undefined) {
@@ -193,28 +195,33 @@ class Router {
       }
     }
     if (number !== undefined) {
-      if (typeof number !== 'number') {
-        throw new Error('[Error] Router option number must be a numeric type or undefined.');
+      if (!Number.isInteger(number)) {
+        throw new Error('[Error] Router option number must be a integer type or undefined.');
       }
     }
     if (bond !== undefined) {
-      if (typeof bond !== 'number') {
-        throw new Error('[Error] Router option bond must be a numeric type or undefined.');
+      if (!Number.isInteger(bond)) {
+        throw new Error('[Error] Router option bond must be a integer type or undefined.');
       }
     }
     if (dutyCycle !== undefined) {
-      if (typeof dutyCycle !== 'number') {
-        throw new Error('[Error] Router option dutyCycle must be a numeric type or undefined.');
+      if (!Number.isInteger(dutyCycle)) {
+        throw new Error('[Error] Router option dutyCycle must be a integer type or undefined.');
       }
     }
     if (logLevel !== undefined) {
-      if (typeof logLevel !== 'number') {
-        throw new Error('[Error] Router option logLevel must be a numeric type or undefined.');
+      if (!Number.isInteger(logLevel)) {
+        throw new Error('[Error] Router option logLevel must be a integer type or undefined.');
       }
     }
     if (logInterval !== undefined) {
-      if (typeof logInterval  !== 'number') {
-        throw new Error('[Error] Router option logLevel must be a numeric type or undefined.');
+      if (!Number.isInteger(logInterval)) {
+        throw new Error('[Error] Router option logLevel must be a integer type or undefined.');
+      }
+    }
+    if (interception !== undefined) {
+      if (!Number.isInteger(interception)) {
+        throw new Error('[Error] Router option logLevel must be a integer type or undefined.');
       }
     }
     if (logPath !== undefined) {
