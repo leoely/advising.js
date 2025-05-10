@@ -47,7 +47,9 @@ function estimateExpandHashInc(key) {
 
 function estimateObjectInc(hash) {
   let ans = estimateArrayInc(5);
-  Object.keys(hash).forEach((key) => {
+  const keys = Object.keys(hash);
+  ans += estimateArrayInc(keys.length);
+  keys.forEach((key) => {
     ans += estimatePointer() + estimateString(key);
   });
   return ans;
