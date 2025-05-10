@@ -415,6 +415,7 @@ describe('[Class] Router: Space complexity test cases;', () => {
     expect(JSON.stringify(router.match('/book/Das Kapital: Kritik der politischen Ökonomie'))).toMatch('{\"name\":\"Das Kapital: Kritik der politischen Ökonomie\"}');
     expect(JSON.stringify(router.match('/book/Στοιχεῖα'))).toMatch('{\"name\":\"Στοιχεῖα\"}');
     expect(router.root.find('book').status).toBe(7);
+    router.delete('/book/Das Kapital: Kritik der politischen Ökonomie');
   });
 });
 
