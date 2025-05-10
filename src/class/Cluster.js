@@ -68,10 +68,12 @@ class Cluster extends Node {
     switch (status) {
       case 0:
       case 3:
+      case 6:
         this.hash[key] = value;
         break;
       case 1:
       case 4:
+      case 7:
         this.addMiddleHash(key, value);
         break;
       case 2:
@@ -124,8 +126,12 @@ class Cluster extends Node {
     this.set(key, value);
     const { number, } = this;
     if (number >= this.options.number) {
-      if (this.status === 0 || this.status === 3) {
+      const { status, } = this;
+      if (status === 0 || status === 3) {
         this.addInitHash();
+      }
+      if (status === 6) {
+        this.addFullCharInitHash();
       }
     }
     const { count, } = value;
@@ -156,10 +162,12 @@ class Cluster extends Node {
       switch (status) {
         case 0:
         case 3:
+        case 6:
           delete this.hash[key];
           break;
         case 1:
         case 4:
+        case 6:
           this.removeMiddleHash(key);
           break;
         case 2:
@@ -312,7 +320,7 @@ class Cluster extends Node {
     for (let i = 0; i < key.length; i += 1) {
       const code = key.charCodeAt(i);
       if ((code >=  65 && code <= 90) || ((code >= 97 && code <= 122))) {
-        if (flag!== undefined) {
+        if (flag !== undefined) {
           if (flag !== 0) {
             ans = false;
             break;
@@ -329,10 +337,15 @@ class Cluster extends Node {
         flag = 1;
       } else {
         flag = 2;
+        ans = false;
+        break;
       }
     }
     if (ans === false) {
-      throw new Error('[Error] Path must be pure numbers or pure letters.');
+      if (this.status === -1) {
+        this.status = 6;
+        this.hash = {};
+      }
     } else {
       switch (flag) {
         case 0: {
@@ -494,13 +507,15 @@ class Cluster extends Node {
     switch (status) {
       case 0:
       case 3:
+      case 6:
         return this.hash[key];
       case 1:
-      case 4:{
+      case 4:
+      case 7: {
         const { length, } = key;
         const { hash, } = this;
         if (hash && hash[length - 1] && hash[length - 1][key]) {
-          return this.hash[length - 1][key];
+          return hash[length - 1][key];
         } else {
           return undefined;
         }
@@ -595,6 +610,19 @@ class Cluster extends Node {
       this.status = 1;
     } else {
       this.status = 4;
+    }
+  }
+
+  addFullCharInitHash() {
+    const keys = Object.keys(this.hash);
+    const values = keys.map((key) => this.hash[key]);
+    this.hash = [];
+    keys.forEach((key, index) => {
+      const value = values[index];
+      this.addMiddleHash(key, value);
+    });
+    if (this.status === 6) {
+      this.status = 7;
     }
   }
 
