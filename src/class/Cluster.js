@@ -12,7 +12,7 @@ function dealCharCode(code) {
 }
 
 function bitToByte(bit) {
-  return Math.floor(bit / 8);
+  return bit / 8;
 }
 
 function estimateArrayInc(multiple) {
