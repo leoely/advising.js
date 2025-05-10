@@ -497,8 +497,10 @@ class Cluster extends Node {
         return this.hash[key];
       case 1:
       case 4:{
-        if (this.hash && this.hash[key.length - 1] && this.hash[key.length - 1][key]) {
-          return this.hash[key.length - 1][key];
+        const { length, } = key;
+        const { hash, } = this;
+        if (hash && hash[length - 1] && hash[length - 1][key]) {
+          return this.hash[length - 1][key];
         } else {
           return undefined;
         }
