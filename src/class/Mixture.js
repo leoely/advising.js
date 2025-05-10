@@ -1,14 +1,7 @@
-import checkMemory from '~/lib/checkMemory';
-
 class Mixture {
   constructor(cluster, thing) {
     this.hash = [cluster, thing];
-    const {
-      options: {
-        logPath,
-      },
-    } = cluster;
-    checkMemory(logPath);
+    cluster.checkMemory();
   }
 
   getCluster() {

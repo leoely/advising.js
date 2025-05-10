@@ -156,12 +156,25 @@ class Router {
     this.options = Object.assign(defaultOptions, options);
     this.checkOptions();
     this.root = new Cluster(this.options);
+    this.checkMemory();
+  }
+
+  checkMemory(value) {
     const {
       options: {
         logPath,
       },
     } = this;
-    checkMemory(logPath);
+    checkMemory(logPath, value);
+  }
+
+  appendToLog(content) {
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    appendToLog(logPath, content);
   }
 
   checkOptions() {
@@ -248,13 +261,7 @@ class Router {
     const { root, } = this;
     const [path] = paths;
     deleteRecursion(root, 0, paths, thing, path, root);
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    appendToLog(
-      logPath,
+    this.appendToLog(
       ' || ████ Location:' + url + ' ████ & ████ OPERATE:delete ████ ||\n',
     );
   }
@@ -280,13 +287,7 @@ class Router {
       const newThing = new Thing(url, content, options);
       updateRecursion(root, 0, paths, thing, newThing, path, root);
     }
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    appendToLog(
-      logPath,
+    this.appendToLog(
       ' || ████ Location:' + url + ' ████ & ████ OPERATE:update ████ ||\n',
     );
   }
@@ -296,17 +297,10 @@ class Router {
     const thing2 = this.match(url2, true);
     this.update(url1, thing2, true);
     this.update(url2, thing1, true);
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    appendToLog(
-      logPath,
+    this.appendToLog(
       ' || ████ Location:' + url1 + ' ████ & ████ OPERATE:swap ████ ||\n',
     );
-    appendToLog(
-      logPath,
+    this.appendToLog(
       ' || ████ Location:' + url2 + ' ████ & ████ OPERATE:swap ████ ||\n',
     );
   }
@@ -314,13 +308,7 @@ class Router {
   fix(url, content) {
     const thing = this.match(url, true);
     thing.setContent(content)
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    appendToLog(
-      logPath,
+    this.appendToLog(
       ' || ████ Location:' + url + ' ████ & ████ OPERATE:fix ████ ||\n',
     );
   }

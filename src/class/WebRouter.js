@@ -131,10 +131,13 @@ class WebRouter extends Router {
     super.add(url1, content, pathKeys);
   }
 
-  setPathKeys(pathsString, pathKeysString) {
-    const thing = super.match(pathsString, true);
-    const [_, pathKeys] = parsePathKeys(pathKeysString);
+  setPathKeys(url) {
+    const [url1, pathKeys] = parsePathKeys(url);
+    const thing = super.match(url1, true);
     thing.setPathKeys(pathKeys);
+    this.appendToLog(
+      ' || ████ Location:' + url1 + ' ████ & ████ OPERATE:setPathKeys ████ ||\n',
+    );
   }
 
   match(url, needThing) {

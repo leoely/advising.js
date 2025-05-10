@@ -1,7 +1,5 @@
-import os from 'os';
 import Mixture from '~/class/Mixture';
 import Node from '~/class/Node';
-import checkMemory from '~/lib/checkMemory';
 
 function dealCharCode(code) {
   if (code >=  65 && code <= 90) {
@@ -60,12 +58,7 @@ class Cluster extends Node {
     super(options);
     this.status = -1;
     this.number = 0;
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    checkMemory(logPath);
+    this.checkMemory();
   }
 
   set(key, value) {
@@ -114,12 +107,7 @@ class Cluster extends Node {
     if (count !== 0) {
       this.addCount(count);
     }
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    checkMemory(logPath);
+    this.checkMemory();
   }
 
   update(key, value, swap) {
@@ -128,12 +116,7 @@ class Cluster extends Node {
       this.updateChildrens(key, value);
     }
     this.set(key, value);
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    checkMemory(logPath);
+    this.checkMemory();
   }
 
   delete(key) {
@@ -215,12 +198,7 @@ class Cluster extends Node {
       this.count += count;
       this.adjust();
     }
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    checkMemory(logPath);
+    this.checkMemory();
   }
 
   estimateChildrensInc() {
@@ -271,18 +249,6 @@ class Cluster extends Node {
   checkExpandMiddleMemory() {
     const expandHashInc = this.estimateExpandMiddleInc();
     this.checkMemory(expandHashInc);
-  }
-
-  checkMemory(occupy) {
-    const freemem = os.freemem();
-    if (freemem > bitToByte(occupy)) {
-      return true;
-    } else {
-      this.appendToLog(
-        ' || ████ ❗❗❗❗FREEMEM:' + freemem + ' & ████ REASON: Out fo memory ████ ||\n'
-      );
-      return false;
-    }
   }
 
   addMiddleHash(key, value) {
@@ -355,12 +321,7 @@ class Cluster extends Node {
         }
       }
     }
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    checkMemory(logPath);
+    this.checkMemory();
   }
 
   blendFromCluster(mixture) {
@@ -368,12 +329,7 @@ class Cluster extends Node {
     this.hash = cluster.hash;
     this.childrens = cluster.childrens;
     this.mixture = mixture;
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    checkMemory(logPath);
+    this.checkMemory();
   }
 
   blendFromThing(mixture, beforePath) {
@@ -381,11 +337,7 @@ class Cluster extends Node {
     this.put(beforePath, cluster);
     this.childrens = cluster.childrens;
     this.mixture = mixture;
-    const { options: {
-        logPath,
-      },
-    } = this;
-    checkMemory(logPath);
+    this.checkMemory();
   }
 
   extractToCluster() {
@@ -477,12 +429,6 @@ class Cluster extends Node {
     this.rate = count / total;
     this.adjust();
     return this.find(key);
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    checkMemory(logPath);
   }
 
   adjust() {
@@ -549,12 +495,7 @@ class Cluster extends Node {
         break;
       }
     }
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    checkMemory(logPath);
+    this,checkMemory();
   }
 
   removeChildrens(key) {
@@ -574,12 +515,7 @@ class Cluster extends Node {
       this.childrens = [];
     }
     this.childrens.push([key, value]);
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    checkMemory(logPath);
+    this.checkMemory();
   }
 
   addInitHash() {

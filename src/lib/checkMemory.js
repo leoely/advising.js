@@ -1,11 +1,25 @@
 import os from 'os';
 import appendToLog from '~/lib/appendToLog';
 
-export default function checkMemory() {
+export default function checkMemory(logPath, value) {
   const freemem = os.freemem();
-  if (freemem <= 0) {
-    appendToLog(
-      ' || ████ ❗❗❗❗FREEMEN:' + freemen + ' & ████ REASON: Out fo memory ████ ||\n'
-    );
+  if (value === undefined) {
+    if (freemem <= 0) {
+      appendToLog(
+        logPath,
+        ' || ████ ❗❗❗❗FREEMEN:' + freemem + ' & ████ REASON: Out fo memory ████ ||\n'
+      );
+    }
+  } else {
+    if (typeof value === 'number') {
+      if (freemem < value) {
+        appendToLog(
+          logPath,
+          ' || ████ ❗❗❗❗FREEMEN:' + freemem + ' & ████ REASON: Out fo memory ████ ||\n'
+        );
+      }
+    } else {
+      throw new Error('[Error] To ensure sufficient memory,the value should be a numeric type.');
+    }
   }
 }

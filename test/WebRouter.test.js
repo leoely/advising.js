@@ -38,7 +38,7 @@ describe('[Class] WebRouter;', () => {
       logInterval: 5,
     });
     webRouter.add('/movie/action//{page}/{index}', ['Thunderbolts', 'Sinners', 'Havoc']);
-    webRouter.setPathKeys('/movie/action', '//{start}/{end}');
+    webRouter.setPathKeys('/movie/action//{start}/{end}');
     expect(JSON.stringify(webRouter.root.find('movie').find('action').pathKeys)).toMatch('[\"start\",\"end\"]');
   });
 });

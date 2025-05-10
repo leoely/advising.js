@@ -1,6 +1,4 @@
 import Node from '~/class/Node';
-import getGTMNowString from '~/lib/getGTMNowString';
-import checkMemory from '~/lib/checkMemory';
 
 function checkContent(content) {
   if (content === undefined || content === null || Number.isNaN(content)) {
@@ -16,12 +14,7 @@ class Thing extends Node {
     this.content = content;
     this.interval = 0;
     this.setPathKeys(pathKeys);
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    checkMemory(logPath);
+    this.checkMemory();
   }
 
   log() {

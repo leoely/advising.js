@@ -1,5 +1,5 @@
-import getDateString from '~/lib/getDateString';
 import appendToLog from '~/lib/appendToLog';
+import checkMemory from '~/lib/checkMemory';
 
 class Node {
   constructor(options) {
@@ -26,6 +26,15 @@ class Node {
       },
     } = this;
     appendToLog(logPath, content);
+  }
+
+  checkMemory(value) {
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    checkMemory(logPath, value);
   }
 };
 
