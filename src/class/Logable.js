@@ -1,4 +1,3 @@
-import Fulmination from 'fulmination';
 import appendToLog from '~/lib/appendToLog';
 import checkMemory from '~/lib/checkMemory';
 import getGTMNowString from '~/lib/getGTMNowString';
@@ -26,4 +25,4 @@ class Logable {
   }
 }
 
-export default Outputable;
+export default Logable;

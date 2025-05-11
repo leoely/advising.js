@@ -56,11 +56,16 @@ function estimateObjectInc(hash) {
 }
 
 class Cluster extends Node {
-  constructor(options) {
+  constructor(options, root) {
     super(options);
     this.status = -1;
     this.number = 0;
     this.checkMemory();
+    if (root !== true) {
+      this.debugDetail(
+        '(+) bold; green: * ^^ (+) blue; bold: * Cluster (+) bold; dim: * was created successfully. &'
+      );
+    }
   }
 
   set(key, value) {

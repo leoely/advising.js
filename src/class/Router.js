@@ -1,10 +1,9 @@
 import fs from 'fs';
-import Outputable from '~/class/Outputable';
+import Fulmination from 'fulmination';
+import Logable from '~/class/Logable';
 import Cluster from '~/class/Cluster';
 import Thing from '~/class/Thing';
 import Mixture from '~/class/Mixture';
-import checkMemory from '~/lib/checkMemory';
-import appendToLog from '~/lib/appendToLog';
 
 function getPathsFromUrl(url) {
   if (typeof url !== 'string') {
@@ -159,24 +158,48 @@ const defaultOptions = {
   logPath: '/tmp/adivising.js/log',
 };
 
-class Router extends Outputable {
+const fulmination = new Fulmination();
+
+class Router extends Logable {
   constructor(options = {}) {
     super();
     this.dealOptions(options);
     this.total = 0;
-    this.root = new Cluster(this.options);
+    this.root = new Cluster(this.options, true);
+    this.fulmination = fulmination;
     this.checkMemory();
-    this.debug(`
+    this.debugShort(`
       [+] bold:
       |
-      | ** ░█████╗░██████╗░██╗░░░██╗██╗░██████╗██╗███╗░░██╗░██████╗░░░░░░░░░██╗░██████╗
-      | ** ██╔══██╗██╔══██╗██║░░░██║██║██╔════╝██║████╗░██║██╔════╝░░░░░░░░░██║██╔════╝
-      | ** ███████║██║░░██║╚██╗░██╔╝██║╚█████╗░██║██╔██╗██║██║░░██╗░░░░░░░░░██║╚█████╗░
-      | ** ██╔══██║██║░░██║░╚████╔╝░██║░╚═══██╗██║██║╚████║██║░░╚██╗░░░██╗░░██║░╚═══██╗
-      | ** ██║░░██║██████╔╝░░╚██╔╝░░██║██████╔╝██║██║░╚███║╚██████╔╝██╗╚█████╔╝██████╔╝
-      | ** ╚═╝░░╚═╝╚═════╝░░░░╚═╝░░░╚═╝╚═════╝░╚═╝╚═╝░░╚══╝░╚═════╝░╚═╝░╚════╝░╚═════╝░
+      | * ░█████╗░██████╗░██╗░░░██╗██╗░██████╗██╗███╗░░██╗░██████╗░░░░░░░░░██╗░██████╗
+      | * ██╔══██╗██╔══██╗██║░░░██║██║██╔════╝██║████╗░██║██╔════╝░░░░░░░░░██║██╔════╝
+      | * ███████║██║░░██║╚██╗░██╔╝██║╚█████╗░██║██╔██╗██║██║░░██╗░░░░░░░░░██║╚█████╗░
+      | * ██╔══██║██║░░██║░╚████╔╝░██║░╚═══██╗██║██║╚████║██║░░╚██╗░░░██╗░░██║░╚═══██╗
+      | * ██║░░██║██████╔╝░░╚██╔╝░░██║██████╔╝██║██║░╚███║╚██████╔╝██╗╚█████╔╝██████╔╝
+      | * ╚═╝░░╚═╝╚═════╝░░░░╚═╝░░░╚═╝╚═════╝░╚═╝╚═╝░░╚══╝░╚═════╝░╚═╝░╚════╝░╚═════╝░
+      |
+      | * - The router is initialized successfully.
+      | * - Related operations cans be performaned.
       |
     `);
+  }
+
+  debugShort(short) {
+    const {
+      options: {
+        debug,
+      },
+      fulmination,
+    } = this;
+    if (debug === true) {
+      fulmination.scan(short);
+    }
+  }
+
+  outputOperate(operate, url) {
+    this.appendToLog(
+      ' || ████ Location:' + url + ' ████ & ████ OPERATE:' + operate + '████ ||\n',
+    );
   }
 
   dealOptions(options) {
@@ -272,9 +295,7 @@ class Router extends Outputable {
     const { root, } = this;
     const [path] = paths;
     deleteRecursion(root, 0, paths, thing, path, root);
-    this.appendToLog(
-      ' || ████ Location:' + url + ' ████ & ████ OPERATE:delete ████ ||\n',
-    );
+    this.outputOperate('delete', url);
   }
 
   deleteAll(urls) {
@@ -298,9 +319,7 @@ class Router extends Outputable {
       const newThing = new Thing(content, options);
       updateRecursion(root, 0, paths, thing, newThing, path, root);
     }
-    this.appendToLog(
-      ' || ████ Location:' + url + ' ████ & ████ OPERATE:update ████ ||\n',
-    );
+    this.outputOperate('update', url);
   }
 
   swap(url1, url2) {
@@ -308,20 +327,14 @@ class Router extends Outputable {
     const thing2 = this.match(url2, true);
     this.update(url1, thing2, true);
     this.update(url2, thing1, true);
-    this.appendToLog(
-      ' || ████ Location:' + url1 + ' ████ & ████ OPERATE:swap ████ ||\n',
-    );
-    this.appendToLog(
-      ' || ████ Location:' + url2 + ' ████ & ████ OPERATE:swap ████ ||\n',
-    );
+    this.outputOperate('swap', url1);
+    this.outputOperate('swap', url2);
   }
 
   fix(url, content) {
     const thing = this.match(url, true);
     thing.setContent(content)
-    this.appendToLog(
-      ' || ████ Location:' + url + ' ████ & ████ OPERATE:fix ████ ||\n',
-    );
+    this.outputOperate('fix', url);
   }
 }
 

@@ -14,6 +14,9 @@ class Thing extends Node {
     this.interval = 0;
     this.setPathKeys(pathKeys);
     this.checkMemory();
+    this.debugDetail(
+      '(+) bold; green: * ^^ (+) blue; bold: * Thing (+) bold; dim: * was created successfully. &'
+    );
   }
 
   log(url) {
