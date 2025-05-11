@@ -1,4 +1,5 @@
 import fs from 'fs';
+import Outputable from '~/class/Outputable';
 import Cluster from '~/class/Cluster';
 import Thing from '~/class/Thing';
 import Mixture from '~/class/Mixture';
@@ -146,55 +147,41 @@ function checkLogPath(logPath) {
   }
 }
 
-class Router {
+const defaultOptions = {
+  threshold: 0.01,
+  number: 45,
+  bond: 500,
+  dutyCycle: 500,
+  logLevel: 3,
+  logInterval: 5,
+  interception: 8,
+  debug: true,
+  logPath: '/tmp/adivising.js/log',
+};
+
+class Router extends Outputable {
   constructor(options = {}) {
-    const defaultOptions = {
-      threshold: 0.01,
-      number: 45,
-      bond: 500,
-      dutyCycle: 500,
-      logLevel: 3,
-      logInterval: 5,
-      interception: 8,
-      logPath: '/tmp/adivising.js/log',
-      startTime: Date.now(),
-    };
+    super();
+    this.dealOptions(options);
     this.total = 0;
-    this.options = Object.assign(defaultOptions, options);
-    this.checkOptions();
     this.root = new Cluster(this.options);
     this.checkMemory();
   }
 
-  checkMemory(value) {
+  dealOptions(options) {
+    this.options = Object.assign(defaultOptions, options);
     const {
       options: {
+        threshold,
+        number,
+        bond,
+        dutyCycle,
+        logLevel,
+        logInterval,
+        interception,
         logPath,
       },
     } = this;
-    checkMemory(logPath, value);
-  }
-
-  appendToLog(content) {
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    appendToLog(logPath, content);
-  }
-
-  checkOptions() {
-    const {
-      threshold,
-      number,
-      bond,
-      dutyCycle,
-      logLevel,
-      logInterval,
-      interception,
-      logPath,
-    } = this.options;
     if (threshold !== undefined) {
       if (typeof threshold !== 'number') {
         throw new Error('[Error] Router option threshold must be a numeric type or undefined.');
@@ -255,7 +242,7 @@ class Router {
     }
   }
 
-  add(url, multiple, pathVariables) {
+  add(url, multiple, pathKeys) {
     const paths = getPathsFromUrl(url);
     if (multiple instanceof Thing) {
       const thing = multiple;
@@ -263,7 +250,7 @@ class Router {
     } else {
       const content = multiple;
       const { root, options, } = this;
-      const thing = new Thing(url, content, options, pathVariables);
+      const thing = new Thing(content, options, pathKeys);
       addRecursion(root, 0, paths, options, thing);
     }
   }
@@ -297,7 +284,7 @@ class Router {
       const content = multiple;
       const [path] = paths;
       const { root, options, } = this;
-      const newThing = new Thing(url, content, options);
+      const newThing = new Thing(content, options);
       updateRecursion(root, 0, paths, thing, newThing, path, root);
     }
     this.appendToLog(

@@ -11,6 +11,7 @@ describe('[Class] Router: Time complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/male/john', { name: 'john', age: 22, });
     router.add('/male/robert', { name: 'robert', age: 18, });
@@ -47,6 +48,7 @@ describe('[Class] Router: Time complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/male/john', { name: 'john', age: 22, });
     router.add('/male/robert', { name: 'robert', age: 18, });
@@ -81,6 +83,7 @@ describe('[Class] Router: Time complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/male', ['john', 'robert', 'david']);
     router.add('/male/john', { name: 'john', age: 22, });
@@ -101,6 +104,7 @@ describe('[Class] Router: Time complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/male/john', { name: 'john', age: 22, });
     router.add('/male/robert', { name: 'robert', age: 18, });
@@ -121,6 +125,7 @@ describe('[Class] Router: Time complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/male/programmer/john', { name: 'john', age: 22, });
     router.add('/male/programmer/robert', { name: 'robert', age: 18, });
@@ -141,6 +146,7 @@ describe('[Class] Router: Time complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/country/unitedKingdom/london', { id: 1, name: 'london',});
     router.add('/country/unitedKingdom/england', { id: 2, name: 'england',});
@@ -163,6 +169,7 @@ describe('[Class] Router: Time complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/male/john', { name: 'john', age: 22, });
     router.add('/male/robert', { name: 'robert', age: 18, });
@@ -203,6 +210,7 @@ describe('[Class] Router: Space complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/male/john', { name: 'john', age: 22, });
     expect(typeof router.root.hash['male']).toMatch('object');
@@ -219,6 +227,7 @@ describe('[Class] Router: Space complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/male/programmer/john', { name: 'john', age: 22, });
     router.add('/male/hardwareEngineer/robert', { name: 'robert', age: 18, });
@@ -249,6 +258,7 @@ describe('[Class] Router: Space complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/male/programmer/john', { name: 'john', age: 22, });
     router.add('/male/hardwareEngineer/robert', { name: 'robert', age: 18, });
@@ -279,6 +289,7 @@ describe('[Class] Router: Space complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/male/john', { name: 'john', age: 22, });
     router.add('/male/robert', { name: 'robert', age: 18, });
@@ -306,6 +317,7 @@ describe('[Class] Router: Space complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/male/john', { name: 'john', age: 22, });
     router.add('/male/robert', { name: 'robert', age: 18, });
@@ -328,6 +340,7 @@ describe('[Class] Router: Space complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/world/male', ['john', 'robert', 'david']);
     expect(JSON.stringify(router.match('/world/male'))).toMatch('[\"john\",\"robert\",\"david\"]');
@@ -346,6 +359,7 @@ describe('[Class] Router: Space complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/male/john', { name: 'john', age: 22, });
     router.add('/male/robert', { name: 'robert', age: 18, });
@@ -369,6 +383,7 @@ describe('[Class] Router: Space complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/male/john', { name: 'robert', age: 18, });
     expect(JSON.stringify(router.match('/male/john'))).toMatch('{\"name\":\"robert\",\"age\":18}');
@@ -390,6 +405,7 @@ describe('[Class] Router: Space complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: 3,
+      debug: false,
     });
     router.add('/long/long', { type: 'long', });
     expect(JSON.stringify(router.match('/long/long'))).toMatch('{\"type\":\"long\"}');
@@ -409,6 +425,7 @@ describe('[Class] Router: Space complexity test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: 3,
+      debug: false,
     });
     router.add('/book/Στοιχεῖα', { name: 'Στοιχεῖα', });
     router.add('/book/Das Kapital: Kritik der politischen Ökonomie', { name: 'Das Kapital: Kritik der politischen Ökonomie', });
@@ -429,6 +446,7 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/chaos/letter', { type: 'letters', });
     expect(() => router.add('/chaos/1', { type: 'numbers', })).toThrow('[Error] Cluster is pure numeric type but the newly added is a pure letters.');
@@ -443,6 +461,7 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/chaos/1', { type: 'numbers', });
     expect(() => router.add('/chaos/letter', { type: 'letters', })).toThrow('[Error] Cluster is plain text type but the newly added type is a pure number.');
@@ -457,6 +476,7 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     expect(() => router.add(11111, { type: 'number', })).toThrow('[Error] Path type must be a string.');
     expect(() => router.add({}, { type: 'object', })).toThrow('[Error] Path type must be a string.');
@@ -464,7 +484,9 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
   });
 
   test('Router supports default parameters.', () => {
-    const router = new Router();
+    const router = new Router({
+      debug: false,
+    });
     expect(typeof router.options).toMatch('object');
   });
 
@@ -477,6 +499,7 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
       logLevel: 8,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     router.add('/male/john', { name: 'john', age: 22, });
     router.match('/male/john');
@@ -495,6 +518,7 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
       logLevel: 4,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     expect(() => router.add('/', { path: '/', })).toThrow('[Error] Unable to operate the root path.');
     expect(() => router.match('/')).toThrow('[Error] Unable to operate the root path.');
@@ -509,6 +533,7 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
       logLevel: 4,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     expect(() => router.add('fsadfasdfas', { type: 'letters', })).toThrow('[Error] Path should start with a slash.');
     expect(() => router.match('fasdfdsa')).toThrow('[Error] Path should start with a slash.');
@@ -523,6 +548,7 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
       logLevel: 4,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     expect(() => router.add('/male', undefined)).toThrow('[Error] Value should be reasonable value.');
     expect(() => router.add('/male', null)).toThrow('[Error] Value should be reasonable value.');

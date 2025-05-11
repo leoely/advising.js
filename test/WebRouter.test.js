@@ -11,6 +11,7 @@ describe('[Class] WebRouter;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     webRouter.add('/movie/action//{page}/{index}', ['Thunderbolts', 'Sinners', 'Havoc']);
     expect(JSON.stringify(webRouter.root.find('movie').find('action').pathKeys)).toMatch('[\"page\",\"index\"]');
@@ -25,6 +26,7 @@ describe('[Class] WebRouter;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     webRouter.add('/movie/action//{page}/{index}', ['Thunderbolts', 'Sinners', 'Havoc']);
     expect(JSON.stringify(webRouter.match('/movie/action//1/1?k1=v1&k2=v2'))).toMatch('{\"content\":[\"Thunderbolts\",\"Sinners\",\"Havoc\"],\"queryParams\":{\"k2\":\"v2\",\"k1\":\"v1k2\"},\"pathVariables\":{\"page\":\"1\",\"index\":\"1\"}}');
@@ -39,6 +41,7 @@ describe('[Class] WebRouter;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      debug: false,
     });
     webRouter.add('/movie/action//{page}/{index}', ['Thunderbolts', 'Sinners', 'Havoc']);
     webRouter.setPathKeys('/movie/action//{start}/{end}');

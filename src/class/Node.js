@@ -1,8 +1,9 @@
-import appendToLog from '~/lib/appendToLog';
-import checkMemory from '~/lib/checkMemory';
+import Outputable from '~/class/Outputable';
 
-class Node {
+class Node extends Outputable {
   constructor(options) {
+    super();
+    this.startTime = Date.now();
     this.options = options;
     this.rate = 0;
     this.count = 0;
@@ -11,30 +12,10 @@ class Node {
   getDutyCycle() {
     const {
       count,
-      options: {
-        startTime,
-      },
+      startTime,
     } = this;
     const now = Date.now();
     return count * 1000 * 60 * 60 / (now - startTime);
-  }
-
-  appendToLog(content) {
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    appendToLog(logPath, content);
-  }
-
-  checkMemory(value) {
-    const {
-      options: {
-        logPath,
-      },
-    } = this;
-    return checkMemory(logPath, value);
   }
 };
 

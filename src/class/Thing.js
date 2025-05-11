@@ -7,7 +7,7 @@ function checkContent(content) {
 }
 
 class Thing extends Node {
-  constructor(url, content, options, pathKeys) {
+  constructor(content, options, pathKeys) {
     checkContent(content);
     super(options);
     this.content = content;
