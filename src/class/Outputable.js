@@ -9,7 +9,7 @@ class Outputable {
     this.fulmination = fulmination;
   }
 
-  debug(info) {
+  debug(string) {
     const {
       options: {
         debug,
@@ -17,7 +17,7 @@ class Outputable {
       fulmination,
     } = this;
     if (debug === true) {
-      fulmination.scan(info);
+      fulmination.scan(string);
     }
   }
 

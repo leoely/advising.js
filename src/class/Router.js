@@ -17,8 +17,8 @@ function getPathsFromUrl(url) {
   if (url.charAt(0) !== '/') {
     throw new Error('[Error] Path should start with a slash.');;
   }
-  const preprocessPaths = url.split('/');
-  return preprocessPaths.slice(1, preprocessPaths.length);
+  const paths = url.split('/');
+  return paths.slice(1, paths.length);
 }
 
 function matchRecursion(node, index, paths, total, needThing) {
@@ -166,6 +166,17 @@ class Router extends Outputable {
     this.total = 0;
     this.root = new Cluster(this.options);
     this.checkMemory();
+    this.debug(`
+      [+] bold:
+      |
+      | ** ░█████╗░██████╗░██╗░░░██╗██╗░██████╗██╗███╗░░██╗░██████╗░░░░░░░░░██╗░██████╗
+      | ** ██╔══██╗██╔══██╗██║░░░██║██║██╔════╝██║████╗░██║██╔════╝░░░░░░░░░██║██╔════╝
+      | ** ███████║██║░░██║╚██╗░██╔╝██║╚█████╗░██║██╔██╗██║██║░░██╗░░░░░░░░░██║╚█████╗░
+      | ** ██╔══██║██║░░██║░╚████╔╝░██║░╚═══██╗██║██║╚████║██║░░╚██╗░░░██╗░░██║░╚═══██╗
+      | ** ██║░░██║██████╔╝░░╚██╔╝░░██║██████╔╝██║██║░╚███║╚██████╔╝██╗╚█████╔╝██████╔╝
+      | ** ╚═╝░░╚═╝╚═════╝░░░░╚═╝░░░╚═╝╚═════╝░╚═╝╚═╝░░╚══╝░╚═════╝░╚═╝░╚════╝░╚═════╝░
+      |
+    `);
   }
 
   dealOptions(options) {

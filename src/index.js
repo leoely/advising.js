@@ -7,5 +7,6 @@ const webRouter = new WebRouter({
   dutyCycle: 5,
   logLevel: 7,
   logInterval: 5,
+  debug: true,
   interception: undefined,
 });
