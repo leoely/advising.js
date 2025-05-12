@@ -2530,9 +2530,9 @@ fsevents@^2.3.2, fsevents@~2.3.2:
   integrity sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==
 
 fulmination@^0.1.1:
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/fulmination/-/fulmination-0.1.8.tgz#13cdba857e534dc96ff363b3bf017489652e550d"
-  integrity sha512-00pwglsQCFSXaXw9F/0afWr7U3SWMQUQrvxyIDwdf/IJ08syeJtLfn0+xNv1ETdT75WcsIhrIjIykh4eoXKtaQ==
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/fulmination/-/fulmination-0.1.10.tgz#b991648c3dbee8351625d0e5ec1d3f07b8bd13d6"
+  integrity sha512-Gbe8qR8SXeBlFNuZLSezk/rxn6CGB74mhjymcZ4Jj/fQ0kLh3RfiV+ndNVtIBT8ktfj8SsJ99r3dAUMFUbIIJA==
   dependencies:
     chalk "^2.4.2"
     glow.js "^0.0.6"

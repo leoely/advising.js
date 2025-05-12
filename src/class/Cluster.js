@@ -1,6 +1,8 @@
+import chalk from 'chalk';
 import Mixture from '~/class/Mixture';
 import Thing from '~/class/Thing';
 import Node from '~/class/Node';
+import getGTMNowString from '~/lib/getGTMNowString';
 
 function dealCharCode(code) {
   if (code >=  65 && code <= 90) {
@@ -82,6 +84,58 @@ class Cluster extends Node {
     }
   }
 
+  getBranches() {
+    const { status, } = this;
+    switch (status) {
+      case -1:
+        return [];
+      case 0:
+      case 3:
+      case 6: {
+        const { hash, } = this;
+        const keys = Object.keys(hash);
+        return keys;
+      }
+      case 1:
+      case 4:
+      case 7:
+      case 2:
+      case 5: {
+        const { childrens, } = this;
+        if (!Array.isArray(childrens)) {
+          throw new Error('[Error] Inner childrens should be of array type.');
+        }
+        return childrens.map((children) => {
+          const [key] = children;
+          return key;
+        });
+      }
+    }
+  }
+
+  debugCluster() {
+    const {
+      options: {
+        debug,
+      },
+      fulmination,
+    } = this;
+    if (debug === true) {
+      const branches = this.getBranches();
+      if (Array.isArray(branches) && branches.length > 0) {
+        const branchStrings = branches.map((branch) => {
+          return chalk.bold.dim(' ' + branch) + ' | ';
+        }).join('');
+        fulmination.scan(`
+          (+) green; bold: * == (+) bold: * Cluster (+) bold; dim: * display structure. &
+          (+) green; bold: ** └─ (+) : * | (+) : *
+        `);
+        console.log(branchStrings);
+        console.log(getGTMNowString() + '\n');
+      }
+    }
+  }
+
   set(key, value) {
     checkValue(value);
     const { status, } = this;
@@ -159,6 +213,7 @@ class Cluster extends Node {
       this.addCount(count);
     }
     this.checkMemory();
+    this.debugCluster();
   }
 
   update(key, value) {
@@ -237,6 +292,7 @@ class Cluster extends Node {
       }
     }
     this.debugInfo('was partially updated successfully');
+    this.debugCluster();
   }
 
   clean(node, path) {
