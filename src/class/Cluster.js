@@ -1,4 +1,5 @@
 import Mixture from '~/class/Mixture';
+import Thing from '~/class/Thing';
 import Node from '~/class/Node';
 
 function dealCharCode(code) {
@@ -12,7 +13,12 @@ function dealCharCode(code) {
 }
 
 function bitToByte(bit) {
-  return bit / 8;
+  const byte = bit / 8;
+  if (!Number.isInteger(byte)) {
+    throw Error('[Error] The calculated number of bytes should be an integer.');
+  } else {
+    return byte;
+  }
 }
 
 function estimateArrayInc(multiple) {
@@ -47,6 +53,9 @@ function estimateExpandHashInc(key) {
 }
 
 function estimateObjectInc(hash) {
+  if (typeof hash !== 'object') {
+    throw new Error('[Error] Inner hash should be of type object.');
+  }
   let ans = estimateArrayInc(5);
   const keys = Object.keys(hash);
   ans += estimateArrayInc(keys.length);
@@ -54,6 +63,12 @@ function estimateObjectInc(hash) {
     ans += estimatePointer() + estimateString(key);
   });
   return ans;
+}
+
+function checkValue(value) {
+  if (!(value instanceof Cluster) && !(value instanceof Thing)) {
+    throw new Error('[Error] The value of cluster should be a cluster type or a thing type.');
+  }
 }
 
 class Cluster extends Node {
@@ -68,6 +83,7 @@ class Cluster extends Node {
   }
 
   set(key, value) {
+    checkValue(value);
     const { status, } = this;
     switch (status) {
       case 0:
@@ -123,6 +139,7 @@ class Cluster extends Node {
   }
 
   put(key, value) {
+    checkValue(value);
     this.checkKey(key);
     this.number += 1;
     const { status, } = this;
@@ -145,6 +162,7 @@ class Cluster extends Node {
   }
 
   update(key, value) {
+    checkValue(value);
     const { status, } = this;
     if (status === 1 || status === 2 || status === 4 || status === 5) {
       this.updateChildrens(key, value);
@@ -259,6 +277,9 @@ class Cluster extends Node {
 
   estimateChildrensInc() {
     const { hash, } = this;
+    if (typeof hash !== 'object') {
+      throw new Error('[Error] Inner hash should be of type object.');
+    }
     let ans = 0;
     const keys = Object.keys(hash);
     ans += estimateArrayInc(keys);
@@ -272,6 +293,9 @@ class Cluster extends Node {
 
   estimateExpandInitInc() {
     const { hash, } = this;
+    if (typeof hash !== 'object') {
+      throw new Error('[Error] Inner hash should be of type object.');
+    }
     const keys = Object.keys(hash);
     let ans = this.estimateChildrensInc();
     keys.forEach((key) => {
@@ -283,6 +307,9 @@ class Cluster extends Node {
 
   estimateExpandMiddleInc() {
     const { hash, } = this;
+    if (typeof hash !== 'object') {
+      throw new Error('[Error] Inner hash should be of type object.');
+    }
     let ans = -estimateArrayInc(hash);
     hash.forEach((multiple) => {
       if (typeof multiple === 'object') {
@@ -310,6 +337,9 @@ class Cluster extends Node {
   addMiddleHash(key, value) {
     const index = key.length - 1;
     const { hash, } = this;
+    if (typeof hash !== 'object') {
+      throw new Error('[Error] Inner hash should be of type object.');
+    }
     if (hash[index] === undefined) {
       hash[index] = {};
     }
@@ -587,6 +617,9 @@ class Cluster extends Node {
 
   updateChildrens(key, value) {
     const { childrens, } = this;
+    if (!Array.isArray(childrens)) {
+      throw new Error('[Error] Inner childrens should be of array type.');
+    }
     for (let i = 0; i < childrens.length; i += 1) {
       const children = childrens[i];
       const [k] = children;
@@ -600,6 +633,9 @@ class Cluster extends Node {
 
   removeChildrens(key) {
     const { childrens, } = this;
+    if (!Array.isArray(childrens)) {
+      throw new Error('[Error] Inner childrens should be of array type.');
+    }
     for (let i = 0; i < childrens.length; i += 1) {
       const [k] = childrens[i];
       if (k === key) {
@@ -620,6 +656,9 @@ class Cluster extends Node {
 
   addInitHash() {
     const { hash, } = this;
+    if (typeof hash !== 'object') {
+      throw new Error('[Error] Inner hash should be of type object.');
+    }
     const keys = Object.keys(hash);
     const values = keys.map((key) => hash[key]);
     this.hash = [];
@@ -641,6 +680,9 @@ class Cluster extends Node {
 
   removeMiddleHash() {
     const { childrens, } = this;
+    if (!Array.isArray(childrens)) {
+      throw new Error('[Error] Inner childrens should be of array type.');
+    }
     this.hash = {};
     const { hash, } = this;
     childrens.forEach((children) => {
@@ -661,6 +703,9 @@ class Cluster extends Node {
 
   expandInitHash() {
     const { hash, } = this;
+    if (typeof hash !== 'object') {
+      throw new Error('[Error] Inner hash should be of type object.');
+    }
     const keys = Object.keys(hash);
     const values = keys.map((key) => hash[key]);
     this.hash = [];
@@ -682,6 +727,9 @@ class Cluster extends Node {
   expandMiddleHash() {
     this.hash = [];
     const { childrens, } = this;
+    if (!Array.isArray(childrens)) {
+      throw new Error('[Error] Inner childrens should be of array type.');
+    }
     childrens.forEach((children) => {
       const [key, value] = children;
       this.setExpandHash(key, value);
@@ -698,6 +746,9 @@ class Cluster extends Node {
   reduceMiddleHash() {
     this.hash = [];
     const { childrens, } = this;
+    if (!Array.isArray(childrens)) {
+      throw new Error('[Error] Inner childrens should be of array type.');
+    }
     childrens.forEach((elem) => {
       const [key, value] = elem;
       const { hash, } = this;
@@ -721,7 +772,10 @@ class Cluster extends Node {
   reduceInitHash() {
     this.hash = {};
     const { childrens, } = this;
-    this.childrens.forEach((elem) => {
+    if (!Array.isArray(childrens)) {
+      throw new Error('[Error] Inner childrens should be of array type.');
+    }
+    childrens.forEach((elem) => {
       const [key, value] = elem;
       const { hash, } = this;
       hash[key] = value;
