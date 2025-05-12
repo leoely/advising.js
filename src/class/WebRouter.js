@@ -133,6 +133,7 @@ class WebRouter extends Router {
     } else {
       super.add(url, content);
     }
+    this.debugInfo('successfully added');
   }
 
   setPathKeys(url) {
@@ -197,6 +198,7 @@ class WebRouter extends Router {
     } else {
       return super.match(url, needThing);
     }
+    this.debugInfo('successfully matched');
   }
 }
 

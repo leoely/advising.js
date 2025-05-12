@@ -151,6 +151,7 @@ class Cluster extends Node {
     }
     this.set(key, value);
     this.checkMemory();
+    this.debugInfo('was partially updated successfully');
   }
 
   delete(key) {
@@ -217,6 +218,7 @@ class Cluster extends Node {
         this.status = -1;
       }
     }
+    this.debugInfo('was partially updated successfully');
   }
 
   clean(node, path) {
@@ -312,16 +314,7 @@ class Cluster extends Node {
       hash[index] = {};
     }
     hash[index][key] = value;
-  }
-
-  removeMiddleHash(key) {
-    const index = key.length - 1;
-    const { hash, } = this;
-    const objectHash = hash[index];
-    delete objectHash[key];
-    if (Object.keys(objectHash).length === 0) {
-      delete hash[index];
-    }
+    this.debugInfo('successfully added as middle hash');
   }
 
   checkKey(key) {
@@ -389,25 +382,37 @@ class Cluster extends Node {
   }
 
   blendFromCluster(mixture) {
+    if (!(mixture instanceof Mixture)) {
+      throw new Error('[Error] Mixture parameters needs to be of type mixture');
+    }
     const cluster = mixture.getCluster();
     const { hash, childrens, } = cluster;
     this.hash = hash;
     this.childrens = childrens;
     this.mixture = mixture;
     this.checkMemory();
+    this.debugInfo('success blended from cluster');
   }
 
   blendFromThing(mixture, path) {
+    if (!(mixture instanceof Mixture)) {
+      throw new Error('[Error] Mixture parameters needs to be of type mixture');
+    }
+    if (typeof path !== 'string') {
+      throw new Error('[Error] Path parameters needs to be a string type.');
+    }
     const cluster = mixture.getCluster();
     this.put(path, cluster);
     const { childrens, } = cluster;
     this.childrens = childrens;
     this.mixture = mixture;
     this.checkMemory();
+    this.debugInfo('success blended from thing');
   }
 
   extractToCluster() {
     delete this.mixtrue;
+    this.debugInfo('are successfully extracted into cluster.');
   }
 
   greaterThresholdAndBondAndDutyCycle() {
@@ -495,6 +500,7 @@ class Cluster extends Node {
     this.rate = count / total;
     this.adjust();
     return this.find(key);
+    this.debugInfo('successfully obtained the value');
   }
 
   adjust() {
@@ -630,6 +636,7 @@ class Cluster extends Node {
     } else {
       this.status = 7;
     }
+    this.debugInfo('added as a middle hash');
   }
 
   removeMiddleHash() {
@@ -649,6 +656,7 @@ class Cluster extends Node {
     } else {
       this.status = 6;
     }
+    this.debugInfo('removed as init hash');
   }
 
   expandInitHash() {
@@ -668,6 +676,7 @@ class Cluster extends Node {
     } else {
       this.stauts = 5;
     }
+    this.debugInfo('expansion to expand hash');
   }
 
   expandMiddleHash() {
@@ -683,6 +692,7 @@ class Cluster extends Node {
     } else {
       this.status = 5;
     }
+    this.debugInfo('expansion to expand hash');
   }
 
   reduceMiddleHash() {
@@ -705,6 +715,7 @@ class Cluster extends Node {
     } else {
       this.status = 6;
     }
+    this.debugInfo('reducted to middle hash');
   }
 
   reduceInitHash() {
@@ -721,6 +732,7 @@ class Cluster extends Node {
     } else {
       this.status = 0;
     }
+    this.debugInfo('reducted to init hash');
   }
 
   setExpandHash(key, value) {

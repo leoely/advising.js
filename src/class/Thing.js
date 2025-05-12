@@ -123,6 +123,7 @@ class Thing extends Node {
       throw new Error('[Error] Get content parameter url should be a string type.');
     }
     this.match(total, url);
+    this.debugInfo('get content successfully');
     return this.content;
   }
 

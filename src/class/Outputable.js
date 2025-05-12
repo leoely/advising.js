@@ -8,6 +8,22 @@ class Outputable {
     this.fulmination = fulmination;
   }
 
+  debugInfo(info) {
+    const {
+      options: {
+        debug,
+      },
+      constructor: {
+        name,
+      },
+    } = this;
+    if (debug === true) {
+      this.debugDetail(
+        '(+) bold; green: * ^^ (+) blue; bold: * ' + name + '(+) bold; dim: * ' + info + '. &'
+      );
+    }
+  }
+
   debugShort(short) {
     const {
       options: {
