@@ -186,6 +186,7 @@ class Router extends Outputable {
     const {
       options: {
         logLevel,
+        debug,
       },
     } = this;
     if (logLevel !== 0) {
@@ -193,10 +194,12 @@ class Router extends Outputable {
         ' || ████ Location:' + url + ' ████ & ████ OPERATE:' + operate + '████ ||\n',
       );
     }
-    this.debugDetail(`
-      (+) bold; green: * ~~ (+) yellow; bold: * Location (+) bold; dim: * ` + url + `. &
-      (+) bold; green: ** └─ (+): * | (+) bold: * operate (+) dim: : ` + operate + `(+): * | &
-    `);
+    if (debug === true) {
+      this.debugDetail(`
+        (+) bold; green: * ~~ (+) yellow; bold: * Location (+) bold; dim: * ` + url + `. &
+        (+) bold; green: ** └─ (+): * | (+) bold: * operate (+) dim: : ` + operate + `(+): * | &
+      `);
+    }
   }
 
   dealOptions() {
