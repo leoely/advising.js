@@ -1,6 +1,5 @@
 import fs from 'fs';
-import Fulmination from 'fulmination';
-import Logable from '~/class/Logable';
+import Outputable from '~/class/Outputable';
 import Cluster from '~/class/Cluster';
 import Thing from '~/class/Thing';
 import Mixture from '~/class/Mixture';
@@ -149,27 +148,24 @@ function checkLogPath(logPath) {
   }
 }
 
-const defaultOptions = {
-  threshold: 0.01,
-  number: 45,
-  bond: 500,
-  dutyCycle: 500,
-  logLevel: 3,
-  logInterval: 5,
-  interception: 8,
-  debug: true,
-  logPath: '/tmp/adivising.js/log',
-};
-
-const fulmination = new Fulmination();
-
-class Router extends Logable {
+class Router extends Outputable {
   constructor(options = {}) {
     super();
+    const defaultOptions = {
+      threshold: 0.01,
+      number: 45,
+      bond: 500,
+      dutyCycle: 500,
+      logLevel: 3,
+      logInterval: 5,
+      interception: 8,
+      debug: true,
+      logPath: '/tmp/adivising.js/log',
+    };
+    this.options = Object.assign(defaultOptions, options);
     this.dealOptions(options);
     this.total = 0;
     this.root = new Cluster(this.options, true);
-    this.fulmination = fulmination;
     this.checkMemory();
     this.debugShort(`
       [+] bold:
@@ -229,8 +225,7 @@ class Router extends Logable {
     `);
   }
 
-  dealOptions(options) {
-    this.options = Object.assign(defaultOptions, options);
+  dealOptions() {
     const {
       options: {
         threshold,

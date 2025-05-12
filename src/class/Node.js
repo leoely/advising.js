@@ -1,19 +1,15 @@
-import Fulmination from 'fulmination';
-import Logable from '~/class/Logable';
+import Outputable from '~/class/Outputable';
 import appendToLog from '~/lib/appendToLog';
 import checkMemory from '~/lib/checkMemory';
 import getGTMNowString from '~/lib/getGTMNowString';
 
-const fulmination = new Fulmination();
-
-class Node extends Logable {
+class Node extends Outputable {
   constructor(options) {
     super();
     this.startTime = Date.now();
     this.options = options;
     this.rate = 0;
     this.count = 0;
-    this.fulmination = fulmination;
   }
 
   debugDetail(detail) {

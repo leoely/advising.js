@@ -1,9 +1,13 @@
-import Fulmination from 'fulmination';
 import appendToLog from '~/lib/appendToLog';
 import checkMemory from '~/lib/checkMemory';
 import getGTMNowString from '~/lib/getGTMNowString';
+import fulmination from '~/obj/fulmination';
 
-class Logable {
+class Outputable {
+  constructor() {
+    this.fulmination = fulmination;
+  }
+
   appendToLog(content) {
     const {
       options: {
