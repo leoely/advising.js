@@ -87,6 +87,14 @@ class Thing extends Node {
       this.interval = 0;
       this.log(url);
     }
+    const { rate, } = this;
+    const dutyCycle = this.getDutyCycle();
+    this.debugDetail(`
+      (+) bold; green: * ~~ (+) yellow; bold: * Location (+) bold; dim: * ` + url + `. &
+      (+) bold; green: ** └─ (+): * | (+) bold: * count (+) dim: : ` + count + `(+): * |
+      (+) bold: * rate (+) dim: : ` + rate + ` (+): * |
+      (+) bold: * dutyCycle (+) dim: : ` + dutyCycle + ` (+): * | &
+    `);
   }
 
   setPathKeys(pathKeys) {
@@ -109,9 +117,13 @@ class Thing extends Node {
   }
 
   getContent(total, url) {
-    if (typeof total === 'number') {
-      this.match(total, url);
+    if (typeof total !== 'number') {
+      throw new Error('[Error] Get content parameter total should be a numberic type.');
     }
+    if (typeof url !== 'string') {
+      throw new Error('[Error] Get content parameter url should be a string type.');
+    }
+    this.match(total, url);
     return this.content;
   }
 

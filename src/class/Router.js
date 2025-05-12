@@ -4,6 +4,7 @@ import Logable from '~/class/Logable';
 import Cluster from '~/class/Cluster';
 import Thing from '~/class/Thing';
 import Mixture from '~/class/Mixture';
+import getGTMNowString from '~/lib/getGTMNowString';
 
 function getPathsFromUrl(url) {
   if (typeof url !== 'string') {
@@ -93,10 +94,12 @@ function deleteRecursion(node, index, paths, thing, beforePath, beforeNode) {
       node.delete(path);
       node.clean(beforeNode, beforePath);
     }
-    node.subtractCount(thing.count);
+    const { count, } = thing;
+    node.subtractCount(count);
   } else {
     deleteRecursion(node.find(path), index + 1, paths, thing, path, beforeNode);
-    node.subtractCount(thing.count);
+    const { count, } = thing;
+    node.subtractCount(count);
   }
 }
 
@@ -196,10 +199,34 @@ class Router extends Logable {
     }
   }
 
+  debugDetail(detail) {
+    const {
+      options: {
+        debug,
+      },
+      fulmination,
+    } = this;
+    if (debug === true) {
+      fulmination.scan(detail);
+      console.log(getGTMNowString() + '\n');
+    }
+  }
+
   outputOperate(operate, url) {
-    this.appendToLog(
-      ' || ████ Location:' + url + ' ████ & ████ OPERATE:' + operate + '████ ||\n',
-    );
+    const {
+      options: {
+        logLevel,
+      },
+    } = this;
+    if (logLevel !== 0) {
+      this.appendToLog(
+        ' || ████ Location:' + url + ' ████ & ████ OPERATE:' + operate + '████ ||\n',
+      );
+    }
+    this.debugDetail(`
+      (+) bold; green: * ~~ (+) yellow; bold: * Location (+) bold; dim: * ` + url + `. &
+      (+) bold; green: ** └─ (+): * | (+) bold: * operate (+) dim: : ` + operate + `(+): * | &
+    `);
   }
 
   dealOptions(options) {
@@ -287,6 +314,7 @@ class Router extends Logable {
       const thing = new Thing(content, options, pathKeys);
       addRecursion(root, 0, paths, options, thing);
     }
+    this.outputOperate('add', url);
   }
 
   delete(url) {
@@ -325,8 +353,8 @@ class Router extends Logable {
   swap(url1, url2) {
     const thing1 = this.match(url1, true);
     const thing2 = this.match(url2, true);
-    this.update(url1, thing2, true);
-    this.update(url2, thing1, true);
+    this.update(url1, thing2);
+    this.update(url2, thing1);
     this.outputOperate('swap', url1);
     this.outputOperate('swap', url2);
   }

@@ -10,5 +10,6 @@ const webRouter = new WebRouter({
   debug: true,
   interception: undefined,
 });
-webRouter.add('/movie/action//{page}/{index}', ['Thunderbolts', 'Sinners', 'Havoc']);
-webRouter.match('/movie/action//1/1?k1=v1&k2=v2');
+webRouter.add('/movie/action//{page}/{index}', ['Thunderbolts', 'Sinners', 'Havoc'], true);
+webRouter.match('/movie/action//1/1?k1=v1&k2=v2', false, true, true);
+webRouter.delete('/movie/action');

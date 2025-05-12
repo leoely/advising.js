@@ -39,7 +39,8 @@ function estimateExpandHashInc(key) {
   const { length, } = key;
   let ans = 0;
   for (let i = 0; i < length; i += 1) {
-    const value = dealCharCode(key.charCodeAt(i));
+    const char = key.charCodeAt(i);
+    const value = dealCharCode(char);
     ans += estimateArrayInc(value + 1);
   }
   return ans;
@@ -145,7 +146,7 @@ class Cluster extends Node {
     this.checkMemory();
   }
 
-  update(key, value, swap) {
+  update(key, value) {
     const { status, } = this;
     if (status === 1 || status === 2 || status === 4 || status === 5) {
       this.updateChildrens(key, value);
@@ -223,9 +224,13 @@ class Cluster extends Node {
   clean(node, path) {
     const { number, } = this;
     if (number === 0) {
-      if (node instanceof Cluster && typeof path === 'string') {
-        node.delete(path);
+      if (!(node instanceof Cluster)) {
+        throw new Error('[Error] Clean parameter node should be of cluster type.');
       }
+      if (typeof path !== 'string') {
+        throw new Error('[Error] clean parameter path should be a string type');
+      }
+      node.delete(path);
     }
   }
 
@@ -394,10 +399,11 @@ class Cluster extends Node {
     this.checkMemory();
   }
 
-  blendFromThing(mixture, beforePath) {
+  blendFromThing(mixture, path) {
     const cluster = mixture.getCluster();
-    this.put(beforePath, cluster);
-    this.childrens = cluster.childrens;
+    this.put(path, cluster);
+    const { childrens, } = cluster;
+    this.childrens = childrens;
     this.mixture = mixture;
     this.checkMemory();
   }

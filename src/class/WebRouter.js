@@ -126,9 +126,13 @@ class WebRouter extends Router {
     super(options);
   }
 
-  add(url, content) {
-    const [url1, pathKeys] = parsePathKeys(url);
-    super.add(url1, content, pathKeys);
+  add(url, content, needPathKeys) {
+    if (needPathKeys === true) {
+      const [url1, pathKeys] = parsePathKeys(url);
+      super.add(url1, content, pathKeys);
+    } else {
+      super.add(url, content);
+    }
   }
 
   setPathKeys(url) {
@@ -140,34 +144,49 @@ class WebRouter extends Router {
     );
   }
 
-  match(url, needThing) {
-    const [url1, queryParams] = parseQueryParams(url);
-    const [url2, pathValues] = parsePathValues(url1);
-    const thing = super.match(url2, true);
-    const pathKeys = thing.getPathKeys();
-    if (pathKeys.length === pathValues.length) {
-      const pathVariables = {};
-      for (let i = 0; i < pathKeys.length; i += 1) {
-        const key = pathKeys[i];
-        const value = pathValues[i];
-        pathVariables[key] = value;
-      }
-      if (needThing === true) {
-        return {
-          thing,
-          queryParams,
-          pathVariables,
-        };
+  match(url, needThing, web, outer) {
+    if (outer === true) {
+      const [url1, queryParams] = parseQueryParams(url);
+      const [url2, pathValues] = parsePathValues(url1);
+      const thing = super.match(url2, true);
+      const pathKeys = thing.getPathKeys();
+      if (pathKeys.length === pathValues.length) {
+        const pathVariables = {};
+        for (let i = 0; i < pathKeys.length; i += 1) {
+          const key = pathKeys[i];
+          const value = pathValues[i];
+          pathVariables[key] = value;
+        }
+        if (needThing === true) {
+          if (web === true) {
+            return {
+              thing,
+              queryParams,
+              pathVariables,
+            };
+          } else {
+            return thing;
+          }
+        } else {
+          const {
+            total,
+          } = this;
+          const content = thing.getContent(total, url2);
+          if (web === true) {
+            return {
+              content,
+              queryParams,
+              pathVariables,
+            };
+          } else {
+            return content;
+          }
+        }
       } else {
-        const content = thing.getContent();
-        return {
-          content,
-          queryParams,
-          pathVariables,
-        };
+        throw new Error('[Error] Format of the URL is incorrect.');
       }
     } else {
-      throw new Error('[Error] Format of the URL is incorrect.');
+      return super.match(url, needThing);
     }
   }
 }
