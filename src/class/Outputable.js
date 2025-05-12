@@ -33,7 +33,6 @@ class Outputable {
     }
   }
 
-
   appendToLog(content) {
     const {
       options: {
@@ -52,7 +51,7 @@ class Outputable {
         logPath,
       },
     } = this;
-    return checkMemory(logPath, value);
+    return checkMemory(logPath, value, this);
   }
 }
 

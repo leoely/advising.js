@@ -1,5 +1,4 @@
 import Outputable from '~/class/Outputable';
-import appendToLog from '~/lib/appendToLog';
 import checkMemory from '~/lib/checkMemory';
 import getGTMNowString from '~/lib/getGTMNowString';
 
