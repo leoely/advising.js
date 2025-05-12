@@ -11,6 +11,22 @@ class Node extends Outputable {
     this.count = 0;
   }
 
+  debugInfo(info) {
+    const {
+      options: {
+        debug,
+      },
+      constructor: {
+        name,
+      },
+    } = this;
+    if (debug === true) {
+      this.debugDetail(
+        '(+) bold; green: * ^^ (+) blue; bold: * ' + name + '(+) bold; dim: * ' + info + '. &'
+      );
+    }
+  }
+
   getDutyCycle() {
     const {
       count,

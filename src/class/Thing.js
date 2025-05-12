@@ -14,7 +14,7 @@ class Thing extends Node {
     this.interval = 0;
     this.setPathKeys(pathKeys);
     this.checkMemory();
-    this.debugDetail('(+) bold; green: * ^^ (+) blue; bold: * Thing (+) bold; dim: * was created successfully. &');
+    this.debugInfo('was created successfully');
   }
 
   log(url) {
@@ -101,6 +101,7 @@ class Thing extends Node {
         throw new Error('[Error] Path variables needs to be a string type.');
       } else {
         this.pathKeys = pathKeys;
+        this.debugInfo('set path keys successfully');
       }
     }
   }
@@ -128,6 +129,7 @@ class Thing extends Node {
   setContent(content) {
     checkContent(content);
     this.content = content;
+    this.debugInfo('set content successfully');
   }
 }
 

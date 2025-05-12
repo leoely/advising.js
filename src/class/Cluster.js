@@ -63,9 +63,7 @@ class Cluster extends Node {
     this.number = 0;
     this.checkMemory();
     if (root !== true) {
-      this.debugDetail(
-        '(+) bold; green: * ^^ (+) blue; bold: * Cluster (+) bold; dim: * was created successfully. &'
-      );
+      this.debugInfo('was created successfully');
     }
   }
 
