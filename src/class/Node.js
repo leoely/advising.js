@@ -12,19 +12,6 @@ class Node extends Outputable {
     this.count = 0;
   }
 
-  debugDetail(detail) {
-    const {
-      options: {
-        debug,
-      },
-      fulmination,
-    } = this;
-    if (debug === true) {
-      fulmination.scan(detail);
-      console.log(getGTMNowString() + '\n');
-    }
-  }
-
   getDutyCycle() {
     const {
       count,

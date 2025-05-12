@@ -8,6 +8,32 @@ class Outputable {
     this.fulmination = fulmination;
   }
 
+  debugShort(short) {
+    const {
+      options: {
+        debug,
+      },
+      fulmination,
+    } = this;
+    if (debug === true) {
+      fulmination.scan(short);
+    }
+  }
+
+  debugDetail(detail) {
+    const {
+      options: {
+        debug,
+      },
+      fulmination,
+    } = this;
+    if (debug === true) {
+      fulmination.scan(detail);
+      console.log(getGTMNowString() + '\n');
+    }
+  }
+
+
   appendToLog(content) {
     const {
       options: {

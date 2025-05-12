@@ -3,7 +3,6 @@ import Outputable from '~/class/Outputable';
 import Cluster from '~/class/Cluster';
 import Thing from '~/class/Thing';
 import Mixture from '~/class/Mixture';
-import getGTMNowString from '~/lib/getGTMNowString';
 
 function getPathsFromUrl(url) {
   if (typeof url !== 'string') {
@@ -181,31 +180,6 @@ class Router extends Outputable {
       | * - Related operations cans be performaned.
       |
     `);
-  }
-
-  debugShort(short) {
-    const {
-      options: {
-        debug,
-      },
-      fulmination,
-    } = this;
-    if (debug === true) {
-      fulmination.scan(short);
-    }
-  }
-
-  debugDetail(detail) {
-    const {
-      options: {
-        debug,
-      },
-      fulmination,
-    } = this;
-    if (debug === true) {
-      fulmination.scan(detail);
-      console.log(getGTMNowString() + '\n');
-    }
   }
 
   outputOperate(operate, url) {
