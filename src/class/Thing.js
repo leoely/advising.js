@@ -17,7 +17,7 @@ class Thing extends Node {
     this.debugInfo('was created successfully');
   }
 
-  log(url) {
+  log(location) {
     const {
       count,
       rate,
@@ -32,37 +32,37 @@ class Thing extends Node {
         break;
       case 1:
         this.appendToLog(
-          ' ||  ████ Location:'+ url + ' ████ & ████ RATE:' + rate + ' ████ || \n'
+          ' ||  ████ Location:'+ location + ' ████ & ████ RATE:' + rate + ' ████ || \n'
         );
         break;
       case 2:
         this.appendToLog(
-          ' ||  ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ ||\n'
+          ' ||  ████ Location:'+ location + ' ████ & ████ COUNT:' + count + ' ████ ||\n'
         );
         break;
       case 3:
         this.appendToLog(
-          ' ||  ████ Location:'+ url + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
+          ' ||  ████ Location:'+ location + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       case 4:
         this.appendToLog(
-          ' || ████ Location:'+ url + ' ████  RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
+          ' || ████ Location:'+ location + ' ████  RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       case 5:
         this.appendToLog(
-          ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████  DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
+          ' || ████ Location:'+ location + ' ████ & ████ COUNT:' + count + ' ████  DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       case 6:
         this.appendToLog(
-          ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████  ||\n'
+          ' || ████ Location:'+ location + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████  ||\n'
         );
         break;
       case 7:
         this.appendToLog(
-          ' || ████ Location:'+ url + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
+          ' || ████ Location:'+ location + ' ████ & ████ COUNT:' + count + ' ████ & ████ RATE:' + rate + ' ████ & ████ DUTY_CYCLE:' + dutyCycle + ' ████ ||\n'
         );
         break;
       default:
@@ -70,7 +70,7 @@ class Thing extends Node {
     }
   }
 
-  match(total, url) {
+  match(total, location) {
     this.count += 1
     const { count, } = this;
     this.rate = count / total;
@@ -83,12 +83,12 @@ class Thing extends Node {
     } = this;
     if (interval === logInterval) {
       this.interval = 0;
-      this.log(url);
+      this.log(location);
     }
     const { rate, } = this;
     const dutyCycle = this.getDutyCycle();
     this.debugDetail(`
-      (+) bold; green: * ~~ (+) yellow; bold: * Location (+) bold; dim: * ` + url + `. &
+      (+) bold; green: * ~~ (+) yellow; bold: * Location (+) bold; dim: * ` + location + `. &
       (+) bold; green: ** └─ (+): * | (+) bold: * count (+) dim: : ` + count + `(+): * |
       (+) bold: * rate (+) dim: : ` + rate + ` (+): * |
       (+) bold: * dutyCycle (+) dim: : ` + dutyCycle + ` (+): * | &
@@ -98,7 +98,7 @@ class Thing extends Node {
   setPathKeys(pathKeys) {
     if (pathKeys !== undefined) {
       if (!Array.isArray(pathKeys)) {
-        throw new Error('[Error] Path variables needs to be a string type.');
+        delete this.pathKeys;
       } else {
         this.pathKeys = pathKeys;
         this.debugInfo('set path keys successfully');
@@ -115,14 +115,14 @@ class Thing extends Node {
     }
   }
 
-  getContent(total, url) {
+  getContent(total, location) {
     if (typeof total !== 'number') {
       throw new Error('[Error] Get content parameter total should be a numberic type.');
     }
-    if (typeof url !== 'string') {
-      throw new Error('[Error] Get content parameter url should be a string type.');
+    if (typeof location !== 'string') {
+      throw new Error('[Error] Get content parameter location should be a string type.');
     }
-    this.match(total, url);
+    this.match(total, location);
     this.debugInfo('get content successfully');
     return this.content;
   }

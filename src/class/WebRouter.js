@@ -125,19 +125,69 @@ function parseQueryParams(url) {
   return [url1, queryParams];
 }
 
+function getPathsFromUrl(url) {
+  if (typeof url !== 'string') {
+    throw new Error('[Error] Path type must be a string.');
+  } else {
+    if (url === '/') {
+      throw new Error('[Error] Unable to operate the root path.');
+    }
+  }
+  if (url.charAt(0) !== '/') {
+    throw new Error('[Error] Path should start with a slash.');;
+  }
+  const paths = url.split('/');
+  return paths.slice(1, paths.length);
+}
+
 class WebRouter extends Router {
   constructor(options = {}) {
     super(options);
   }
 
-  add(url, content, needPathKeys) {
-    if (needPathKeys === true) {
-      const [url1, pathKeys] = parsePathKeys(url);
-      super.add(url1, content, pathKeys);
+  attach(url, content) {
+    const [url1, pathKeys] = parsePathKeys(url);
+    if (url1 === url) {
+      const paths = getPathsFromUrl(url);
+      super.add(url, paths, content);
     } else {
-      super.add(url, content);
+      const paths = getPathsFromUrl(url1);
+      super.add(url, paths, content, pathKeys);
     }
-    this.debugInfo('successfully added');
+  }
+
+  ruin(url) {
+    const paths = getPathsFromUrl(url);
+    super.delete(url, paths);
+  }
+
+  ruinAll(urls) {
+    const paramArray = urls.map((url) => {
+      return [url, getPathsFromUrl(url)];
+    });
+    super.deleteAll(paramArray);
+  }
+
+  replace(url, multiple) {
+    const [url1, pathKeys] = parsePathKeys(url);
+    if (url1 === url) {
+      const paths = getPathsFromUrl(url);
+      super.update(url, paths, multiple);
+    } else {
+      const paths1 = getPathsFromUrl(url1);
+      super.update(url1, paths1, multiple, pathKeys);
+    }
+  }
+
+  switch(url1, url2) {
+    const paths1 = getPathsFromUrl(url1);
+    const paths2 = getPathsFromUrl(url2);
+    super.swap(url1, url2, paths1, paths2);
+  }
+
+  revise(url, content) {
+    const paths = getPathsFromUrl(url);
+    super.fix(url, paths, content);
   }
 
   setPathKeys(url) {
@@ -148,7 +198,8 @@ class WebRouter extends Router {
       },
     } = this;
     const [url1, pathKeys] = parsePathKeys(url);
-    const thing = super.match(url1, true);
+    const paths1 = getPathsFromUrl(url1);
+    const thing = super.match(url1, paths1, true);
     thing.setPathKeys(pathKeys);
     if (logLevel !== 0) {
       this.appendToLog(
@@ -158,20 +209,27 @@ class WebRouter extends Router {
     this.outputOperate('setPathKeys', url);
   }
 
-  match(url, needThing, web) {
+  gain(url) {
+    return this.matchInner(url, false, true);
+  }
+
+  matchInner(url, needThing, web) {
     const [url1, queryParams] = parseQueryParams(url);
     const [url2, pathValues] = parsePathValues(url1);
     let pathVariables = {};
     let thing;
     let content;
     if (url2 !== url) {
-      thing = super.match(url2, true);
-      const { total, } = this;
-      content = thing.getContent(total, url2);
-      const pathKeys = thing.getPathKeys();
+      const paths2 = getPathsFromUrl(url2);
+      thing = super.match(url2, paths2, true, true);
+      if (needThing !== true) {
+        const { total, } = this;
+        content = thing.getContent(total, url2);
+      }
       if (pathValues.length === 0) {
         pathVariables = {};
       } else {
+        const pathKeys = thing.getPathKeys();
         if (pathKeys.length === pathValues.length) {
           pathVariables = {};
           for (let i = 0; i < pathKeys.length; i += 1) {
@@ -184,7 +242,8 @@ class WebRouter extends Router {
         }
       }
     } else {
-      const multiple = super.match(url, needThing);
+      const paths = getPathsFromUrl(url);
+      const multiple = super.match(url, paths, needThing);
       if (needThing === true) {
         thing = multiple;
       } else {
@@ -212,7 +271,6 @@ class WebRouter extends Router {
         return content;
       }
     }
-    this.debugInfo('successfully matched');
   }
 }
 
