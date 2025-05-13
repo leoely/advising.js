@@ -130,14 +130,22 @@ class WebRouter extends Router {
     super(options);
   }
 
-  add(url, content, needPathKeys) {
-    if (needPathKeys === true) {
-      const [url1, pathKeys] = parsePathKeys(url);
-      super.add(url1, content, pathKeys);
-    } else {
+  add(url, content) {
+    const [url1, pathKeys] = parsePathKeys(url);
+    if (url1 === url) {
       super.add(url, content);
+    } else {
+      super.add(url1, content, pathKeys);
     }
-    this.debugInfo('successfully added');
+  }
+
+  update(url, multiple) {
+    const [url1, pathKeys] = parsePathKeys(url);
+    if (url1 === url) {
+      super.update(url, multiple);
+    } else {
+      super.update(url1, multiple, pathKeys);
+    }
   }
 
   setPathKeys(url) {
@@ -158,6 +166,10 @@ class WebRouter extends Router {
     this.outputOperate('setPathKeys', url);
   }
 
+  matchHigh(url) {
+    return this.match(url, false, true);
+  }
+
   match(url, needThing, web) {
     const [url1, queryParams] = parseQueryParams(url);
     const [url2, pathValues] = parsePathValues(url1);
@@ -165,13 +177,15 @@ class WebRouter extends Router {
     let thing;
     let content;
     if (url2 !== url) {
-      thing = super.match(url2, true);
-      const { total, } = this;
-      content = thing.getContent(total, url2);
-      const pathKeys = thing.getPathKeys();
+      thing = super.match(url2, true, true);
+      if (needThing !== true) {
+        const { total, } = this;
+        content = thing.getContent(total, url2);
+      }
       if (pathValues.length === 0) {
         pathVariables = {};
       } else {
+        const pathKeys = thing.getPathKeys();
         if (pathKeys.length === pathValues.length) {
           pathVariables = {};
           for (let i = 0; i < pathKeys.length; i += 1) {
@@ -212,7 +226,6 @@ class WebRouter extends Router {
         return content;
       }
     }
-    this.debugInfo('successfully matched');
   }
 }
 

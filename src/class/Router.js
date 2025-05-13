@@ -19,7 +19,7 @@ function getPathsFromUrl(url) {
   return paths.slice(1, paths.length);
 }
 
-function matchRecursion(node, index, paths, total, needThing) {
+function matchRecursion(node, index, paths, total, needThing, changeCount) {
   const path = paths[index];
   if (index === paths.length - 1) {
     if (node === undefined) {
@@ -29,7 +29,11 @@ function matchRecursion(node, index, paths, total, needThing) {
         return node.mixture.getThing();
       } else {
         if (needThing === true) {
-          return node.find(path);
+          if (changeCount === true) {
+            return node.get(path, total);
+          } else {
+            return node.find(path);
+          }
         } else {
           return node.get(path, total);
         }
@@ -37,9 +41,13 @@ function matchRecursion(node, index, paths, total, needThing) {
     }
   } else {
     if (needThing === true) {
-      return matchRecursion(node.find(path, total), index + 1, paths, total, needThing);
+      if (changeCount === true) {
+        return matchRecursion(node.get(path, total), index + 1, paths, total, needThing, changeCount);
+      } else {
+        return matchRecursion(node.find(path), index + 1, paths, total, needThing, changeCount);
+      }
     } else {
-      return matchRecursion(node.get(path, total), index + 1, paths, total, needThing);
+      return matchRecursion(node.get(path, total), index + 1, paths, total, needThing, changeCount);
     }
   }
 }
@@ -259,11 +267,11 @@ class Router extends Outputable {
     }
   }
 
-  match(url, needThing) {
+  match(url, needThing, changeCount) {
     const paths = getPathsFromUrl(url);
     this.total += 1;
     const { total, root, } = this;
-    const thing = matchRecursion(root, 0, paths, total, needThing);
+    const thing = matchRecursion(root, 0, paths, total, needThing, changeCount);
     if (thing === undefined) {
       throw Error('[Error] Router matching the url does not exist.');
     } else {
@@ -305,19 +313,21 @@ class Router extends Outputable {
     });
   }
 
-  update(url, multiple) {
+  update(url, multiple, pathKeys) {
     const thing = this.match(url, true);
     const paths = getPathsFromUrl(url);
     const { root, } = this;
     const [path] = paths;
     if (multiple instanceof Thing) {
       const newThing = multiple;
+      newThing.setPathKeys(pathKeys);
       updateRecursion(root, 0, paths, thing, newThing, path, root);
     } else {
       const content = multiple;
       const [path] = paths;
       const { root, options, } = this;
       const newThing = new Thing(content, options);
+      newThing.setPathKeys(pathKeys);
       updateRecursion(root, 0, paths, thing, newThing, path, root);
     }
     this.outputOperate('update', url);

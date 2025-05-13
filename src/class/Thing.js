@@ -98,7 +98,7 @@ class Thing extends Node {
   setPathKeys(pathKeys) {
     if (pathKeys !== undefined) {
       if (!Array.isArray(pathKeys)) {
-        throw new Error('[Error] Path variables needs to be a string type.');
+        delete this.pathKeys;
       } else {
         this.pathKeys = pathKeys;
         this.debugInfo('set path keys successfully');
