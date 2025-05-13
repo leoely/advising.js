@@ -311,7 +311,7 @@ class Cluster extends Node {
   subtractCount(count) {
     if (!Number.isInteger(count)) {
       throw new Error(
-        '[Error] Number of arguments to subtractCount function be a integer.'
+        '[Error] Count of arguments to subtractCount function be a integer.'
       );
     } else {
       this.count -= count;
@@ -322,7 +322,7 @@ class Cluster extends Node {
   addCount(count) {
     if (!Number.isInteger(count)) {
       throw new Error(
-        '[Error] Number of arguments to addCount function be a integer.'
+        '[Error] Count of arguments to addCount function be a integer.'
       );
     } else {
       this.count += count;

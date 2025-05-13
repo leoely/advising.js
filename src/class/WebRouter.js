@@ -53,7 +53,7 @@ function parsePathValues(url) {
   let status = 0;
   let chars = [];
   let url1 = url;
-  const pathValues = [];
+  let pathValues = [];
   outer: for (let i = url.length - 1; i >= 0; i -= 1) {
     const char = url.charAt(i);
     switch (status) {
@@ -78,6 +78,9 @@ function parsePathValues(url) {
         break;
       }
     }
+  }
+  if (url1 === url) {
+    pathValues = [];
   }
   return [url1, pathValues];
 }
@@ -106,6 +109,7 @@ function parseQueryParams(url) {
       case 1: {
         if (char === '&') {
           queryParams[chars.join('')] = value;
+          chars = [];
           status = 0;
         } else if (char === '?') {
           queryParams[chars.join('')] = value;
@@ -154,49 +158,59 @@ class WebRouter extends Router {
     this.outputOperate('setPathKeys', url);
   }
 
-  match(url, needThing, web, outer) {
-    if (outer === true) {
-      const [url1, queryParams] = parseQueryParams(url);
-      const [url2, pathValues] = parsePathValues(url1);
-      const thing = super.match(url2, true);
+  match(url, needThing, web) {
+    const [url1, queryParams] = parseQueryParams(url);
+    const [url2, pathValues] = parsePathValues(url1);
+    let pathVariables = {};
+    let thing;
+    let content;
+    if (url2 !== url) {
+      thing = super.match(url2, true);
+      const { total, } = this;
+      content = thing.getContent(total, url2);
       const pathKeys = thing.getPathKeys();
-      if (pathKeys.length === pathValues.length) {
-        const pathVariables = {};
-        for (let i = 0; i < pathKeys.length; i += 1) {
-          const key = pathKeys[i];
-          const value = pathValues[i];
-          pathVariables[key] = value;
-        }
-        if (needThing === true) {
-          if (web === true) {
-            return {
-              thing,
-              queryParams,
-              pathVariables,
-            };
-          } else {
-            return thing;
+      if (pathValues.length === 0) {
+        pathVariables = {};
+      } else {
+        if (pathKeys.length === pathValues.length) {
+          pathVariables = {};
+          for (let i = 0; i < pathKeys.length; i += 1) {
+            const key = pathKeys[i];
+            const value = pathValues[i];
+            pathVariables[key] = value;
           }
         } else {
-          const {
-            total,
-          } = this;
-          const content = thing.getContent(total, url2);
-          if (web === true) {
-            return {
-              content,
-              queryParams,
-              pathVariables,
-            };
-          } else {
-            return content;
-          }
+          throw new Error('[Error] Format of the URL is incorrect.');
         }
-      } else {
-        throw new Error('[Error] Format of the URL is incorrect.');
       }
     } else {
-      return super.match(url, needThing);
+      const multiple = super.match(url, needThing);
+      if (needThing === true) {
+        thing = multiple;
+      } else {
+        content = multiple;
+      }
+    }
+    if (needThing === true) {
+      if (web === true) {
+        return {
+          thing,
+          queryParams,
+          pathVariables,
+        };
+      } else {
+        return thing;
+      }
+    } else {
+      if (web === true) {
+        return {
+          content,
+          queryParams,
+          pathVariables,
+        };
+      } else {
+        return content;
+      }
     }
     this.debugInfo('successfully matched');
   }
