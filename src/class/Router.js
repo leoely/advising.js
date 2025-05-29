@@ -8,7 +8,7 @@ function matchRecursion(node, index, paths, total, needThing, changeCount) {
   const path = paths[index];
   if (index === paths.length - 1) {
     if (node === undefined) {
-      throw Error('[Error] The current url of the router cannot be found.');
+      throw Error('[Error] The current location of the router cannot be found.');
     } else {
       if (node.mixture instanceof Mixture) {
         return node.mixture.getThing();
@@ -116,7 +116,7 @@ function updateRecursion(node, index, paths, thing, newThing, beforePath, before
   const path = paths[index];
   if (index === paths.length - 1) {
     if (node === undefined) {
-      throw Error('[Error] The current url of the router cannot be found.');
+      throw Error('[Error] The current location of the router cannot be found.');
     } else {
       let thing;
       if (node.mixture instanceof Mixture) {
@@ -145,7 +145,7 @@ class Router extends Outputable {
     super();
     const defaultOptions = {
       threshold: 0.01,
-      number: 45,
+      number: 10,
       bond: 500,
       dutyCycle: 500,
       logLevel: 3,
@@ -257,7 +257,7 @@ class Router extends Outputable {
     const { total, root, } = this;
     const thing = matchRecursion(root, 0, paths, total, needThing, changeCount);
     if (thing === undefined) {
-      throw Error('[Error] Router matching the url does not exist.');
+      throw Error('[Error] Router matching the location does not exist.');
     } else {
       if (needThing === true) {
         return thing;
@@ -339,6 +339,44 @@ class Router extends Outputable {
     } else {
       throw new Error('[Error] The corrected route does not exist.');
     }
+  }
+
+  attach(location, content) {
+    const paths = this.getPathsFromLocation(address);
+    this.add(location, paths, content);
+  }
+
+  switch(location1, location2) {
+    const paths1 = this.getPathsFromLocation(location1);
+    const paths2 = this.getPathsFromLocation(location2);
+    this.swap(location1, location2, paths1, paths2);
+  }
+
+  ruin(location) {
+    const paths = this.getPathsFromLocation(location);
+    this.delete(location, paths);
+  }
+
+  ruinAll(locations) {
+    const paramArray = locations.map((location) => {
+      return [location, this.getPathsFromLocation(location)];
+    });
+    this.deleteAll(paramArray);
+  }
+
+  replace(location, multiple) {
+    const paths = this.getPathsFromLocation(location);
+    this.update(url, paths, multiple);
+  }
+
+  revise(location, content) {
+    const paths = this.getPathsFromLocation(location);
+    this.fix(location, paths, content);
+  }
+
+  gain(location) {
+    const paths = this.getPathsFromLocation(location);
+    return this.match(location, paths);
   }
 }
 

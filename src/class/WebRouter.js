@@ -145,6 +145,11 @@ class WebRouter extends Router {
     super(options);
   }
 
+  getPathsFromLocation(location) {
+    const url = location;
+    return getPathsFromUrl(url);
+  }
+
   attach(url, content) {
     const [url1, pathKeys] = parsePathKeys(url);
     if (url1 === url) {
@@ -154,18 +159,6 @@ class WebRouter extends Router {
       const paths = getPathsFromUrl(url1);
       super.add(url, paths, content, pathKeys);
     }
-  }
-
-  ruin(url) {
-    const paths = getPathsFromUrl(url);
-    super.delete(url, paths);
-  }
-
-  ruinAll(urls) {
-    const paramArray = urls.map((url) => {
-      return [url, getPathsFromUrl(url)];
-    });
-    super.deleteAll(paramArray);
   }
 
   replace(url, multiple) {

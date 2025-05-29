@@ -87,8 +87,8 @@ describe('[Class] WebRouter;', () => {
     webRouter.ruin('/male/robert');
     expect(webRouter.root.count).toBe(1);
     expect(webRouter.root.find('male').count).toBe(1);
-    expect(() => webRouter.matchInner('/male/john')).toThrow('[Error] Router matching the url does not exist.');
-    expect(() => webRouter.matchInner('/male/robert')).toThrow('[Error] Router matching the url does not exist.');
+    expect(() => webRouter.matchInner('/male/john')).toThrow('[Error] Router matching the location does not exist.');
+    expect(() => webRouter.matchInner('/male/robert')).toThrow('[Error] Router matching the location does not exist.');
     webRouter.ruin('/male/david');
     expect(() => webRouter.matchInner('/male/david')).toThrow('[Error] Cluster hash is empty,please add a route first.');
   });
@@ -109,7 +109,7 @@ describe('[Class] WebRouter;', () => {
     webRouter.replace('/world/male', ['jason', 'kevin', 'eric']);
     expect(webRouter.root.count).toBe(0);
     expect(JSON.stringify(webRouter.matchInner('/world/male'))).toMatch('[\"jason\",\"kevin\",\"eric\"]');
-    expect(() => webRouter.replace('/world/female', ['amani', 'tiffany', 'carolyn'])).toThrow('[Error] Router matching the url does not exist.');
+    expect(() => webRouter.replace('/world/female', ['amani', 'tiffany', 'carolyn'])).toThrow('[Error] Router matching the location does not exist.');
   });
 
   test('WebRouter needs to complete the adaptation of the switch operation.', () => {
@@ -180,8 +180,8 @@ describe('[Class] WebRouter;', () => {
     webRouter.ruin('/male/robert');
     expect(webRouter.root.count).toBe(1);
     expect(webRouter.root.find('male').count).toBe(1);
-    expect(() => webRouter.gain('/male/john//hat')).toThrow('[Error] Router matching the url does not exist.');
-    expect(() => webRouter.gain('/male/robert//hat')).toThrow('[Error] Router matching the url does not exist.');
+    expect(() => webRouter.gain('/male/john//hat')).toThrow('[Error] Router matching the location does not exist.');
+    expect(() => webRouter.gain('/male/robert//hat')).toThrow('[Error] Router matching the location does not exist.');
     webRouter.ruin('/male/david');
     expect(() => webRouter.gain('/male/david//hat')).toThrow('[Error] Cluster hash is empty,please add a route first.');
   });
@@ -202,7 +202,7 @@ describe('[Class] WebRouter;', () => {
     webRouter.replace('/world/male//{belongings}', ['jason', 'kevin', 'eric']);
     expect(webRouter.root.count).toBe(0);
     expect(JSON.stringify(webRouter.gain('/world/male//hat'))).toMatch('{\"content\":[\"jason\",\"kevin\",\"eric\"],\"queryParams\":{},\"pathVariables\":{\"belongings\":\"hat\"}}');
-    expect(() => webRouter.replace('/world/female', ['amani', 'tiffany', 'carolyn'])).toThrow('[Error] Router matching the url does not exist.');
+    expect(() => webRouter.replace('/world/female', ['amani', 'tiffany', 'carolyn'])).toThrow('[Error] Router matching the location does not exist.');
   });
 
   test('WebRouter should adapt the replace method along with the URL parameters.', () => {

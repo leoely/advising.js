@@ -1,8 +1,8 @@
 {
   "name": "advising.js",
-  "version": "1.0.3",
+  "version": "1.0.7",
   "description": "Frontend router project.",
-  "main": "dist/class/index.js",
+  "main": "dist/index.js",
   "repository": "git@github.com:leoely/advising.js.git",
   "author": "Leo Ely",
   "license": "MIT",

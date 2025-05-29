@@ -302,8 +302,8 @@ describe('[Class] Router: Space complexity test cases;', () => {
     router.delete('/male/robert', ['male', 'robert']);
     expect(router.root.count).toBe(1);
     expect(router.root.find('male').count).toBe(1);
-    expect(() => router.match('/male/john', ['male', 'john'])).toThrow('[Error] Router matching the url does not exist.');
-    expect(() => router.match('/male/robert', ['male', 'robert'])).toThrow('[Error] Router matching the url does not exist.');
+    expect(() => router.match('/male/john', ['male', 'john'])).toThrow('[Error] Router matching the location does not exist.');
+    expect(() => router.match('/male/robert', ['male', 'robert'])).toThrow('[Error] Router matching the location does not exist.');
     router.delete('/male/david', ['male', 'david']);
     expect(() => router.match('/male/david', ['male', 'david'])).toThrow('[Error] Cluster hash is empty,please add a route first.');
   });
@@ -347,7 +347,7 @@ describe('[Class] Router: Space complexity test cases;', () => {
     router.update('/world/male', ['world', 'male'], ['jason', 'kevin', 'eric']);
     expect(router.root.count).toBe(0);
     expect(JSON.stringify(router.match('/world/male', ['world', 'male']))).toMatch('[\"jason\",\"kevin\",\"eric\"]');
-    expect(() => router.update('/world/female', ['world', 'female'], ['amani', 'tiffany', 'carolyn'])).toThrow('[Error] Router matching the url does not exist.');
+    expect(() => router.update('/world/female', ['world', 'female'], ['amani', 'tiffany', 'carolyn'])).toThrow('[Error] Router matching the location does not exist.');
   });
 
   test('Router exchange routes should be correct.', () => {
