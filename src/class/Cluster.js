@@ -576,7 +576,16 @@ class Cluster extends Node {
   get(key, total) {
     const { status, } = this;
     if (status === -1) {
-      throw new Error('[Error] Cluster hash is empty,please add a route first.');
+      const {
+        options: {
+          hide,
+        },
+      } = this;
+      if (hide === true) {
+        return undefined;
+      } else {
+        throw new Error('[Error] Cluster hash is empty,please add a route first.');
+      }
     }
     if (typeof total !== 'number') {
       throw new Error('[Error] Cluster acquisition method needs to pass numeric type paramter total.');

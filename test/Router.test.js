@@ -492,4 +492,24 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
     router.match('/male/john', ['male', 'john']);
     expect(() => router.match('/male/john', ['male', 'john'])).toThrow('[Error] LogLevel must in section [0, 7].');
   });
+
+  test('Router is set to be hidden without error..', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 8,
+      logInterval: 5,
+      interception: undefined,
+      hide: true,
+      debug: false,
+    });
+    router.add('/male/john', ['male', 'john'], { name: 'john', age: 22, });
+    router.match('/male/john', ['male', 'john']);
+    router.match('/male/john', ['male', 'john']);
+    router.match('/male/john', ['male', 'john']);
+    router.match('/male/john', ['male', 'john']);
+    expect(() => router.match('/male/john', ['male', 'john'])).toThrow('[Error] LogLevel must in section [0, 7].');
+  });
 });

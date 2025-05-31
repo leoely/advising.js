@@ -1,14 +1,26 @@
 import fs from 'fs';
 import Outputable from '~/class/Outputable';
+import Node from '~/class/Node';
 import Cluster from '~/class/Cluster';
 import Thing from '~/class/Thing';
 import Mixture from '~/class/Mixture';
 
-function matchRecursion(node, index, paths, total, needThing, changeCount) {
+function matchRecursion(node, index, paths, total, needThing, changeCount, hide) {
+  if (!(node instanceof Node)) {
+    if (hide === true) {
+      return undefined;
+    } else {
+      throw new Error('[Error] There are empty nodes during the matching traversal process');
+    }
+  }
   const path = paths[index];
   if (index === paths.length - 1) {
     if (node === undefined) {
-      throw Error('[Error] The current location of the router cannot be found.');
+      if (hide === true) {
+        return undefined;
+      } else {
+        throw Error('[Error] The current location of the router cannot be found.');
+      }
     } else {
       if (node.mixture instanceof Mixture) {
         return node.mixture.getThing();
@@ -27,12 +39,12 @@ function matchRecursion(node, index, paths, total, needThing, changeCount) {
   } else {
     if (needThing === true) {
       if (changeCount === true) {
-        return matchRecursion(node.get(path, total), index + 1, paths, total, needThing, changeCount);
+        return matchRecursion(node.get(path, total), index + 1, paths, total, needThing, changeCount, hide);
       } else {
-        return matchRecursion(node.find(path), index + 1, paths, total, needThing, changeCount);
+        return matchRecursion(node.find(path), index + 1, paths, total, needThing, changeCount, hide);
       }
     } else {
-      return matchRecursion(node.get(path, total), index + 1, paths, total, needThing, changeCount);
+      return matchRecursion(node.get(path, total), index + 1, paths, total, needThing, changeCount, hide);
     }
   }
 }
@@ -152,6 +164,7 @@ class Router extends Outputable {
       logInterval: 5,
       interception: 8,
       debug: true,
+      hide: false,
       logPath: '/tmp/adivising.js/log',
     };
     this.options = Object.assign(defaultOptions, options);
@@ -205,6 +218,7 @@ class Router extends Outputable {
         logLevel,
         logInterval,
         interception,
+        hide,
         logPath,
       },
     } = this;
@@ -250,14 +264,29 @@ class Router extends Outputable {
         checkLogPath(logPath);
       }
     }
+    if (hide !== undefined) {
+      if (typeof hide !== 'boolean') {
+        throw new Error('[Error] Router option hide must be a boolean type or undefined.');
+      }
+    }
   }
 
   match(location, paths, needThing, changeCount) {
     this.total += 1;
-    const { total, root, } = this;
-    const thing = matchRecursion(root, 0, paths, total, needThing, changeCount);
+    const {
+      total,
+      root,
+      options: {
+        hide,
+      },
+    } = this;
+    const thing = matchRecursion(root, 0, paths, total, needThing, changeCount, hide);
     if (thing === undefined) {
-      throw Error('[Error] Router matching the location does not exist.');
+      if (hide === true) {
+        return thing;
+      } else {
+        throw Error('[Error] Router matching the location does not exist.');
+      }
     } else {
       if (needThing === true) {
         return thing;

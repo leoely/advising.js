@@ -18,6 +18,7 @@ function getPathsFromAddress(address) {
   }
   let chars = [];
   let paths = [];
+  const levels = [];
   let filename;
   for (let i = 0; i <= address.length; i += 1) {
     const char = address.charAt(i);
@@ -46,7 +47,7 @@ function getPathsFromAddress(address) {
             throw new Error('[Error] Path cannot be empty.');
           case '.':
             chars.push(char);
-            status = 4;
+            status = 3;
             break;
           case '':
             throw new Error('[Error] Cannot end with a path.');
@@ -58,10 +59,13 @@ function getPathsFromAddress(address) {
       case 2:
         switch (char) {
           case '':
-            const simpleName = chars.join('');
-            paths.push(simpleName);
+            const level = chars.join('');
+            if (level.length === 0) {
+              throw new Error('[Error] The level name cannot be empty.');
+            }
+            levels.unshift(level);
+            paths = paths.concat(levels);
             chars = [];
-            status = 1;
             break
           case '/': {
             const directory = chars.join('');
@@ -71,13 +75,12 @@ function getPathsFromAddress(address) {
             break
           }
           case '.': {
-            const front = chars.join('');
-            if (front.length === 0) {
-              throw new Error('[Error] The file name cannot be empty.');
+            const level = chars.join('');
+            if (level.length === 0) {
+              throw new Error('[Error] The level name cannot be empty.');
             }
-            filename = front;
+            levels.unshift(level);
             chars = [];
-            status = 3;
             break;
           }
           default:
@@ -85,26 +88,6 @@ function getPathsFromAddress(address) {
         }
         break;
       case 3:
-        switch (char) {
-          case '': {
-            const behind = chars.join('');
-            if (behind.length === 0) {
-              throw new Error('[Error] The file extension cannot be empty.');
-            }
-            paths.push(behind);
-            paths.push(filename);
-            chars = [];
-            break;
-          }
-          case '/':
-            throw new Error('[Error] The file can only apppear at the end.');
-          case '.':
-            throw new Error('[Error] The file format is incorrect.');
-          default:
-            chars.push(char);
-        }
-        break;
-      case 4:
         switch (char) {
           case '':
             throw new Error('[Error] Cannot end with a path.');

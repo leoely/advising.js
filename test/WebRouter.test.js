@@ -93,6 +93,37 @@ describe('[Class] WebRouter;', () => {
     expect(() => webRouter.matchInner('/male/david')).toThrow('[Error] Cluster hash is empty,please add a route first.');
   });
 
+  test('WebRouter needs to complete the adaptation of the ruin all operation.', () => {
+    const webRouter = new WebRouter({
+      threshold: 0.5,
+      number: 4,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 7,
+      logInterval: 5,
+      interception: undefined,
+      debug: false,
+    });
+    webRouter.attach('/male/john', { name: 'john', age: 22, });
+    webRouter.attach('/male/robert', { name: 'robert', age: 18, });
+    webRouter.attach('/male/david', { name: 'david', age: 40, });
+    expect(JSON.stringify(webRouter.matchInner('/male/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
+    expect(JSON.stringify(webRouter.matchInner('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(webRouter.matchInner('/male/david'))).toMatch('{\"name\":\"david\",\"age\":40}');
+    expect(webRouter.root.count).toBe(3);
+    expect(webRouter.root.find('male').count).toBe(3);
+    expect(webRouter.root.find('male').find('john').count).toBe(1);
+    webRouter.ruinAll([
+      '/male/john',
+      '/male/robert',
+      '/male/david',
+    ]);
+    expect(() => webRouter.gain('/male/john')).toThrow('[Error] Cluster hash is empty,please add a route first.');
+    expect(() => webRouter.gain('/male/robert')).toThrow('[Error] Cluster hash is empty,please add a route first.');
+    expect(() => webRouter.gain('/male/david')).toThrow('[Error] Cluster hash is empty,please add a route first.');
+  });
+
+
   test('WebRouter needs to complete the adaptation of the replace operation.', () => {
     const webRouter = new WebRouter({
       threshold: 0.5,
