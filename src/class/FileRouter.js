@@ -3,6 +3,7 @@ import Router from '~/class/Router';
 function getPathsFromAddress(address) {
   const first = address.charAt(0);
   let status;
+  let chars = [];
   switch (first) {
     case '/': {
       const { length, } = address;
@@ -14,12 +15,10 @@ function getPathsFromAddress(address) {
       status = 0;
       break;
     default:
-      throw new Error('[Error] Must be a relative path or an absolute path.');
+      status = 2;
   }
-  let chars = [];
   let paths = [];
   const levels = [];
-  let filename;
   for (let i = 0; i <= address.length; i += 1) {
     const char = address.charAt(i);
     switch (status) {
@@ -118,6 +117,26 @@ class FileRouter extends Router {
   getPathsFromLocation(location) {
     const address = location;
     return getPathsFromAddress(address);
+  }
+
+  gain(location) {
+    this.checkGetPathsFromLocation('gain');
+    const {
+      options: {
+        hideError,
+      },
+    } = this;
+    let paths;
+    try {
+      paths = this.getPathsFromLocation(location);
+    } catch (error) {
+      if (hideError === true) {
+        return undefined;
+      } else {
+        throw error;
+      }
+    }
+    return this.match(location, paths);
   }
 
   attach(address, content) {

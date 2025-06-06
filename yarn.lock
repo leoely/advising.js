@@ -2529,14 +2529,16 @@ fsevents@^2.3.2, fsevents@~2.3.2:
   resolved "https://registry.yarnpkg.com/fsevents/-/fsevents-2.3.3.tgz#cac6407785d03675a2a5e1a5305c697b347d90d6"
   integrity sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==
 
-fulmination@^0.1.1:
-  version "0.1.10"
-  resolved "https://registry.yarnpkg.com/fulmination/-/fulmination-0.1.10.tgz#b991648c3dbee8351625d0e5ec1d3f07b8bd13d6"
-  integrity sha512-Gbe8qR8SXeBlFNuZLSezk/rxn6CGB74mhjymcZ4Jj/fQ0kLh3RfiV+ndNVtIBT8ktfj8SsJ99r3dAUMFUbIIJA==
+fulmination@^1.0.6, fulmination@^1.1.3:
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/fulmination/-/fulmination-1.1.3.tgz#5c0507e2c4f05f8e63212bc940f0924bac5ab24e"
+  integrity sha512-/kfgxOxM3iqk+ZkOyFXAYircgNl/mGnAcE+QwbPBzDF+MNpiuR2v97heYyxiUtaGSAmbW9lru6/F7NRDNbsbsA==
   dependencies:
     chalk "^2.4.2"
-    glow.js "^0.0.6"
+    fulmination "^1.0.6"
+    glow.js "^0.0.34"
     gulp "^4.0.2"
+    mien "^0.1.11"
 
 function-bind@^1.1.2:
   version "1.1.2"
@@ -2685,10 +2687,10 @@ glogg@^1.0.0:
   dependencies:
     sparkles "^1.0.0"
 
-glow.js@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/glow.js/-/glow.js-0.0.6.tgz#ee06b80f513a333702f99427b448b84765688c52"
-  integrity sha512-jwInjaXODFtmEATEWUKV7rBH+lb4Cfcs/ubFdCBKlNYAWW4f7QKG+VI0UU0KFfPy1TLsn3A84WqrDQxmZdGz9A==
+glow.js@^0.0.34:
+  version "0.0.34"
+  resolved "https://registry.yarnpkg.com/glow.js/-/glow.js-0.0.34.tgz#b57ea14d5c550b81bdeea49fe788db18fd9cacac"
+  integrity sha512-WNbmR9OG1QAsmzeLLvw/H7nUuT2d8j5nLI0HMFCSrRmUpODf6lpf7Esd+ioMJeIGU++IoA0yxW4UcRUYdx9lMQ==
 
 gopd@^1.0.1, gopd@^1.2.0:
   version "1.2.0"
@@ -3684,6 +3686,15 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
+manner.js@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/manner.js/-/manner.js-1.0.7.tgz#c89a05c1b6422c58d7e19c59d46c7d7d663359af"
+  integrity sha512-2IkLNti8xDoGEWW7BKFuXdxJKkw/0Pp1cwVgZ5hdUJWR3HI+eM1kHJ/PvNIg6L6+dKikY5+v5VtoM2Pz4/a4fw==
+  dependencies:
+    babel-plugin-root-import "^6.6.0"
+    gulp "^4.0.2"
+    node-fetch "2"
+
 map-cache@^0.2.0, map-cache@^0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/map-cache/-/map-cache-0.2.2.tgz#c32abd0bd6525d9b051645bb4f26ac5dc98a0dbf"
@@ -3742,6 +3753,13 @@ micromatch@^4.0.4:
   dependencies:
     braces "^3.0.3"
     picomatch "^2.3.1"
+
+mien@^0.1.11:
+  version "0.1.13"
+  resolved "https://registry.yarnpkg.com/mien/-/mien-0.1.13.tgz#0b6fe72063507303a9d23d33964f9d98ce10cb18"
+  integrity sha512-N5cNX6iQCeUDHmkMVwZG5WdtiERQaKCHtIvf4Q0aXJS7WFWDXvtglhPHTOSy4F9sR+3puVbVHkix43i4P8ybXg==
+  dependencies:
+    fulmination "^1.1.3"
 
 mimic-fn@^2.1.0:
   version "2.1.0"
@@ -3809,6 +3827,13 @@ next-tick@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/next-tick/-/next-tick-1.1.0.tgz#1836ee30ad56d67ef281b22bd199f709449b35eb"
   integrity sha512-CXdUiJembsNjuToQvxayPZF9Vqht7hewsvy2sOWafLvi2awflj9mOC6bHIg50orX8IJvWKY9wYQ/zB2kogPslQ==
+
+node-fetch@2:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.7.0.tgz#d0f0fa6e3e2dc1d27efcd8ad99d550bda94d187d"
+  integrity sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==
+  dependencies:
+    whatwg-url "^5.0.0"
 
 node-int64@^0.4.0:
   version "0.4.0"
@@ -4868,6 +4893,11 @@ to-through@^2.0.0:
   dependencies:
     through2 "^2.0.3"
 
+tr46@~0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/tr46/-/tr46-0.0.3.tgz#8184fd347dac9cdc185992f3a6622e14b9d9ab6a"
+  integrity sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==
+
 type-detect@4.0.8:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/type-detect/-/type-detect-4.0.8.tgz#7646fb5f18871cfbb7749e69bd39a6388eb7450c"
@@ -5086,6 +5116,19 @@ walker@^1.0.8:
   integrity sha512-ts/8E8l5b7kY0vlWLewOkDXMmPdLcVV4GmOQLyxuSswIJsweeFZtAsMF7k1Nszz+TYBQrlYRmzOnr398y1JemQ==
   dependencies:
     makeerror "1.0.12"
+
+webidl-conversions@^3.0.0:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/webidl-conversions/-/webidl-conversions-3.0.1.tgz#24534275e2a7bc6be7bc86611cc16ae0a5654871"
+  integrity sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==
+
+whatwg-url@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/whatwg-url/-/whatwg-url-5.0.0.tgz#966454e8765462e37644d3626f6742ce8b70965d"
+  integrity sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==
+  dependencies:
+    tr46 "~0.0.3"
+    webidl-conversions "^3.0.0"
 
 which-module@^1.0.0:
   version "1.0.0"

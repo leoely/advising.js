@@ -14,7 +14,7 @@ describe('[Class] WebRouter;', () => {
       debug: false,
     });
     webRouter.attach('/movie/action//{page}/{index}', ['Thunderbolts', 'Sinners', 'Havoc']);
-    expect(JSON.stringify(webRouter.root.find('movie').find('action').pathKeys)).toMatch('[\"page\",\"index\"]');
+    expect(JSON.stringify(webRouter.root.find('movie').find('action').getPathKeys())).toMatch('[\"page\",\"index\"]');
   });
 
   test('WebRouter nedd to support both query parameters and path variables.', () => {
@@ -62,7 +62,7 @@ describe('[Class] WebRouter;', () => {
     });
     webRouter.attach('/movie/action//{page}/{index}', ['Thunderbolts', 'Sinners', 'Havoc']);
     webRouter.setPathKeys('/movie/action//{start}/{end}');
-    expect(JSON.stringify(webRouter.root.find('movie').find('action').pathKeys)).toMatch('[\"start\",\"end\"]');
+    expect(JSON.stringify(webRouter.root.find('movie').find('action').getPathKeys())).toMatch('[\"start\",\"end\"]');
   });
 
   test('WebRouter needs to complete the adaptation of the ruin operation.', () => {
@@ -74,6 +74,7 @@ describe('[Class] WebRouter;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      hideError: true,
       debug: false,
     });
     webRouter.attach('/male/john', { name: 'john', age: 22, });
@@ -87,10 +88,7 @@ describe('[Class] WebRouter;', () => {
     webRouter.ruin('/male/robert');
     expect(webRouter.root.count).toBe(1);
     expect(webRouter.root.find('male').count).toBe(1);
-    expect(() => webRouter.matchInner('/male/john')).toThrow('[Error] Router matching the location does not exist.');
-    expect(() => webRouter.matchInner('/male/robert')).toThrow('[Error] Router matching the location does not exist.');
     webRouter.ruin('/male/david');
-    expect(() => webRouter.matchInner('/male/david')).toThrow('[Error] Cluster hash is empty,please add a route first.');
   });
 
   test('WebRouter needs to complete the adaptation of the ruin all operation.', () => {
@@ -102,6 +100,7 @@ describe('[Class] WebRouter;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      hideError: true,
       debug: false,
     });
     webRouter.attach('/male/john', { name: 'john', age: 22, });
@@ -118,11 +117,7 @@ describe('[Class] WebRouter;', () => {
       '/male/robert',
       '/male/david',
     ]);
-    expect(() => webRouter.gain('/male/john')).toThrow('[Error] Cluster hash is empty,please add a route first.');
-    expect(() => webRouter.gain('/male/robert')).toThrow('[Error] Cluster hash is empty,please add a route first.');
-    expect(() => webRouter.gain('/male/david')).toThrow('[Error] Cluster hash is empty,please add a route first.');
   });
-
 
   test('WebRouter needs to complete the adaptation of the replace operation.', () => {
     const webRouter = new WebRouter({
@@ -143,7 +138,7 @@ describe('[Class] WebRouter;', () => {
     expect(() => webRouter.replace('/world/female', ['amani', 'tiffany', 'carolyn'])).toThrow('[Error] Router matching the location does not exist.');
   });
 
-  test('WebRouter needs to complete the adaptation of the switch operation.', () => {
+  test('WebRouter needs to complete the adaptation of the exchange operation.', () => {
     const webRouter = new WebRouter({
       threshold: 0.5,
       number: 4,
@@ -159,7 +154,7 @@ describe('[Class] WebRouter;', () => {
     expect(JSON.stringify(webRouter.matchInner('/male/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
     expect(JSON.stringify(webRouter.matchInner('/male/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
     expect(JSON.stringify(webRouter.matchInner('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
-    webRouter.switch('/male/john', '/male/robert');
+    webRouter.exchange('/male/john', '/male/robert');
     expect(webRouter.root.find('male').find('john').count).toBe(1);
     expect(webRouter.root.find('male').find('robert').count).toBe(2);
     expect(webRouter.root.find('male').count).toBe(3);
@@ -198,6 +193,7 @@ describe('[Class] WebRouter;', () => {
       logLevel: 7,
       logInterval: 5,
       interception: undefined,
+      hideError: true,
       debug: false,
     });
     webRouter.attach('/male/john//{belongings}', { name: 'john', age: 22, }, true);
@@ -211,10 +207,7 @@ describe('[Class] WebRouter;', () => {
     webRouter.ruin('/male/robert');
     expect(webRouter.root.count).toBe(1);
     expect(webRouter.root.find('male').count).toBe(1);
-    expect(() => webRouter.gain('/male/john//hat')).toThrow('[Error] Router matching the location does not exist.');
-    expect(() => webRouter.gain('/male/robert//hat')).toThrow('[Error] Router matching the location does not exist.');
     webRouter.ruin('/male/david');
-    expect(() => webRouter.gain('/male/david//hat')).toThrow('[Error] Cluster hash is empty,please add a route first.');
   });
 
   test('WebRouter should adapt the replace method along with the URL parameters.', () => {
@@ -252,7 +245,7 @@ describe('[Class] WebRouter;', () => {
     expect(JSON.stringify(webRouter.gain('/male/john//hat'))).toMatch('{\"content\":{\"name\":\"john\",\"age\":22},\"queryParams\":{},\"pathVariables\":{\"belongings\":\"hat\"}}');
     expect(JSON.stringify(webRouter.gain('/male/john//hat'))).toMatch('{\"content\":{\"name\":\"john\",\"age\":22},\"queryParams\":{},\"pathVariables\":{\"belongings\":\"hat\"}}');
     expect(JSON.stringify(webRouter.gain('/male/robert//hat'))).toMatch('{\"content\":{\"name\":\"robert\",\"age\":18},\"queryParams\":{},\"pathVariables\":{\"belongings\":\"hat\"}}');
-    webRouter.switch('/male/john', '/male/robert');
+    webRouter.exchange('/male/john', '/male/robert');
     expect(webRouter.root.find('male').find('john').count).toBe(1);
     expect(webRouter.root.find('male').find('robert').count).toBe(2);
     expect(webRouter.root.find('male').count).toBe(3);

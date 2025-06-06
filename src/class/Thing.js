@@ -7,14 +7,22 @@ function checkContent(content) {
 }
 
 class Thing extends Node {
-  constructor(content, options, pathKeys) {
+  constructor(options, content) {
     checkContent(content);
     super(options);
     this.content = content;
     this.interval = 0;
-    this.setPathKeys(pathKeys);
-    this.checkMemory();
-    this.debugInfo('was created successfully');
+    const {
+      constructor: {
+        name,
+      },
+    } = this;
+    switch (name) {
+      case 'Thing':
+        this.checkMemory();
+        this.debugInfo('was created successfully');
+        break;
+    }
   }
 
   log(location) {
@@ -93,26 +101,6 @@ class Thing extends Node {
       (+) bold: * rate (+) dim: : ` + rate + ` (+): * |
       (+) bold: * dutyCycle (+) dim: : ` + dutyCycle + ` (+): * | &
     `);
-  }
-
-  setPathKeys(pathKeys) {
-    if (pathKeys !== undefined) {
-      if (!Array.isArray(pathKeys)) {
-        delete this.pathKeys;
-      } else {
-        this.pathKeys = pathKeys;
-        this.debugInfo('set path keys successfully');
-      }
-    }
-  }
-
-  getPathKeys() {
-    const { pathKeys, } = this;
-    if (pathKeys !== undefined) {
-      return pathKeys;
-    } else {
-      throw new Error('[Error] Unable to get path keys because it is not set.');
-    }
   }
 
   getContent(total, location) {

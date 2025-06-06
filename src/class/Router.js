@@ -3,11 +3,12 @@ import Outputable from '~/class/Outputable';
 import Node from '~/class/Node';
 import Cluster from '~/class/Cluster';
 import Thing from '~/class/Thing';
+import WebThing from '~/class/WebThing';
 import Mixture from '~/class/Mixture';
 
-function matchRecursion(node, index, paths, total, needThing, changeCount, hide) {
+function matchRecursion(node, index, paths, total, needThing, changeCount, hideError) {
   if (!(node instanceof Node)) {
-    if (hide === true) {
+    if (hideError === true) {
       return undefined;
     } else {
       throw new Error('[Error] There are empty nodes during the matching traversal process');
@@ -16,7 +17,7 @@ function matchRecursion(node, index, paths, total, needThing, changeCount, hide)
   const path = paths[index];
   if (index === paths.length - 1) {
     if (node === undefined) {
-      if (hide === true) {
+      if (hideError === true) {
         return undefined;
       } else {
         throw Error('[Error] The current location of the router cannot be found.');
@@ -39,12 +40,12 @@ function matchRecursion(node, index, paths, total, needThing, changeCount, hide)
   } else {
     if (needThing === true) {
       if (changeCount === true) {
-        return matchRecursion(node.get(path, total), index + 1, paths, total, needThing, changeCount, hide);
+        return matchRecursion(node.get(path, total), index + 1, paths, total, needThing, changeCount, hideError);
       } else {
-        return matchRecursion(node.find(path), index + 1, paths, total, needThing, changeCount, hide);
+        return matchRecursion(node.find(path), index + 1, paths, total, needThing, changeCount, hideError);
       }
     } else {
-      return matchRecursion(node.get(path, total), index + 1, paths, total, needThing, changeCount, hide);
+      return matchRecursion(node.get(path, total), index + 1, paths, total, needThing, changeCount, hideError);
     }
   }
 }
@@ -53,7 +54,7 @@ function blendFromThing(node, path, thing, options, beforePath, beforeNode) {
   const cluster = new Cluster(options);
   cluster.put(path, thing);
   const mixture = new Mixture(cluster, node);
-  beforeNode.blendFromThing(mixture, beforePath);
+  beforeNode.mixFromThing(mixture, beforePath);
   return cluster;
 }
 
@@ -64,7 +65,7 @@ function addRecursion(node, index, paths, options, thing, beforePath, beforeNode
       blendFromThing(node, path, thing, options, beforePath, beforeNode);
     } else {
       if (node.find(path) instanceof Cluster) {
-        node.blendFromCluster(new Mixture(node, thing));
+        node.mixFromCluster(new Mixture(node, thing));
       } else {
         node.put(path, thing);
       }
@@ -94,15 +95,17 @@ function deleteRecursion(node, index, paths, thing, beforePath, beforeNode) {
     if (node.mixture instanceof Mixture) {
       node.extractToCluster();
     } else {
-      node.delete(path);
-      node.clean(beforeNode, beforePath);
+      node.delete(path, true);
+      if (path !== beforePath) {
+        node.clean(beforeNode, beforePath);
+      }
     }
     const { count, } = thing;
-    node.subtractCount(count);
+    node.subtractCount(count, true);
   } else {
     deleteRecursion(node.find(path), index + 1, paths, thing, path, beforeNode);
     const { count, } = thing;
-    node.subtractCount(count);
+    node.subtractCount(count, true);
   }
 }
 
@@ -160,12 +163,12 @@ class Router extends Outputable {
       number: 10,
       bond: 500,
       dutyCycle: 500,
-      logLevel: 3,
+      logLevel: 7,
       logInterval: 5,
       interception: 8,
       debug: true,
-      hide: false,
-      logPath: '/tmp/adivising.js/log',
+      hideError: false,
+      logPath: '/var/log/advising.js/',
     };
     this.options = Object.assign(defaultOptions, options);
     this.dealOptions(options);
@@ -203,7 +206,7 @@ class Router extends Outputable {
     if (debug === true) {
       this.debugDetail(`
         (+) bold; green: * ~~ (+) yellow; bold: * Location (+) bold; dim: * ` + location + `. &
-        (+) bold; green: ** └─ (+): * | (+) bold: * operate (+) dim: : ` + operate + `(+): * | &
+        (+) bold; green: ** └─ (+): * | (+) bold: * operate (+) dim: : * ` + operate + `(+): * | &
       `);
     }
   }
@@ -218,7 +221,7 @@ class Router extends Outputable {
         logLevel,
         logInterval,
         interception,
-        hide,
+        hideError,
         logPath,
       },
     } = this;
@@ -228,32 +231,32 @@ class Router extends Outputable {
       }
     }
     if (number !== undefined) {
-      if (!Number.isInteger(number)) {
+      if (!Number.isInteger(number) && number >= 0) {
         throw new Error('[Error] Router option number must be a integer type or undefined.');
       }
     }
     if (bond !== undefined) {
-      if (!Number.isInteger(bond)) {
+      if (!Number.isInteger(bond) && bond >= 0) {
         throw new Error('[Error] Router option bond must be a integer type or undefined.');
       }
     }
     if (dutyCycle !== undefined) {
-      if (!Number.isInteger(dutyCycle)) {
+      if (!Number.isInteger(dutyCycle) && dutyCycle >= 0) {
         throw new Error('[Error] Router option dutyCycle must be a integer type or undefined.');
       }
     }
     if (logLevel !== undefined) {
-      if (!Number.isInteger(logLevel)) {
+      if (!Number.isInteger(logLevel) && logLevel >= 0) {
         throw new Error('[Error] Router option logLevel must be a integer type or undefined.');
       }
     }
     if (logInterval !== undefined) {
-      if (!Number.isInteger(logInterval)) {
+      if (!Number.isInteger(logInterval) && logIntervbal >= 0) {
         throw new Error('[Error] Router option logLevel must be a integer type or undefined.');
       }
     }
     if (interception !== undefined) {
-      if (!Number.isInteger(interception)) {
+      if (!Number.isInteger(interception) && interception >= 0) {
         throw new Error('[Error] Router option logLevel must be a integer type or undefined.');
       }
     }
@@ -264,11 +267,15 @@ class Router extends Outputable {
         checkLogPath(logPath);
       }
     }
-    if (hide !== undefined) {
-      if (typeof hide !== 'boolean') {
-        throw new Error('[Error] Router option hide must be a boolean type or undefined.');
+    if (hideError !== undefined) {
+      if (typeof hideError !== 'boolean') {
+        throw new Error('[Error] Router option hideError must be a boolean type or undefined.');
       }
     }
+  }
+
+  getThingClass() {
+    return Thing;
   }
 
   match(location, paths, needThing, changeCount) {
@@ -277,12 +284,12 @@ class Router extends Outputable {
       total,
       root,
       options: {
-        hide,
+        hideError,
       },
     } = this;
-    const thing = matchRecursion(root, 0, paths, total, needThing, changeCount, hide);
+    const thing = matchRecursion(root, 0, paths, total, needThing, changeCount, hideError);
     if (thing === undefined) {
-      if (hide === true) {
+      if (hideError === true) {
         return thing;
       } else {
         throw Error('[Error] Router matching the location does not exist.');
@@ -304,8 +311,19 @@ class Router extends Outputable {
     } else {
       const content = multiple;
       const { root, options, } = this;
-      const thing = new Thing(content, options, pathKeys);
-      addRecursion(root, 0, paths, options, thing);
+      const ThingClass = this.getThingClass();
+      switch (ThingClass.name) {
+        case 'WebThing': {
+          const thing = new ThingClass(options, content, pathKeys);
+          addRecursion(root, 0, paths, options, thing);
+          break;
+        }
+        default: {
+          const thing = new ThingClass(options, content);
+          addRecursion(root, 0, paths, options, thing);
+          break;
+        }
+      }
     }
     this.outputOperate('add', location);
   }
@@ -335,14 +353,19 @@ class Router extends Outputable {
       const [path] = paths;
       if (multiple instanceof Thing) {
         const newThing = multiple;
-        newThing.setPathKeys(pathKeys);
+        if (newThing instanceof WebThing) {
+          newThing.setPathKeys(pathKeys);
+        }
         updateRecursion(root, 0, paths, thing, newThing, path, root);
       } else {
         const content = multiple;
         const [path] = paths;
         const { root, options, } = this;
-        const newThing = new Thing(content, options);
-        newThing.setPathKeys(pathKeys);
+        const ThingClass = this.getThingClass();
+        const newThing = new ThingClass(options, content);
+        if (newThing instanceof WebThing) {
+          newThing.setPathKeys(pathKeys);
+        }
         updateRecursion(root, 0, paths, thing, newThing, path, root);
       }
       this.outputOperate('update', location);
@@ -370,23 +393,34 @@ class Router extends Outputable {
     }
   }
 
+  checkGetPathsFromLocation(method) {
+    const { getPathsFromLocation, } = this;
+    if (typeof getPathsFromLocation !== 'function') {
+      throw new Error('[Error] Only the router subclass that implements method getPathFromLocation can call ' + method + ' method.');
+    }
+  }
+
   attach(location, content) {
-    const paths = this.getPathsFromLocation(address);
+    this.checkGetPathsFromLocation('attach');
+    const paths = this.getPathsFromLocation(location);
     this.add(location, paths, content);
   }
 
-  switch(location1, location2) {
+  exchange(location1, location2) {
+    this.checkGetPathsFromLocation('exchange');
     const paths1 = this.getPathsFromLocation(location1);
     const paths2 = this.getPathsFromLocation(location2);
     this.swap(location1, location2, paths1, paths2);
   }
 
   ruin(location) {
+    this.checkGetPathsFromLocation('ruin');
     const paths = this.getPathsFromLocation(location);
     this.delete(location, paths);
   }
 
   ruinAll(locations) {
+    this.checkGetPathsFromLocation('ruinAll');
     const paramArray = locations.map((location) => {
       return [location, this.getPathsFromLocation(location)];
     });
@@ -394,16 +428,19 @@ class Router extends Outputable {
   }
 
   replace(location, multiple) {
+    this.checkGetPathsFromLocation('replace');
     const paths = this.getPathsFromLocation(location);
     this.update(url, paths, multiple);
   }
 
   revise(location, content) {
+    this.checkGetPathsFromLocation('revise');
     const paths = this.getPathsFromLocation(location);
     this.fix(location, paths, content);
   }
 
   gain(location) {
+    this.checkGetPathsFromLocation('gain');
     const paths = this.getPathsFromLocation(location);
     return this.match(location, paths);
   }

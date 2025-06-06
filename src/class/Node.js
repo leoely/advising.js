@@ -16,8 +16,8 @@ class Node extends Outputable {
       count,
       startTime,
     } = this;
-    const now = Date.now();
-    return count * 1000 * 60 * 60 / (now - startTime);
+    const nowTime = Date.now();
+    return count * 1000 * 60 * 60 / (nowTime - startTime);
   }
 };
 

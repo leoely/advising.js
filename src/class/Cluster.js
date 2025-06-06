@@ -1,75 +1,302 @@
-import chalk from 'chalk';
+import Fusion from '~/class/Fusion';
+import Alloy from '~/class/Alloy';
 import Mixture from '~/class/Mixture';
 import Thing from '~/class/Thing';
 import Node from '~/class/Node';
+import checkCompound from '~/lib/checkCompound';
 import getGTMNowString from '~/lib/getGTMNowString';
 
-function dealCharCode(code) {
-  if (code >=  65 && code <= 90) {
-    return code - 65;
-  } else if (code >= 97 && code <= 122) {
-    return code - 97;
-  } else if (code >= 48 && code <= 57) {
-    return code - 48;
+function checkChar(char) {
+  if (!(typeof char === 'string' && char.length === 1)) {
+    throw new Error('[Error] Char parameter should be of character type.');
+  }
+}
+
+function getIndexFromChar(char, type) {
+  checkChar(char);
+  switch (type) {
+    case 0:
+      if (char >=  'A' && char <= 'Z') {
+        const code = char.charCodeAt(0);
+        return code - 65;
+      } else if (char >= 'a' && char <= 'z') {
+        const code = char.charCodeAt(0);
+        return code - 97;
+      } else if (char >= '0' && char <= '9') {
+        const code = char.charCodeAt(0);
+        return code - 48;
+      } else {
+        throw new Error('[Error] The current character is not within the processing range.');
+      }
+      break;
+    case 1:
+      if (char >=  'A' && char <= 'Z') {
+        const code = char.charCodeAt(0);
+        return code - 65 + 10;
+      } else if (char >= 'a' && char <= 'z') {
+        const code = char.charCodeAt(0);
+        return code - 97 + 10;
+      } else if (char >= '0' && char <= '9') {
+        const code = char.charCodeAt(0);
+        return code - 48;
+      } else {
+        throw new Error('[Error] The current character is not within the processing range.');
+      }
+      break;
+      break;
+    default:
+      throw new Error('[Error] The current type is not expected when getting the index.');
   }
 }
 
 function bitToByte(bit) {
+  if (!Number.isInteger(bit)) {
+    throw new Error('[Error] Bit parameter should be of integer type.');
+  }
   const byte = bit / 8;
   if (!Number.isInteger(byte)) {
     throw Error('[Error] The calculated number of bytes should be an integer.');
-  } else {
-    return byte;
   }
+  return byte;
 }
 
-function estimateArrayInc(multiple) {
+function estimateArrInc(multiple) {
   let length;
   if (Array.isArray(multiple)) {
     const array = multiple;
     length = array.length;
-  } else {
+  } else if (Number.isInteger(multiple)) {
     length = multiple;
+  } else {
+    throw new Error('[Error] The parameter multiple does not match the expected type.');
   }
   return (length * 2 + 1) * 64;
 }
 
-function estimateString(string) {
+function estimateStr(string) {
+  if (typeof string !== 'string') {
+    throw new Error('[Error] String paramter should be of string type.');
+  }
   const { length, } = string;
   return (length + 1) * 4 * 8;
 }
 
-function estimatePointer() {
+function estimatePtr() {
   return 64;
 }
 
-function estimateExpandHashInc(key) {
+function estimateExpandHashInc(key, type) {
+  if (typeof key !== 'string') {
+    throw new Error('[Error] Key paramter should be of string type.');
+  }
+  if (!Number.isInteger(type)) {
+    throw new Error('[Error] Type paramter should be an integer type.');
+  }
   const { length, } = key;
   let ans = 0;
   for (let i = 0; i < length; i += 1) {
-    const char = key.charCodeAt(i);
-    const value = dealCharCode(char);
-    ans += estimateArrayInc(value + 1);
+    const char = key.charAt(i);
+    const value = getIndexFromChar(char, type);
+    ans += estimateArrInc(value + 1);
   }
   return ans;
 }
 
-function estimateObjectInc(hash) {
+function estimateObjInc(hash) {
   if (typeof hash !== 'object') {
     throw new Error('[Error] Inner hash should be of type object.');
   }
-  let ans = estimateArrayInc(5);
+  let ans = estimateArrInc(5);
   const keys = Object.keys(hash);
-  ans += estimateArrayInc(keys.length);
+  ans += estimateArrInc(keys.length);
   keys.forEach((key) => {
-    ans += estimatePointer() + estimateString(key);
+    ans += estimatePtr() + estimateStr(key);
   });
   return ans;
 }
 
-function checkValue(value) {
-  if (!(value instanceof Cluster) && !(value instanceof Thing)) {
-    throw new Error('[Error] The value of cluster should be a cluster type or a thing type.');
+function setRootAmong(root, index, cluster) {
+  if (!(cluster instanceof Cluster)) {
+    throw new Error('[Error] The parameter cluster should of cluster type.');
+  }
+  const {
+    constructor: {
+      name,
+    },
+  } = root;
+  switch (name) {
+    case 'Cluster':
+    case 'WebThing':
+    case 'Thing': {
+      const array = [];
+      const compound = root;
+      return new Alloy(array, compound, cluster);
+    }
+    case 'Alloy': {
+      const alloy = root;
+      const array = alloy.getArray();
+      return array;
+    }
+    case 'Array':
+      const array = root;
+      return root;
+    case 'Fusion': {
+      const fusion = root;
+      const blend = fusion.getBlend();
+      return blend;
+    }
+    default:
+      throw new Error('[Error] The root type is not in scopes.');
+  }
+}
+
+function generateRootAmong(root, char, type, cluster) {
+  if (!Number.isInteger(type)) {
+    throw new Error('[Error] The parameter type should be an integer type.');
+  }
+  const index = getIndexFromChar(char, type);
+  const among = root[index];
+  if (among === undefined) {
+    const array = [];
+    root[index] = array;
+    return array;
+  } else {
+    const {
+      constructor: {
+        name,
+      },
+    } = among;
+    switch (name) {
+      case 'Cluster':
+      case 'WebThing':
+      case 'Thing': {
+        const compound = among;
+        const array = [];
+        const alloy = new Alloy(array, compound, cluster);
+        root[index] = alloy;
+        return array;
+      }
+      case 'Fusion': {
+        const fusion = among;
+        const blend = fusion.getBlend();
+        return blend;
+      }
+      case 'Alloy': {
+        const alloy = among;
+        const array = alloy.getArray();
+        return array;
+      }
+      case 'Array': {
+        const array = among;
+        return array;
+      }
+      default:
+        throw new Error('[Error] In method set expand hash,the type does not match the expected.');
+    }
+  }
+}
+
+function deleteRootAmong(root, char, type, duplicate) {
+  if (!Number.isInteger(type)) {
+    throw new Error('[Error] The parameter type should be an integer type.');
+  }
+  if (typeof duplicate !== 'boolean') {
+    throw new Error('[Error] Parameter repetition should be of boolean type.');
+  }
+  const index = getIndexFromChar(char, 0);
+  let beforeRoot = root;
+  const {
+    constructor: {
+      name,
+    },
+  } = root;
+  switch (name) {
+    case 'Array':
+      root = root[index];
+      if (duplicate === false) {
+        delete beforeRoot[index];
+      }
+      return root;
+    case 'Alloy': {
+      const alloy = root;
+      const array = alloy.getArray();
+      root = array[index];
+      if (duplicate === false) {
+        delete array[index];
+      }
+      return root;
+    }
+    default:
+      throw new Error('[Error] The type during the delete operateion traveral is not expected.');
+  }
+}
+
+function deleteInterceptionHash(hash, key) {
+  if (Array.isArray(hash)) {
+    const { length, } = key;
+    const lengthValue = hash[length - 1];
+    delete lengthValue[key];
+    const keys = Object.keys(lengthValue);
+    if (keys.length === 0) {
+      delete hash[length - 1];
+    }
+    const rests = [];
+    hash.forEach((elem) => {
+      if (typeof elem === 'object') {
+        Object.keys(elem).forEach((key) => {
+          if (elem[key] !== undefined) {
+            rests.push([key, elem[key]]);
+          }
+        });
+      }
+    });
+    rests.forEach(([key, value]) => {
+      hash[key] = value;
+    });
+    return hash;
+  } else {
+    delete hash[key];
+    const keys = Object.keys(hash);
+    if (keys.length === 0) {
+      hash = undefined;
+    }
+  }
+}
+
+function getInterceptionHash(hash, key) {
+  if (Array.isArray(hash)) {
+    const { length, } = key;
+    if (hash[length - 1] === undefined) {
+      return undefined;
+    } else {
+      return hash[length - 1][key];
+    }
+  } else {
+    return hash[key];
+  }
+}
+
+function setInterceptionHash(hash, key, value) {
+  if (Array.isArray(hash)) {
+    const { length, } = key;
+    if (hash[length - 1] === undefined) {
+      hash[length - 1] = {};
+    }
+    hash[length - 1][key] = value;
+  } else {
+    hash[key] = value;
+  }
+}
+
+function getType(status) {
+  switch (status) {
+    case 2:
+    case 5:
+      return 0;
+    case 10:
+      return 1;
+    default:
+      throw new Error('[Error] There is no valid type in the current state.');
   }
 }
 
@@ -91,7 +318,8 @@ class Cluster extends Node {
         return [];
       case 0:
       case 3:
-      case 6: {
+      case 6:
+      case 8: {
         const { hash, } = this;
         const keys = Object.keys(hash);
         return keys;
@@ -99,17 +327,18 @@ class Cluster extends Node {
       case 1:
       case 4:
       case 7:
+      case 9:
       case 2:
-      case 5: {
-        const { childrens, } = this;
-        if (!Array.isArray(childrens)) {
-          throw new Error('[Error] Inner childrens should be of array type.');
-        }
+      case 5:
+      case 10: {
+        const childrens = this.getChildrens();
         return childrens.map((children) => {
           const [key] = children;
           return key;
         });
       }
+      default:
+        throw new Error('[Error] The state should be in the interval [-1, 10].');
     }
   }
 
@@ -123,26 +352,56 @@ class Cluster extends Node {
     if (debug === true) {
       const branches = this.getBranches();
       if (Array.isArray(branches) && branches.length > 0) {
-        const branchStrings = branches.map((branch) => {
-          return chalk.bold.dim(' ' + branch) + ' | ';
-        }).join('');
-        fulmination.scan(`
-          (+) green; bold: * == (+) bold: * Cluster (+) bold; dim: * display structure. &
-          (+) green; bold: ** └─ (+) : * | (+) : *
-        `);
-        console.log(branchStrings);
+        const branchFulminations = branches.map((branch) => {
+          return '(+) bold; dim: "b' + branch + '" (+): * | (+): *';
+        }).join(' ').concat(' &');
+        fulmination.scanAll([
+          [`
+            (+) green; bold: * == (+) bold: * Cluster (+) bold; dim: * display structure. &
+            (+) green; bold: ** └─ (+) : * | (+) : *
+            `, 0],
+          [branchFulminations, 0],
+        ]);
         console.log(getGTMNowString() + '\n');
       }
     }
   }
 
+  addInterceptionHash(hash) {
+    const {
+      options: {
+        number,
+      },
+    } = this;
+    if (Array.isArray(hash)) {
+      return hash;
+    } else {
+      const initHash = hash;
+      const keys = Object.keys(initHash);
+      if (keys.length >= number) {
+        const middleHash = [];
+        keys.forEach((key) => {
+          const { length, } = key;
+          if (middleHash[length - 1] === undefined) {
+            middleHash[length - 1] = {};
+          }
+          middleHash[length - 1][key] = initHash[key];
+        });
+        return middleHash;
+      } else {
+        return initHash;
+      }
+    }
+  }
+
   set(key, value) {
-    checkValue(value);
+    checkCompound(value);
     const { status, } = this;
     switch (status) {
       case 0:
       case 3:
-      case 6: {
+      case 6:
+      case 8: {
         const { hash, } = this;
         hash[key] = value;
         break;
@@ -150,10 +409,13 @@ class Cluster extends Node {
       case 1:
       case 4:
       case 7:
-        this.addMiddleHash(key, value);
+      case 9:
+        this.appendMiddleHash(key, value);
         break;
       case 2:
-      case 5: {
+      case 5:
+      case 10: {
+        const type = getType(status);
         const {
           options: {
             interception,
@@ -162,50 +424,191 @@ class Cluster extends Node {
         if (Number.isInteger(interception)) {
           let { hash: root, } = this;
           const { length, } = key;
-          for (let i = 0; i < interception; i += 1) {
-            const code = key.charCodeAt(i);
-            if (i === interception - 1) {
-              let tail = root[dealCharCode(code)];
-              if (tail === undefined) {
-                root[dealCharCode(code)] = {};
+          const min = Math.min(interception, length);
+          for (let i = 0; i < min; i += 1) {
+            const char = key.charAt(i);
+            if (i === min - 1) {
+              const tailKey = key.substring(interception, length);
+              switch (tailKey) {
+                case '': {
+                  const index = getIndexFromChar(char, type);
+                  const tail = root[index];
+                  if (tail === undefined) {
+                    root[index] = value;
+                  } else {
+                    const {
+                      constructor: {
+                        name,
+                      }
+                    } = tail;
+                    switch (name) {
+                      case 'Cluster':
+                      case 'WebThing':
+                      case 'Thing':
+                        root[index] = value;
+                        break;
+                      case 'Array':
+                      case 'Object': {
+                        const blend = tail;
+                        const compound = value;
+                        const fusion = new Fusion(blend, compound, this);
+                        root[index] = fusion;
+                        break;
+                      }
+                      case 'Fusion': {
+                        const fusion = tail;
+                        const compound = value;
+                        fusion.setCompound(compound);
+                        break;
+                      }
+                      default:
+                        throw new Error('[Error] An unexpected type was encountered during processing of an empty string.');
+                    }
+                  }
+                  break;
+                }
+                default: {
+                  const index = getIndexFromChar(char, type);
+                  let tail = root[index];
+                  if (tail === undefined) {
+                    tail = {};
+                    setInterceptionHash(tail, tailKey, value);
+                    root[index] = this.addInterceptionHash(tail);
+                    tail[tailKey] = value;
+                  } else {
+                    const {
+                      constructor: {
+                        name,
+                      }
+                    } = tail;
+                    switch (name) {
+                      case 'Array':
+                      case 'Object':
+                        setInterceptionHash(tail, tailKey, value);
+                        root[index] = this.addInterceptionHash(tail);
+                        break;
+                      case 'Fusion': {
+                        const fusion = tail;
+                        let blend = fusion.getBlend();
+                        setInterceptionHash(blend, tailKey, value);
+                        blend = this.addInterceptionHash(blend);
+                        fusion.setBlend(blend);
+                        break;
+                      }
+                      default:
+                        throw new Error('[Error] Handling truncation situation with unexpected types.');
+                    }
+                  }
+                }
               }
-              tail = root[dealCharCode(code)];
-              tail[key.substring(interception - 1, length)] = value;
             } else {
-              root = root[dealCharCode(code)];
+              const index = getIndexFromChar(char, type);
+              if (root[index] instanceof Alloy) {
+                const array = root[index].getArray();
+                const nextChar = key.charAt(i + 1);
+                const nextIndex = getIndexFromChar(nextChar, type);
+                array[nextIndex] = [];
+              }
+              if (root[index] === undefined) {
+                root[index] = [];
+              }
+              const ans = setRootAmong(root[index], index, this);
+              if (Array.isArray(ans)) {
+                root = ans;
+              } else {
+                root[index] = ans;
+                root = ans.getArray();
+              }
             }
           }
         } else {
           let { hash: root, } = this;
           const { length, } = key;
           for (let i = 0; i < length; i += 1) {
-            const code = key.charCodeAt(i);
+            const char = key.charAt(i);
             if (i === length - 1) {
-              root[dealCharCode(code)] = value;
+              const {
+                constructor: {
+                  name,
+                },
+              } = root;
+              switch (name) {
+                case 'Alloy': {
+                  const alloy = root;
+                  const array = alloy.setCompound(value);
+                  break;
+                }
+                case 'Array': {
+                  const index = getIndexFromChar(char, type);
+                  const leaf = root[index];
+                  if (Array.isArray(leaf)) {
+                    const array = leaf;
+                    const compound = value;
+                    const alloy = new Alloy(array, compound, this);
+                    root[index] = alloy;
+                  } else {
+                    root[index] = value;
+                  }
+                  break;
+                }
+                default:
+                  throw new Error('[Error] Unexpected type of deal root leaf.');
+              }
             } else {
-              root = root[dealCharCode(code)];
+              const index = getIndexFromChar(char, type);
+              if (root[index] instanceof Alloy) {
+                const array = root[index].getArray();
+                const nextChar = key.charAt(i + 1);
+                const nextIndex = getIndexFromChar(nextChar, type);
+                array[nextIndex] = [];
+              }
+              if (root[index] === undefined) {
+                root[index] = [];
+              }
+              const ans = setRootAmong(root[index], index, this);
+              if (Array.isArray(ans)) {
+                root = ans;
+              } else {
+                root[index] = ans;
+                root = ans.getArray();
+              }
             }
           }
         }
         break;
       }
+      default:
+        throw new Error('[Error] The state should be in the interval [0, 10].');
     }
   }
 
   put(key, value) {
-    checkValue(value);
+    checkCompound(value);
     this.checkKey(key);
     this.number += 1;
     const { status, } = this;
-    if (status === 1 || status === 2 || status === 4 || status === 5) {
-      this.pushChildrens(key, value);
+    switch (status) {
+      case 1:
+      case 2:
+      case 4:
+      case 5:
+      case 7:
+      case 9:
+      case 10:
+        this.pushChildrens(key, value);
+      break;
     }
     this.set(key, value);
     const { number, } = this;
     if (number >= this.options.number) {
       const { status, } = this;
-      if (status === 0 || status === 3 || status === 6) {
-        this.addInitHash();
+      switch (status) {
+        case 0:
+        case 3:
+        case 6:
+        case 8:
+          this.addInitHash();
+          break;
       }
     }
     const { count, } = value;
@@ -217,81 +620,248 @@ class Cluster extends Node {
   }
 
   update(key, value) {
-    checkValue(value);
+    checkCompound(value);
     const { status, } = this;
-    if (status === 1 || status === 2 || status === 4 || status === 5) {
-      this.updateChildrens(key, value);
+    switch (status) {
+      case 1:
+      case 2:
+      case 4:
+      case 5:
+      case 7:
+      case 9:
+      case 10:
+        this.updateChildrens(key, value);
+        break;
     }
     this.set(key, value);
     this.checkMemory();
     this.debugInfo('was partially updated successfully');
   }
 
-  delete(key) {
-    if (this.find(key) === undefined) {
-      throw new Error('[Error] Delete router does not exist.');
-    } else {
-      this.number -= 1;
-      const { status, } = this;
-      if (status === 1 || status === 2 || status === 4 || status === 5) {
-        this.removeChildrens(key);
-      }
-      switch (status) {
-        case 0:
-        case 3:
-        case 6:
-          delete this.hash[key];
-          break;
-        case 1:
-        case 4:
-        case 6:
-          this.removeMiddleHash(key);
-          break;
-        case 2:
-        case 5: {
+  queryPartDuplicate(key) {
+    let ans = false;
+    const { status, } = this;
+    switch (status) {
+      case 2:
+      case 5:
+      case 10: {
+        const type = getType(status);
+        let { hash: root, } = this;
+        const { length, } = key;
+        outer: for (let i = 0; i < length; i += 1) {
+          const char = key.charAt(i);
+          const index = getIndexFromChar(char, type);
+          const part = root[index];
           const {
-            options: {
-              interception,
+            constructor: {
+              name,
             },
-          } = this;
-          if (Number.isInteger(interception)) {
-            let { hash: root, } = this;
-            const { length, } = key;
-            for (let i = 0; i < interception; i += 1) {
-              const code = key.charCodeAt(i);
-              if (i === interception - 1) {
-                delete root[dealCharCode(code)];
-              } else {
-                const index = dealCharCode(code);
-                delete root[index];
+          } = part;
+          switch (name) {
+            case 'Cluster':
+            case 'WebThing':
+            case 'Thing':
+              if (i !== length - 1) {
+                throw new Error('[Error] The timing of the type appearing during the query area overlap is not within the expected range.');
               }
-            }
-          } else {
-            let beforeRoot;
-            let { hash: root, } = this;
-            const { length, } = key;
-            for (let i = 0; i < length; i += 1) {
-              const code = key.charCodeAt(i);
-              if (i === length - 1) {
-                delete root[dealCharCode(code)];
-              } else {
-                const index = dealCharCode(code);
-                beforeRoot = root;
-                root = root[index];
-                delete beforeRoot[index];
+              break outer;
+            case 'Array': {
+              const array = part;
+              let count = 0;
+              for (let i = 0; i < array.length; i += 1) {
+                const elem = array[i];
+                if (elem !== undefined) {
+                  count += 1;
+                }
               }
+              if (count >= 2) {
+                ans = true;
+                break outer;
+              }
+              break;
             }
+            case 'Fusion':
+              ans = true;
+              break outer;
+            case 'Object': {
+              const object = part;
+              const keys = Object.keys(object);
+              const [k] = keys;
+              let count = 0;
+              if (Number.isInteger(k)) {
+                for (let i = 0; i < keys.length; i += 1) {
+                  const key = keys[i];
+                  const smallObject = object[key];
+                  count += Object.keys(smallObject).length;
+                }
+              } else {
+                count += keys.length;
+              }
+              if (count >= 2) {
+                ans = true;
+              }
+              break outer;
+            }
+            case 'Alloy':
+              ans = true;
+              break outer;
+            default:
+              throw new Error('[Error] The type is not expected during the query area overlap process.');
           }
-          break;
+          root = part;
         }
+        break;
       }
-      const { hash, } = this;
-      if (Object.keys(hash).length === 0) {
-        delete this.hash;
-        this.status = -1;
+      default:
+        throw new Error('[Error] Overlapping only occurs when hashing is extended');
+    }
+    return ans;
+  }
+
+  delete(key, uncheck) {
+    if (uncheck !== true) {
+      if (this.find(key) === undefined) {
+        throw new Error('[Error] Delete router does not exist.');
       }
     }
-    this.debugInfo('was partially updated successfully');
+    this.number -= 1;
+    const { status, } = this;
+    switch (status) {
+      case 1:
+      case 2:
+      case 4:
+      case 5:
+      case 7:
+      case 9:
+      case 10:
+        this.removeChildrens(key);
+        break;
+    }
+    switch (status) {
+      case 0:
+      case 3:
+      case 6:
+      case 8:
+        delete this.hash[key];
+        break;
+      case 1:
+      case 4:
+      case 7:
+      case 9:
+        this.dropMiddleHash(key);
+        break;
+      case 2:
+      case 5:
+      case 10: {
+        const type = getType(status);;
+        const duplicate = this.queryPartDuplicate(key);
+        const {
+          options: {
+            interception,
+          },
+        } = this;
+        if (Number.isInteger(interception)) {
+          let { hash: root, } = this;
+          let beforeRoot = root;
+          let beforeChar = key.charAt(0);
+          const { length, } = key;
+          const min = Math.min(interception, length);
+          for (let i = 0; i < min; i += 1) {
+            const char = key.charAt(i);
+            if (i === min - 1) {
+              const index = getIndexFromChar(char, type);
+              const tailKey = key.substring(interception, length);
+              const tail = root[index];
+              const {
+                constructor: {
+                  name,
+                },
+              } = tail;
+              switch (tailKey) {
+                case '':
+                  switch (name) {
+                    case 'Cluster':
+                    case 'WebThing':
+                    case 'Thing':
+                      delete beforeRoot[getIndexFromChar(beforeChar, type)];
+                      break;
+                    case 'Fusion': {
+                      const fusion = tail;
+                      const object = fusion.getBlend();
+                      root[index] = object;
+                      break;
+                    }
+                    default:
+                      throw new Error('[Error] The type of the empty string leaf part in the delete operation truncation is not expected');
+                  }
+                  break;
+                default:
+                  switch (name) {
+                    case 'Array':
+                    case 'Object':
+                      root[index] = deleteInterceptionHash(tail, tailKey);
+                      break;
+                    case 'Fusion': {
+                      const fusion = tail;
+                      let blend = fusion.getBlend();
+                      blend = deleteInterceptionHash(blend, tailKey);
+                      fusion.setBlend(blend);
+                      break;
+                    }
+                    default:
+                      throw new Error('[Error] The type of leaf part of a non-empty string is unexpected when the delete operation truncation.');
+                  }
+              }
+            } else {
+              beforeRoot = root;
+              beforeChar = char;
+              root = deleteRootAmong(root, char, type, duplicate);
+            }
+          }
+        } else {
+          let { hash: root, } = this;
+          const { length, } = key;
+          for (let i = 0; i < length; i += 1) {
+            const char = key.charAt(i);
+            if (i === length - 1) {
+              const index = getIndexFromChar(char, type);
+              const tail = root[index];
+              const {
+                constructor: {
+                  name,
+                },
+              } = tail;
+              switch (name) {
+                case 'Cluster':
+                case 'WebThing':
+                case 'Thing':
+                  delete root[index];
+                  break;
+                case 'Alloy': {
+                  const alloy = tail;
+                  const array = alloy.getArray();
+                  root[index] = array;
+                  break;
+                }
+                default:
+                  throw new Error('[Error] The type in the leaf part of the delete operation is unexpected.');
+              }
+            } else {
+              root = deleteRootAmong(root, char, type, duplicate);
+            }
+          }
+        }
+        break;
+      }
+      default:
+        throw new Error('[Error] The state should be in the interval [0, 10].');
+    }
+    const { hash, } = this;
+    if (Object.keys(hash).length === 0) {
+      delete this.hash;
+      this.status = -1;
+    }
+    this.debugInfo('was partially deleted successfully');
     this.debugCluster();
   }
 
@@ -308,14 +878,14 @@ class Cluster extends Node {
     }
   }
 
-  subtractCount(count) {
+  subtractCount(count, uncheck) {
     if (!Number.isInteger(count)) {
       throw new Error(
         '[Error] Count of arguments to subtractCount function be a integer.'
       );
     } else {
       this.count -= count;
-      this.adjust();
+      this.adjust(uncheck);
     }
   }
 
@@ -338,16 +908,16 @@ class Cluster extends Node {
     }
     let ans = 0;
     const keys = Object.keys(hash);
-    ans += estimateArrayInc(keys);
-    ans += 2 * estimateArrayInc(keys);
+    ans += estimateArrInc(keys);
+    ans += 2 * estimateArrInc(keys);
     keys.forEach((key) => {
-      ans += estimateString(key);
-      ans += estimatePointer();
+      ans += estimateStr(key);
+      ans += estimatePtr();
     });
     return ans;
   }
 
-  estimateExpandInitInc() {
+  estimateExpandInitInc(type) {
     const { hash, } = this;
     if (typeof hash !== 'object') {
       throw new Error('[Error] Inner hash should be of type object.');
@@ -355,46 +925,46 @@ class Cluster extends Node {
     const keys = Object.keys(hash);
     let ans = this.estimateChildrensInc();
     keys.forEach((key) => {
-      ans += estimateExpandHashInc(key) - estimateString(key);
+      ans += estimateExpandHashInc(key, type) - estimateStr(key);
     });
-    ans -= estimateObjectInc(hash);
+    ans -= estimateObjInc(hash);
     return ans;
   }
 
-  estimateExpandMiddleInc() {
+  estimateExpandMiddleInc(type) {
     const { hash, } = this;
     if (typeof hash !== 'object') {
       throw new Error('[Error] Inner hash should be of type object.');
     }
-    let ans = -estimateArrayInc(hash);
+    let ans = -estimateArrInc(hash);
     hash.forEach((multiple) => {
       if (typeof multiple === 'object') {
         const object = multiple;
-        ans -= estimateObjectInc(object);
+        ans -= estimateObjInc(object);
         Object.keys(object).forEach((key) => {
-          ans += estimateExpandHashInc(key);
+          ans += estimateExpandHashInc(key, type);
         });
       }
     });
     return ans;
   }
 
-  checkExpandInitMemory() {
+  checkExpandInitMemory(type) {
     const childrensInc = this.estimateChildrensInc();
-    const expandHashInc = this.estimateExpandInitInc();
+    const expandHashInc = this.estimateExpandInitInc(type);
     return this.checkMemory(childrensInc + expandHashInc);
   }
 
-  checkExpandMiddleMemory() {
-    const expandHashInc = this.estimateExpandMiddleInc();
+  checkExpandMiddleMemory(type) {
+    const expandHashInc = this.estimateExpandMiddleInc(type);
     return this.checkMemory(expandHashInc);
   }
 
-  addMiddleHash(key, value) {
+  appendMiddleHash(key, value) {
     const index = key.length - 1;
     const { hash, } = this;
-    if (typeof hash !== 'object') {
-      throw new Error('[Error] Inner hash should be of type object.');
+    if (!Array.isArray(hash)) {
+      throw new Error('[Error] The inner hash should be of array type.');
     }
     if (hash[index] === undefined) {
       hash[index] = {};
@@ -403,71 +973,169 @@ class Cluster extends Node {
     this.debugInfo('successfully added as middle hash');
   }
 
-  checkKey(key) {
-    let ans = true;
-    let flag;
-    for (let i = 0; i < key.length; i += 1) {
-      const code = key.charCodeAt(i);
-      if ((code >=  65 && code <= 90) || ((code >= 97 && code <= 122))) {
-        if (flag !== undefined) {
-          if (flag !== 0) {
-            ans = false;
-            break;
-          }
-        }
-        flag = 0;
-      } else if (code >= 48 && code <= 57) {
-        if (flag !== undefined) {
-          if (flag !== 1) {
-            ans = false;
-            break;
-          }
-        }
-        flag = 1;
-      } else {
-        flag = 2;
-        ans = false;
-        break;
+  establishHash(status) {
+    if (this.greaterThresholdAndBondAndDutyCycle()) {
+      switch (status) {
+        case 0:
+          this.status = 2;
+          break;
+        case 3:
+          this.status = 5;
+          break;
+        case 8:
+          this.status = 10;
+          break;
       }
-    }
-    if (ans === false) {
-      const { status, } = this;
-      if (status === -1) {
-        this.status = 6;
+      this.hash = [];
+    } else {
+      const {
+        options: {
+          number,
+        }
+      } = this;
+      if (this.number >= number) {
+        switch (status) {
+          case 0:
+            this.status = 1;
+            break;
+          case 3:
+            this.status = 4;
+            break;
+          case 6:
+            this.status = 7;
+            break;
+          case 8:
+            this.status = 9;
+            break;
+        }
+        this.hash = [];
+      } else {
+        this.status = status;
         this.hash = {};
       }
-    } else {
-      switch (flag) {
-        case 0: {
-          const { status, } = this;
-          if (status === -1) {
-            this.status = 0;
-            this.hash = {};
-          } else if (status !== 0 && status !== 1 && status !== 2) {
-            throw new Error(
-              '[Error] Cluster is plain text type but the newly added type is a pure number.'
-            );
-          }
-          break;
+    }
+  }
+
+  checkKey(key) {
+    let flags = [];
+    for (let i = 0; i < key.length; i += 1) {
+      const char = key.charAt(i);
+      if (char >= '0' && char <= '9') {
+        if (flags[0] !== false) {
+          flags[0] = true;
         }
-        case 1: {
-          const { status, } = this;
-          if (status === -1) {
-            this.status = 3;
-            this.hash = {};
-          } else if (status !== 3 && status !== 4 && status !== 5) {
-            throw new Error(
-              '[Error] Cluster is pure numeric type but the newly added is a pure letters.'
-            );
-          }
-          break;
+      } else {
+        if (flags[0] !== false) {
+          flags[0] = false;
         }
+      }
+      if ((char>=  'A' && char <= 'Z') || ((char >= 'a' && char <= 'z'))) {
+        if (flags[1] !== false) {
+          flags[1] = true;
+        }
+      } else {
+        if (flags[1] !== false) {
+          flags[1] = false;
+        }
+      }
+      if ((char >= '0' && char <= '9') || (char >= 'a' && char <= 'f')) {
+        if (flags[2] !== false) {
+          flags[2] = true;
+        }
+      } else {
+        if (flags[2] !== false) {
+          flags[2] = false;
+        }
+      }
+    }
+    let flag = flags.findIndex((elem) => {
+      return elem === true;
+    });
+    switch (flag) {
+      case -1: {
+        const { status, } = this;
+        if (status === -1) {
+          this.establishHash(6);
+        }
+        break;
+      }
+      case 0: {
+        const { status, } = this;
+        if (status === -1) {
+          this.establishHash(0);
+        } else {
+          switch (status) {
+            case 2:
+            case 0:
+            case 1:
+              break;
+            default:
+              throw new Error('[Error] Cluster is pure numeric type but the newly added is a pure letters.');
+          }
+        }
+        break;
+      }
+      case 1: {
+        const { status, } = this;
+        if (status === -1) {
+          this.establishHash(3);
+        } else {
+          switch (status) {
+            case 5:
+            case 3:
+            case 4:
+              break;
+            default:
+              throw new Error('[Error] Cluster is plain text type but the newly added type is a pure number.');
+          }
+        }
+        break;
+      }
+      case 2: {
+        const { status, } = this;
+        if (status === -1) {
+          this.establishHash(8);
+        } else {
+          switch (status) {
+            case 2:
+            case 5:
+              this.reconstructionHash(10);
+              break;
+            case 0:
+            case 3:
+            case 1:
+            case 4:
+            case 8:
+            case 9:
+            case 10:
+              break;
+            default:
+              throw new Error('[Error] The current cluster is of hexadecimal type but the newly added one is not hexadecimal.');
+          }
+        }
+        break;
       }
     }
     this.checkMemory();
   }
 
-  blendFromCluster(mixture) {
+  reconstructionHash(toStatus) {
+    const { status, } = this;
+    switch (status) {
+      case 2:
+      case 5: {
+        this.hash = [];
+        this.getChildrens().forEach(([key, value]) => {
+          this.setExpandHash(key, value, 1);
+        });
+        break;
+      }
+      default:
+        throw new Error('[Error] Incorrect state when reconstructing the hash.');
+    }
+  }
+
+  mixFromCluster(mixture) {
     if (!(mixture instanceof Mixture)) {
       throw new Error('[Error] Mixture parameters needs to be of type mixture');
     }
@@ -480,7 +1148,7 @@ class Cluster extends Node {
     this.debugInfo('success blended from cluster');
   }
 
-  blendFromThing(mixture, path) {
+  mixFromThing(mixture, path) {
     if (!(mixture instanceof Mixture)) {
       throw new Error('[Error] Mixture parameters needs to be of type mixture');
     }
@@ -507,26 +1175,26 @@ class Cluster extends Node {
         threshold, bond, dutyCycle,
       },
     } = this;
-    if (threshold === undefined && bond === undefined) {
+    if (threshold === undefined && bond === undefined && dutyCycle !== undefined) {
       return this.getDutyCycle() >= dutyCycle;
     }
-    if (threshold === undefined && dutyCycle === undefined) {
+    if (threshold === undefined && dutyCycle === undefined && bond !== undefined) {
       const { count, } = this;
       return count >= bond;
     }
-    if (bond === undefined && dutyCycle === undefined) {
+    if (bond === undefined && dutyCycle === undefined && threshold !== undefined) {
       const { rate, } = this;
       return rate >= threshold;
     }
-    if (bond !== undefined && dutyCycle !== undefined) {
-      const { rate, count, } = this;
+    if (bond !== undefined && dutyCycle !== undefined && threshold !== undefined) {
+      const { count, } = this;
       return count >= bond && this.getDutyCycle() >= dutyCycle;
     }
-    if (threshold !== undefined && dutyCycle !== undefined) {
+    if (threshold !== undefined && dutyCycle !== undefined && bond === undefined) {
       const { rate, count, } = this;
       return threshold >= threshold && this.getDutyCycle() >= dutyCycle;
     }
-    if (threshold !== undefined && bond !== undefined) {
+    if (threshold !== undefined && bond !== undefined && dutyCycle === undefined) {
       const { rate, count, } = this;
       return rate >= threshold && count >= bond;
     }
@@ -543,26 +1211,26 @@ class Cluster extends Node {
         threshold, bond, dutyCycle,
       },
     } = this;
-    if (threshold === undefined && bond === undefined) {
+    if (threshold === undefined && bond === undefined && dutyCycle !== undefined) {
       return this.getDutyCycle() < dutyCycle;
     }
-    if (threshold === undefined && dutyCycle === undefined) {
+    if (threshold === undefined && dutyCycle === undefined && bond !== undefined) {
       const { count, } = this;
       return count < bond;
     }
-    if (dutyCycle === undefined && bond === undefined) {
+    if (dutyCycle === undefined && bond === undefined && threshold !== undefined) {
       const { rate, } = this;
       return rate < threshold;
     }
-    if (bond !== undefined && dutyCycle !== undefined) {
-      const { rate, count, } = this;
+    if (bond !== undefined && dutyCycle !== undefined && threshold === undefined) {
+      const { count, } = this;
       return count < bond && this.getDutyCycle() < dutyCycle;
     }
-    if (threshold !== undefined && dutyCycle !== undefined) {
-      const { rate, count, } = this;
+    if (threshold !== undefined && dutyCycle !== undefined && bond === undefined) {
+      const { rate, } = this;
       return rate < threshold && this.getDutyCycle() < dutyCycle;
     }
-    if (threshold !== undefined && bond !== undefined) {
+    if (threshold !== undefined && bond !== undefined && dutyCycle === undefined) {
       const { rate, count, } = this;
       return rate < threshold && count < bond;
     }
@@ -578,10 +1246,10 @@ class Cluster extends Node {
     if (status === -1) {
       const {
         options: {
-          hide,
+          hideError,
         },
       } = this;
-      if (hide === true) {
+      if (hideError === true) {
         return undefined;
       } else {
         throw new Error('[Error] Cluster hash is empty,please add a route first.');
@@ -598,23 +1266,76 @@ class Cluster extends Node {
     this.debugInfo('successfully obtained the value');
   }
 
-  adjust() {
+  adjust(uncheck) {
     const {
       status,
     } = this;
-    if ((status === 0 || status === 3) && this.greaterThresholdAndBondAndDutyCycle() && this.checkExpandInitMemory()) {
-      this.expandInitHash();
-    }
-    if ((status === 1 || status === 4) && this.greaterThresholdAndBondAndDutyCycle() && this.checkExpandMiddleMemory()) {
-      this.expandMiddleHash();
-    }
-    if ((status === 2 || status === 5 || status === 7) && this.lessThresholdAndBondAndDutyCycle()) {
-      const { number, } = this;
-      if (number > this.options.number) {
-        this.reduceMiddleHash();
-      } else {
-        this.reduceInitHash();
+    switch (status) {
+      case 0:
+      case 3:
+      case 8: {
+        let type;
+        switch (status) {
+          case 0:
+          case 3:
+            type = 0;
+            break;
+          case 8:
+            type = 1;
+            break;
+        }
+        if (this.greaterThresholdAndBondAndDutyCycle() && this.checkExpandInitMemory(type)) {
+          this.expandInitHash(type);
+        }
+        break;
       }
+      case 1:
+      case 4:
+      case 9: {
+        let type;
+        switch (status) {
+          case 1:
+          case 4:
+            type = 0;
+            break;
+          case 9:
+            type = 1;
+            break;
+        }
+        if (this.greaterThresholdAndBondAndDutyCycle() && this.checkExpandMiddleMemory(type)) {
+          this.expandMiddleHash(type);
+        }
+        break
+      }
+      case 2:
+      case 5:
+      case 10: {
+        if (this.lessThresholdAndBondAndDutyCycle()) {
+          const { number, } = this;
+          if (number >= this.options.number) {
+            this.reduceMiddleHash();
+          } else {
+            this.reduceInitHash();
+          }
+        }
+        break;
+      }
+      case 6:
+      case 7:
+        break;
+      case -1: {
+        const {
+          options: {
+            hideError,
+          },
+        } = this;
+        if (hideError !== true || uncheck !== true) {
+          throw new Error('[Error] Adjustment operation is in unreasonable state zero');
+        }
+        break;
+      }
+      default:
+        throw new Error('[Error] The status of the adjustment operation processing');
     }
   }
 
@@ -624,10 +1345,12 @@ class Cluster extends Node {
       case 0:
       case 3:
       case 6:
+      case 8:
         return this.hash[key];
       case 1:
       case 4:
-      case 7: {
+      case 7:
+      case 9: {
         const { length, } = key;
         const { hash, } = this;
         if (hash && hash[length - 1]) {
@@ -637,25 +1360,114 @@ class Cluster extends Node {
         }
       }
       case 2:
-      case 5: {
+      case 5:
+      case 10: {
+        const type = getType(status);
         const {
           options: {
             interception,
           },
         } = this;
         if (Number.isInteger(interception)) {
-          let root = this.hash;
+          let { hash: root, } = this;
           const { length, } = key;
-          for (let i = 0; i < interception; i += 1) {
-            const code = key.charCodeAt(i);
-            if (i === interception - 1) {
-              const tail = root[dealCharCode(code)];
-              return tail[key.substring(interception - 1, length)];
+          const min = Math.min(interception, length);
+          for (let i = 0; i < min; i += 1) {
+            const char = key.charAt(i);
+            if (i === min - 1) {
+              const index = getIndexFromChar(char, type);
+              const tail = root[index];
+              const tailKey = key.substring(interception, length);
+              if (tail === undefined) {
+                const {
+                  options: {
+                    hideError,
+                  },
+                } = this;
+                if (hideError === true) {
+                  return undefined;
+                } else {
+                  throw Error('In the case of truncation,the search result does not exist.');
+                }
+              }
+              const {
+                constructor: {
+                  name,
+                },
+              } = tail;
+              switch (tailKey) {
+                case '':
+                  switch (name) {
+                    case 'Fusion': {
+                      const fusion = tail;
+                      const compound = fusion.getCompound();
+                      return compound;
+                    }
+                    case 'Alloy': {
+                      const alloy = tail;
+                      const compound = alloy.getCompound();
+                      return compound;
+                    }
+                    case 'Cluster':
+                    case 'WebThing':
+                    case 'Thing':
+                      return tail;
+                    case 'Array':
+                    case 'Object':
+                      return undefined;
+                    default:
+                      throw new Error('[Error] Type does not match the expected type when searching under truncated and empty string.');
+                  }
+                  break;
+                default: {
+                  switch (name) {
+                    case 'Cluster':
+                    case 'WebThing':
+                    case 'Thing':
+                      return undefined;
+                    case 'Fusion': {
+                      const fusion = tail;
+                      const blend = fusion.getBlend();
+                      return getInterceptionHash(blend, tailKey);
+                    }
+                    case 'Array':
+                    case 'Object':
+                      return getInterceptionHash(tail, tailKey);
+                    default:
+                      throw new Error('[Error] Type does not match the expected type when searching under truncated and non-empty string.');
+                  }
+                }
+              }
             } else {
-              if (!Array.isArray(root)) {
+              const index = getIndexFromChar(char, type);
+              if (root[index] === undefined) {
                 return undefined;
-              } else {
-                root = root[dealCharCode(code)];
+              }
+              const {
+                constructor: {
+                  name,
+                },
+              } = root[index];
+              switch (name) {
+                case 'Array':
+                  root = root[index];
+                  break;
+                case 'Alloy': {
+                  const alloy = root[index];
+                  root = alloy.getArray();
+                  break;
+                }
+                case 'Fusion': {
+                  const fusion = root[index];
+                  root = fusion.getBlend();
+                  break;
+                }
+                case 'Cluster':
+                case 'WebThing':
+                case 'Thing':
+                  return undefined;
+                default:
+                  throw new Error('[Error] The root type does not match the expected');
               }
             }
           }
@@ -663,14 +1475,57 @@ class Cluster extends Node {
           let { hash: root, } = this;
           const { length, } = key;
           for (let i = 0; i < length; i += 1) {
-            const code = key.charCodeAt(i);
+            const char = key.charAt(i);
             if (i === length - 1) {
-              return root[dealCharCode(code)];
-            } else {
-              if (!Array.isArray(root)) {
+              const leaf = root[getIndexFromChar(char, type)];
+              if (leaf === undefined) {
                 return undefined;
-              } else {
-                root = root[dealCharCode(code)];
+              }
+              const {
+                constructor: {
+                  name,
+                },
+              } = leaf;
+              switch (name) {
+                case 'Cluster':
+                case 'Thing':
+                case 'WebThing':
+                  return leaf;
+                case 'Alloy': {
+                  const alloy  = leaf;
+                  const compound = alloy.getCompound();
+                  return compound;
+                }
+                case 'Array':
+                  break;
+                default:
+                  throw new Error('[Error] The leaf type is not what you expected');
+              }
+            } else {
+              const index = getIndexFromChar(char, type);
+              if (root[index] === undefined) {
+                return undefined;
+              }
+              const {
+                constructor: {
+                  name,
+                },
+              } = root[index];
+              switch (name) {
+                case 'Array':
+                  root = root[index];
+                  break;
+                case 'Alloy': {
+                  const alloy = root[index];
+                  root = alloy.getArray();
+                  break;
+                }
+                case 'Cluster':
+                case 'WebThing':
+                case 'Thing':
+                  return undefined;
+                default:
+                  throw new Error('[Error] The root type does not match the expected');
               }
             }
           }
@@ -680,11 +1535,16 @@ class Cluster extends Node {
     }
   }
 
-  updateChildrens(key, value) {
+  getChildrens() {
     const { childrens, } = this;
     if (!Array.isArray(childrens)) {
       throw new Error('[Error] Inner childrens should be of array type.');
     }
+    return childrens;
+  }
+
+  updateChildrens(key, value) {
+    const childrens = this.getChildrens();
     for (let i = 0; i < childrens.length; i += 1) {
       const children = childrens[i];
       const [k] = children;
@@ -693,14 +1553,11 @@ class Cluster extends Node {
         break;
       }
     }
-    this,checkMemory();
+    this.checkMemory();
   }
 
   removeChildrens(key) {
-    const { childrens, } = this;
-    if (!Array.isArray(childrens)) {
-      throw new Error('[Error] Inner childrens should be of array type.');
-    }
+    const childrens = this.getChildrens();
     for (let i = 0; i < childrens.length; i += 1) {
       const [k] = childrens[i];
       if (k === key) {
@@ -715,8 +1572,17 @@ class Cluster extends Node {
     if (childrens === undefined) {
       this.childrens = [];
     }
-    this.childrens.push([key, value]);
-    this.checkMemory();
+    const flag = this.childrens.every(([beforeKey]) => {
+      if (key === beforeKey) {
+        return false;
+      } else {
+        return true;
+      }
+    });
+    if (flag === true) {
+      this.childrens.push([key, value]);
+      this.checkMemory();
+    }
   }
 
   addInitHash() {
@@ -729,25 +1595,61 @@ class Cluster extends Node {
     this.hash = [];
     keys.forEach((key, index) => {
       const value = values[index];
-      this.addMiddleHash(key, value);
+      this.appendMiddleHash(key, value);
       this.pushChildrens(key, value);
     });
     const { status, } = this;
-    if (status === 0) {
-      this.status = 1;
-    } else if (status === 3) {
-      this.status = 4;
-    } else {
-      this.status = 7;
+    switch (status) {
+      case 0:
+        this.status = 1;
+        break;
+      case 3:
+        this.status = 4;
+        break;
+      case 6:
+        this.status = 7;
+        break;
+      case 8:
+        this.status = 9;
+        break;
+      default:
+        throw new Error('[Error] Add initial hash state expection.');
     }
     this.debugInfo('added as a middle hash');
   }
 
-  removeMiddleHash() {
-    const { childrens, } = this;
-    if (!Array.isArray(childrens)) {
-      throw new Error('[Error] Inner childrens should be of array type.');
+  dropMiddleHash(key, value) {
+    this.removeChildrens(key);
+    const { status, } = this;
+    switch (status) {
+      case 1:
+      case 4:
+      case 7:
+      case 9: {
+        const { hash, } = this;
+        const { length, } = key;
+        delete hash[length - 1][key];
+        const keys = Object.keys(hash[length - 1]);
+        if (keys.length === 0) {
+          delete hash[length - 1];
+        }
+        const {
+          options: {
+            number,
+          },
+        } = this;
+        if (this.number < number) {
+          this.removeMiddleHash();
+        }
+        break;
+      }
+      default:
+        throw new Error('[Error] Removeing medium hash state does not work as expected.');
     }
+  }
+
+  removeMiddleHash() {
+    const childrens = this.getChildrens();
     this.hash = {};
     const { hash, } = this;
     childrens.forEach((children) => {
@@ -756,17 +1658,26 @@ class Cluster extends Node {
     });
     delete this.childrens;
     const { status, } = this;
-    if (status === 1) {
-      this.status = 0;
-    } else if (status === 4) {
-      this.status = 3;
-    } else {
-      this.status = 6;
+    switch (status) {
+      case 1:
+        this.status = 0;
+        break;
+      case 4:
+        this.status = 3;
+        break;
+      case 7:
+        this.status = 6;
+        break;
+      case 9:
+        this.status = 8;
+        break;
+      default:
+        throw new Error('[Error] Remove initial hash state expection.');
     }
     this.debugInfo('removed as init hash');
   }
 
-  expandInitHash() {
+  expandInitHash(type) {
     const { hash, } = this;
     if (typeof hash !== 'object') {
       throw new Error('[Error] Inner hash should be of type object.');
@@ -777,46 +1688,56 @@ class Cluster extends Node {
     this.childrens = [];
     keys.forEach((key, index) => {
       const value = values[index];
-      this.setExpandHash(key, value);
+      this.setExpandHash(key, value, type);
       this.pushChildrens(key, value);
     });
     const { status, } = this;
-    if (status === 0) {
-      this.status = 2;
-    } else {
-      this.stauts = 5;
+    switch (status) {
+      case 0:
+        this.status = 2;
+        break;
+      case 3:
+        this.status = 5;
+        break;
+      case 8:
+        this.status = 10;
+        break;
+      default:
+        throw new Error('[Error] expand initial hash state expection.');
     }
     this.debugInfo('expansion to expand hash');
   }
 
-  expandMiddleHash() {
+  expandMiddleHash(type) {
     this.hash = [];
-    const { childrens, } = this;
-    if (!Array.isArray(childrens)) {
-      throw new Error('[Error] Inner childrens should be of array type.');
-    }
+    const childrens = this.getChildrens();
     childrens.forEach((children) => {
       const [key, value] = children;
-      this.setExpandHash(key, value);
+      this.setExpandHash(key, value, type);
     });
     const { status, } = this;
-    if (status === 1) {
-      this.status = 2;
-    } else {
-      this.status = 5;
+    switch (status) {
+      case 1:
+        this.status = 2;
+        break;
+      case 4:
+        this.status = 5;
+        break;
+      case 9:
+        this.status = 10;
+        break;
+      default:
+        throw new Error('[Error] expand middle hash state expection.');
     }
     this.debugInfo('expansion to expand hash');
   }
 
   reduceMiddleHash() {
     this.hash = [];
-    const { childrens, } = this;
-    if (!Array.isArray(childrens)) {
-      throw new Error('[Error] Inner childrens should be of array type.');
-    }
+    const { hash, } = this;
+    const childrens = this.getChildrens();
     childrens.forEach((elem) => {
       const [key, value] = elem;
-      const { hash, } = this;
       const { length, } = key;
       if (hash[length - 1] === undefined) {
         hash[length - 1] = {};
@@ -824,37 +1745,51 @@ class Cluster extends Node {
       hash[length - 1][key] = value;
     });
     const { status, } = this;
-    if (status === 5) {
-      this.status = 4;
-    } else if (status === 2) {
-      this.status = 1;
-    } else {
-      this.status = 6;
+    switch (status) {
+      case 5:
+        this.status = 4;
+        break;
+      case 2:
+        this.status = 1;
+        break;
+      case 7:
+        this.status = 6;
+        break;
+      case 10:
+        this.status = 9;
+        break;
+      default:
+        throw new Error('[Error] reduce middle hash state expection.');
     }
     this.debugInfo('reducted to middle hash');
   }
 
   reduceInitHash() {
     this.hash = {};
-    const { childrens, } = this;
-    if (!Array.isArray(childrens)) {
-      throw new Error('[Error] Inner childrens should be of array type.');
-    }
+    const childrens = this.getChildrens();
     childrens.forEach((elem) => {
       const [key, value] = elem;
       const { hash, } = this;
       hash[key] = value;
     });
     const { status, } = this;
-    if (status === 5) {
-      this.status = 3;
-    } else {
-      this.status = 0;
+    switch (status) {
+      case 5:
+        this.status = 3;
+        break;
+      case 2:
+        this.status = 0;
+        break;
+      case  10:
+        this.status = 8;
+        break;
+      default:
+        throw new Error('[Error] reduce init hash state expection.');
     }
     this.debugInfo('reducted to init hash');
   }
 
-  setExpandHash(key, value) {
+  setExpandHash(key, value, type) {
     const {
       options: {
         interception,
@@ -863,30 +1798,110 @@ class Cluster extends Node {
     if (Number.isInteger(interception)) {
       let { hash: root, } = this;
       const { length, } = key;
-      for (let i = 0; i < interception; i += 1) {
-        const code = key.charCodeAt(i);
-        if (i === interception - 1) {
-          let tail = root[dealCharCode(code)];
-          if (tail === undefined) {
-            root[dealCharCode(code)] = {};
+      const min = Math.min(interception, length);
+      for (let i = 0; i < min; i += 1) {
+        const char = key.charAt(i);
+        if (i === min - 1) {
+          const index = getIndexFromChar(char, type);
+          let tail = root[index];
+          const tailKey = key.substring(interception, length);
+          switch (tailKey) {
+            case '': {
+              if (tail === undefined) {
+                const compound = value
+                root[index] = compound;
+              } else {
+                const {
+                  constructor: {
+                    name,
+                  },
+                } = tail;
+                switch (name) {
+                  case 'Array':
+                  case 'Object': {
+                    const compound = value;
+                    const blend = tail;
+                    const fusion = new Fusion(blend, compound, this);
+                    root[index] = fusion;
+                    break;
+                  }
+                  default:
+                    throw new Error('[Error] Method set expand hash setting extended hash type does not meet expectations in the case of an empty string.');
+                }
+              }
+              break;
+            }
+            default: {
+              if (tail === undefined) {
+                root[index] = {};
+                tail = root[index];
+                tail[tailKey] = value;
+              } else {
+                const {
+                  constructor: {
+                    name,
+                  },
+                } = tail;
+                switch (name) {
+                  case 'Object': {
+                    const object = tail;
+                    setInterceptionHash(object, tailKey, value);
+                    root[index] = this.addInterceptionHash(object);
+                    break;
+                  }
+                  case 'Fusion': {
+                    const fusion = tail;
+                    let blend = fusion.getBlend();
+                    setInterceptionHash(blend, tailKey, value);
+                    blend = this.addInterceptionHash(blend);
+                    fusion.setBlend(blend);
+                    break;
+                  }
+                  default:
+                    throw new Error('[Error] Method set expand hash extends hash does not meet the expecetd type in the case of non-empty string.');
+                }
+              }
+            }
           }
-          tail = root[dealCharCode(code)];
-          tail[key.substring(interception - 1, length)] = value;
         } else {
-          root[dealCharCode(code)] = [];
-          root = root[dealCharCode(code)];
+          root = generateRootAmong(root, char, type, this);
         }
       }
     } else {
       let { hash: root, } = this;
       const { length, } = key;
       for (let i = 0; i < length; i += 1) {
-        const code = key.charCodeAt(i);
+        const char = key.charAt(i);
         if (i === length - 1) {
-          root[dealCharCode(code)] = value;
+          const index = getIndexFromChar(char, type);
+          const leaf = root[index];
+          if (leaf === undefined) {
+            root[index] = value;
+          } else {
+            const {
+              constructor: {
+                name,
+              },
+            } = leaf;
+            switch (name) {
+              case 'Cluster':
+              case 'WebThing':
+              case 'Thing': {
+                break;
+              }
+              case 'Array': {
+                const array = leaf;
+                const compound = value;
+                const alloy = new Alloy(array, compound, this);
+                root[index] = alloy;
+                break;
+              }
+              default:
+                throw new Error('[Error] In method set expand hash,the type does not match the expected.');
+            }
+          }
         } else {
-          root[dealCharCode(code)] = [];
-          root = root[dealCharCode(code)];
+          root = generateRootAmong(root, char, type, this);
         }
       }
     }

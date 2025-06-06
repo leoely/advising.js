@@ -92,7 +92,7 @@ describe('[Class] FileRouter;', () => {
       logLevel: 8,
       logInterval: 5,
       interception: undefined,
-      hide: true,
+      hideError: true,
       debug: false,
     });
     expect(fileRouter.gain('/male/john')).toBe(undefined);
@@ -101,5 +101,27 @@ describe('[Class] FileRouter;', () => {
     expect(fileRouter.gain('./static/445.chunk.js')).toBe(undefined);
     expect(fileRouter.gain('./asset/favicon-32x32.png')).toBe(undefined);
     expect(fileRouter.gain('/Users/test/Works/temporary/asset')).toBe(undefined);
+    expect(fileRouter.gain('/fasdfdas/fasdfads/gasdfasd.fsadfsad/.fadsfasdfdsa')).toBe(undefined);
+  });
+
+  test('FileRouter can handle individual file name.', () => {
+    const fileRouter = new FileRouter({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 8,
+      logInterval: 5,
+      interception: undefined,
+      hideError: true,
+      debug: false,
+    });
+    fileRouter.attach('445.chunk.js', { type: 'chunk', name: '445', });
+    fileRouter.attach('main.bundle.js', { type: 'bundle', name: 'main', });
+    expect(JSON.stringify(fileRouter.gain('445.chunk.js'))).toMatch('{\"type\":\"chunk\",\"name\":\"445\"}');
+    expect(JSON.stringify(fileRouter.gain('main.bundle.js'))).toMatch('{\"type\":\"bundle\",\"name\":\"main\"}');
+    expect(fileRouter.root.find('js').count).toBe(2);
+    expect(fileRouter.root.find('js').find('chunk').count).toBe(1);
+    expect(fileRouter.root.find('js').find('bundle').count).toBe(1);
   });
 });

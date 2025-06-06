@@ -1,9 +1,9 @@
-import Router from '~/class/Router';
+import DistribRouter from '~/class/DistribRouter';
 import Webing from '~/class/Webing';
 
-class WebRouter extends Router {
-  constructor(options = {}) {
-    super(options);
+class WebDistribRouter extends DistribRouter {
+  constructor(...param) {
+    super(...param);
     const {
       getPathsFromLocation,
       getThingClass,
@@ -27,4 +27,4 @@ class WebRouter extends Router {
   }
 }
 
-export default WebRouter;
+export default WebDistribRouter;

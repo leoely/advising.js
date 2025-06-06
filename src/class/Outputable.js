@@ -1,7 +1,11 @@
 import appendToLog from '~/lib/appendToLog';
 import checkMemory from '~/lib/checkMemory';
 import getGTMNowString from '~/lib/getGTMNowString';
-import fulmination from '~/obj/fulmination';
+import global from '~/obj/global';
+
+const {
+  fulmination,
+} = global;
 
 class Outputable {
   constructor() {
