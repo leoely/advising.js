@@ -7,14 +7,16 @@ function getPathsFromIpv6(ipv6) {
     const char = ipv6.charAt(i);
     switch (char) {
       case ':':
-      case '':
-        if (paths.length <= 7) {
-          paths.push(chars.join(''));
-          chars = [];
+      case '': {
+        const path = chars.join('');
+        if (path === '') {
+          paths.push('0');
         } else {
-          throw new Error('[Error] There are only eight segmenets in the ipv6 address');
+          paths.push(path);
         }
+        chars = [];
         break;
+      }
       default:
         if ((char >= '0' && char <= '9') || (char >= 'a' && char <= 'f')) {
           chars.push(char);

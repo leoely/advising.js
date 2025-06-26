@@ -12,10 +12,12 @@ describe('[Class] Ipv4Router;', () => {
       logInterval: 5,
       interception: undefined,
       debug: false,
+      hideError: true,
     });
     ipv4Router.attach('192.168.1.7', { ip: '192.168.1.7', time: 10, });
+    ipv4Router.ruin('192.168.1.7');
     ipv4Router.attach('46.82.174.69', { ip: '46.82.174.69', time: 4235243, });
-    expect(JSON.stringify(ipv4Router.gain('192.168.1.7'))).toMatch('{\"ip\":\"192.168.1.7\",\"time\":10}');
+    expect(ipv4Router.gain('192.168.1.7')).toBe(undefined);
     expect(JSON.stringify(ipv4Router.gain('46.82.174.69'))).toMatch('{\"ip\":\"46.82.174.69\",\"time\":4235243}');
   });
 });

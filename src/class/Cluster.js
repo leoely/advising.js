@@ -872,7 +872,7 @@ class Cluster extends Node {
         throw new Error('[Error] Clean parameter node should be of cluster type.');
       }
       if (typeof path !== 'string') {
-        throw new Error('[Error] clean parameter path should be a string type');
+        throw new Error('[Error] Clean parameter path should be a string type');
       }
       node.delete(path);
     }
@@ -1329,7 +1329,7 @@ class Cluster extends Node {
             hideError,
           },
         } = this;
-        if (hideError !== true || uncheck !== true) {
+        if (hideError !== true && uncheck !== true) {
           throw new Error('[Error] Adjustment operation is in unreasonable state zero');
         }
         break;

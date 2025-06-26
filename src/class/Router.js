@@ -103,7 +103,7 @@ function deleteRecursion(node, index, paths, thing, beforePath, beforeNode) {
     const { count, } = thing;
     node.subtractCount(count, true);
   } else {
-    deleteRecursion(node.find(path), index + 1, paths, thing, path, beforeNode);
+    deleteRecursion(node.find(path), index + 1, paths, thing, beforePath, beforeNode);
     const { count, } = thing;
     node.subtractCount(count, true);
   }
@@ -330,7 +330,7 @@ class Router extends Outputable {
 
   delete(location, paths) {
     const thing = this.match(location, paths, true);
-    if (thing !== undefined) {
+    if (thing instanceof Thing) {
       const { root, } = this;
       const [path] = paths;
       deleteRecursion(root, 0, paths, thing, path, root);

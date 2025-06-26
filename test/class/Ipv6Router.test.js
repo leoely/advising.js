@@ -12,6 +12,7 @@ describe('[Class] Ipv6Router;', () => {
       logInterval: 5,
       interception: undefined,
       debug: false,
+      hideError: true,
     });
     ipv6Router.attach('2001:db8:0:1:1:1:1:1', { ip: '2001:db8:0:1:1:1:1:1', time: 23, });
     ipv6Router.attach('1050:0000:0000:0000:0005:0600:300c:326b', { ip: '1050:0000:0000:0000:0005:0600:300c:326b', time: 52, });
@@ -23,5 +24,10 @@ describe('[Class] Ipv6Router;', () => {
     expect(JSON.stringify(ipv6Router.gain('1050:0000:0000:0000:0005:0600:300c:326b'))).toMatch('{\"ip\":\"1050:0000:0000:0000:0005:0600:300c:326b\",\"time\":52}');
     expect(JSON.stringify(ipv6Router.gain('1050:0000:0000:0000:0005:0600:300c:326b'))).toMatch('{\"ip\":\"1050:0000:0000:0000:0005:0600:300c:326b\",\"time\":52}');
     expect(JSON.stringify(ipv6Router.gain('1050:0000:0000:0000:0005:0600:300c:326b'))).toMatch('{\"ip\":\"1050:0000:0000:0000:0005:0600:300c:326b\",\"time\":52}');
+    ipv6Router.ruin('2001:0db8:85a3:0000:0000:8a2e:0370:7334');
+    expect(ipv6Router.gain('2001:0db8:85a3:0000:0000:8a2e:0370:7334')).toBe(undefined);
+    ipv6Router.attach('2001:db8:0:1:1:1:1:1', { ip: '2001:db8:0:1:1:1:1:1', time: 23, });
+    ipv6Router.attach('::1', { ip: '::1', time: 67, });
+    expect(JSON.stringify(ipv6Router.gain('::1'))).toMatch('{\"ip\":\"::1\",\"time\":67}');
   });
 });
