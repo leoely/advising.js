@@ -125,25 +125,39 @@ function parseQueryParams(url) {
   return [url1, queryParams];
 }
 
-function getPathsFromUrl(url) {
-  if (typeof url !== 'string') {
-    throw new Error('[Error] Path type must be a string.');
-  } else {
-    if (url === '/') {
-      throw new Error('[Error] Unable to operate the root path.');
+function getPathsFromUrl(url, hideError) {
+  try {
+    if (typeof url !== 'string') {
+      throw new Error('[Error] Path type must be a string.');
+    } else {
+      if (url === '/') {
+        throw new Error('[Error] Unable to operate the root path.');
+      }
+    }
+    if (url.charAt(0) !== '/') {
+      throw new Error('[Error] Path should start with a slash.');;
+    }
+    const paths = url.split('/');
+    return paths.slice(1, paths.length);
+  } catch (error) {
+    if (hideError === true) {
+      return [];
+    } else {
+      throw error;
     }
   }
-  if (url.charAt(0) !== '/') {
-    throw new Error('[Error] Path should start with a slash.');;
-  }
-  const paths = url.split('/');
-  return paths.slice(1, paths.length);
 }
 
 class Webing {
   static getPathsFromLocation(location) {
     const url = location;
-    return getPathsFromUrl(url);
+    let paths;
+    const {
+      options: {
+        hideError,
+      },
+    } = this;
+    return getPathsFromUrl(url, hideError);
   }
 
   static getThingClass() {
@@ -152,34 +166,54 @@ class Webing {
 
   static attach(url, content) {
     const [url1, pathKeys] = parsePathKeys(url);
+    const {
+      options: {
+        hideError,
+      },
+    } = this;
     if (url1 === url) {
-      const paths = getPathsFromUrl(url);
+      const paths = getPathsFromUrl(url, hideError);
       this.add(url, paths, content);
     } else {
-      const paths = getPathsFromUrl(url1);
+      const paths = getPathsFromUrl(url1, hideError);
       this.add(url, paths, content, pathKeys);
     }
   }
 
   static replace(url, multiple) {
     const [url1, pathKeys] = parsePathKeys(url);
+    const {
+      options: {
+        hideError,
+      },
+    } = this;
     if (url1 === url) {
-      const paths = getPathsFromUrl(url);
+      const paths = getPathsFromUrl(url, hideError);
       this.update(url, paths, multiple);
     } else {
-      const paths1 = getPathsFromUrl(url1);
+      const paths1 = getPathsFromUrl(url1, hideError);
       this.update(url1, paths1, multiple, pathKeys);
     }
   }
 
   static exchange(url1, url2) {
-    const paths1 = getPathsFromUrl(url1);
-    const paths2 = getPathsFromUrl(url2);
+    const {
+      options: {
+        hideError,
+      },
+    } = this;
+    const paths1 = getPathsFromUrl(url1, hideError);
+    const paths2 = getPathsFromUrl(url2, hideError);
     this.swap(url1, url2, paths1, paths2);
   }
 
   static revise(url, content) {
-    const paths = getPathsFromUrl(url);
+    const {
+      options: {
+        hideError,
+      },
+    } = this;
+    const paths = getPathsFromUrl(url, hideError);
     this.fix(url, paths, content);
   }
 
@@ -188,10 +222,11 @@ class Webing {
       options: {
         debug,
         logLevel,
+        hideError,
       },
     } = this;
     const [url1, pathKeys] = parsePathKeys(url);
-    const paths1 = getPathsFromUrl(url1);
+    const paths1 = getPathsFromUrl(url1, hideError);
     const thing = this.match(url1, paths1, true);
     thing.setPathKeys(pathKeys);
     if (logLevel !== 0) {
@@ -209,11 +244,16 @@ class Webing {
   static matchInner(url, needThing, web) {
     const [url1, queryParams] = parseQueryParams(url);
     const [url2, pathValues] = parsePathValues(url1);
+    const {
+      options: {
+        hideError,
+      },
+    } = this;
     let pathVariables = {};
     let thing;
     let content;
     if (url2 !== url) {
-      const paths2 = getPathsFromUrl(url2);
+      const paths2 = getPathsFromUrl(url2, hideError);
       thing = this.match(url2, paths2, true, true);
       if (needThing !== true) {
         const { total, } = this;
@@ -235,7 +275,7 @@ class Webing {
         }
       }
     } else {
-      const paths = getPathsFromUrl(url);
+      const paths = getPathsFromUrl(url, hideError);
       const multiple = this.match(url, paths, needThing);
       if (needThing === true) {
         thing = multiple;

@@ -274,4 +274,21 @@ describe('[Class] WebRouter;', () => {
     expect(webRouter.root.find('male').find('john').count).toBe(5);
     expect(webRouter.root.find('male').count).toBe(5);
   });
+
+  test('WebRouter should be able to tolerate errors', () => {
+    const webRouter = new WebRouter({
+      threshold: 0.5,
+      number: 4,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 7,
+      logInterval: 5,
+      interception: undefined,
+      hideError: true,
+      debug: false,
+    });
+    webRouter.attach('/male/john//{belongings}', { name: 'robert', age: 18, });
+    expect(JSON.stringify(webRouter.gain('vu99*$(83)#24-hn23'))).toMatch('{\"queryParams\":{},\"pathVariables\":{}}');
+    expect(JSON.stringify(webRouter.gain('***423u0vfds#@0iuj234b#*$'))).toMatch('{\"queryParams\":{},\"pathVariables\":{}}');
+  });
 });
