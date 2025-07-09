@@ -10,7 +10,7 @@
     "lint": "eslint ./src",
     "build": "gulp build",
     "test": "jest",
-    "run": "yarn run build && node dist/index.js"
+    "run": "yarn run build && node dist/demo.js"
   },
   "devDependencies": {
     "@babel/cli": "^7.20.7",

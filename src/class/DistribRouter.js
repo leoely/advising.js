@@ -34,9 +34,9 @@ function  getBinBuf(params) {
 }
 
 class DistribRouter extends Router {
-  constructor(options, port, allRouterArray) {
+  constructor(options, port, allRouters) {
     super(options);
-    this.dealParams(port, allRouterArray);
+    this.dealParams(port, allRouters);
   }
 
   static async combine(distribRouters) {
@@ -93,12 +93,12 @@ class DistribRouter extends Router {
     });
   }
 
-  dealParams(port, allRouterArray) {
+  dealParams(port, allRouters) {
     if (Number.isInteger(port) !== true) {
       throw new Error('[Error] The parameter port should be of integer type.');
     }
     this.port = port
-    if (Array.isArray(allRouterArray) !== true) {
+    if (Array.isArray(allRouters) !== true) {
       throw new Error('[Error] The parameter routerArray should be array type.');
     }
     const ipAddresses = getOwnIpAddresses();
@@ -109,7 +109,7 @@ class DistribRouter extends Router {
       locations.push('[' + ipv6 + ']:' + port);
     });
     const hash = {};
-    const routerArray = allRouterArray.filter((router) => {
+    const routerArray = allRouters.filter((router) => {
       const [_, port] = router;
       if (hash[port] === undefined) {
         hash[port] = true;
