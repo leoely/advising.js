@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { checkLogPath, } from 'manner.js/server';
 import Outputable from '~/class/Outputable';
 import Node from '~/class/Node';
 import Cluster from '~/class/Cluster';
@@ -149,12 +150,6 @@ function updateRecursion(node, index, paths, thing, newThing, beforePath, before
   }
 }
 
-function checkLogPath(logPath) {
-  if (!fs.existsSync(logPath)) {
-    fs.mkdirSync(logPath, { recursive: true });
-  }
-}
-
 class Router extends Outputable {
   constructor(options = {}) {
     super();
@@ -174,6 +169,10 @@ class Router extends Outputable {
     this.dealOptions(options);
     this.total = 0;
     this.root = new Cluster(this.options, true);
+    const {
+      logPath,
+    } = this.options;
+    checkLogPath(logPath);
     this.checkMemory();
     this.debugShort(`
       [+] bold:
@@ -185,10 +184,37 @@ class Router extends Outputable {
       | ** ██║░░██║██████╔╝░░╚██╔╝░░██║██████╔╝██║██║░╚███║╚██████╔╝██╗╚█████╔╝██████╔╝
       | ** ╚═╝░░╚═╝╚═════╝░░░░╚═╝░░░╚═╝╚═════╝░╚═╝╚═╝░░╚══╝░╚═════╝░╚═╝░╚════╝░╚═════╝░
       |
-      | ** - The router is initialized successfully.
-      | ** - Related operations cans be performaned.
-      |
     `);
+    const {
+      constructor: {
+        name,
+      },
+    } = this;
+    switch (name) {
+      case 'FileRouter':
+      case 'Ipv4Router':
+      case 'Ipv6Router':
+      case 'WebRouter':
+      case 'Router':
+        this.debugShort(`
+          [+] bold:
+          | ** - The router is initialized successfully.
+          | ** - Related operations cans be performaned.
+          |
+        `);
+        break;
+      case 'DistribRouter':
+      case 'WebDistribRouter':
+        this.debugShort(`
+          [+] bold:
+          | ** - The "[distributed"] router is initialized successfully.
+          | ** - Related "[distributed"] operations cans be performaned.
+          |
+        `);
+        break;
+      default:
+        throw new Error('[Error] Unexpected types occur.');
+    }
   }
 
   outputOperate(operate, location) {
@@ -200,7 +226,7 @@ class Router extends Outputable {
     } = this;
     if (logLevel !== 0) {
       this.appendToLog(
-        ' || ████ Location:' + location + ' ████ & ████ OPERATE:' + operate + '████ ||\n',
+        ' || ████ Location:' + location + ' ████ & ████ OPERATE:' + operate + ' ████ ||\n',
       );
     }
     if (debug === true) {
@@ -263,8 +289,6 @@ class Router extends Outputable {
     if (logPath !== undefined) {
       if (typeof logPath !== 'string') {
         throw new Error('[Error] Router option logPath must be a string type or undefined.');
-      } else {
-        checkLogPath(logPath);
       }
     }
     if (hideError !== undefined) {

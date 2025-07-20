@@ -1,7 +1,9 @@
 import net from 'net';
 import {
+  getGTMNowString,
   getOwnIpAddresses,
   nonZeroByteArray,
+  appendToLog,
 } from 'manner.js/server';
 import Thing from '~/class/Thing';
 import Router from '~/class/Router';
@@ -37,6 +39,8 @@ class DistribRouter extends Router {
   constructor(options, port, allRouters) {
     super(options);
     this.dealParams(port, allRouters);
+    this.outputDistribTopology();
+    this.checkMemory();
   }
 
   static async combine(distribRouters) {
@@ -153,18 +157,106 @@ class DistribRouter extends Router {
     this.routers = routers;
   }
 
+  outputDistribTopology() {
+    const {
+      options: {
+        debug,
+        logLevel,
+      },
+      fulmination,
+    } = this;
+    if (logLevel !== 0) {
+      const routers = this.getRouters()
+      if (routers.length > 0) {
+        const routerTopologys = '[' + routers.join(', ') + ']';
+        const { ip, port, } = this;
+        this.appendToLog(
+          ' || ████ Ip:' + ip + ' ████ & ████ Port:' + port + ' ████ & ████ TOPOLOGY:' + routerTopologys + ' ████ ||\n',
+        );
+      }
+    }
+    if (debug === true) {
+      const routers = this.getRouters();
+      if (Array.isArray(routers) && routers.length > 0) {
+        const routerFulminations = routers.map((router) => {
+          return '(+) bold; dim: "b' + router + '" (+): * | (+): *';
+        }).join(' ').concat(' &');
+        fulmination.scanAll([
+          [`
+            (+) blue; bold: * "&"& (+) bold: * DistribRouter (+) bold; dim: * show distributed topology. &
+            (+) blue; bold: ** └─ (+) : * | (+) : *
+            `, 0],
+          [routerFulminations, 0],
+        ]);
+        console.log(getGTMNowString() + '\n');
+      }
+    }
+  }
+
+  outputDistribOperate(operate, location) {
+    const {
+      options: {
+        logLevel,
+        debug,
+      },
+    } = this;
+    if (logLevel !== 0) {
+      this.appendToLog(
+        ' || ████ Location:' + location + ' ████ & ████ OPERATE:' + operate + ' ████ ||\n',
+      );
+    }
+    if (debug === true) {
+      this.debugDetail(`
+        (+) bold; blue: * "&"& (+) green; bold: * Location (+) bold; dim: * ` + location + `. &
+        (+) bold; blue: ** └─ (+): * | (+) bold: * operate (+) dim: : * ` + operate + `(+): * | &
+      `);
+    }
+  }
+
+  outputDistribFunction(operate) {
+    const {
+      options: {
+        logLevel,
+        debug,
+      },
+    } = this;
+    if (logLevel !== 0) {
+      const { ip, port, } = this;
+      this.appendToLog(
+        ' || ████ Ip:' + ip + ' ████ & ████ Port:' + port +  ' ████ & ████ OPEARATE:' + operate + ' ████ ||\n',
+      );
+    }
+    if (debug === true) {
+      const { ip, port, } = this;
+      this.debugDetail(`
+        (+) bold; blue: * "&"& (+) green; bold: * Ip (+) bold; dim: * ` + ip + ` (+) green; bold: * Port (+) bold; dim: * ` + port + ` . &
+        (+) bold; blue: ** └─ (+): * | (+) bold: * operate (+) dim: : * ` + operate + `(+): * | &
+      `);
+    }
+  }
+
+  getRouters() {
+    const { routers, } = this;
+    if (!Array.isArray(routers)) {
+      throw new Error('[Error] The status of routers in distributed routing.');
+    }
+    return routers;
+  }
+
   async closeServer() {
     await new Promise((resolve, reject) => {
       this.getServer().close(() => {
         resolve();
       });
     })
+    this.outputDistribFunction('close server');
   }
 
   closeClients() {
     this.getClients().forEach((client) => {
       client.destroySoon();
     });
+    this.outputDistribFunction('close client');
   }
 
   closeConnections() {
@@ -230,6 +322,8 @@ class DistribRouter extends Router {
       server.listen(port);
     });
     const { server, } = this;
+    this.outputDistribFunction('setup client');
+    this.checkMemory();
     return server;
   }
 
@@ -251,6 +345,8 @@ class DistribRouter extends Router {
     });
     this.clients = await Promise.all(clientPromises);
     const { clients, } = this;
+    this.outputDistribFunction('setup client');
+    this.checkMemory();
     return clients;
   }
 
@@ -410,6 +506,7 @@ class DistribRouter extends Router {
         break;
       }
     }
+    this.outputDistribTopology();
   }
 
   async addRouter(ip, port) {
@@ -427,6 +524,8 @@ class DistribRouter extends Router {
       routers.push([ip, port]);
       clients.push(client);
     });
+    this.checkMemory();
+    this.outputDistribTopology();
   }
 
   checkCombine() {
@@ -454,6 +553,7 @@ class DistribRouter extends Router {
         await Promise.all(ackPromises);
       }
     }
+    this.outputDistribOperate('attachDistrib', location);
   }
 
   async exchangeDistrib(location1, location2) {
@@ -472,6 +572,7 @@ class DistribRouter extends Router {
       client.write(getBinBuf([2, location]));
     });
     await Promise.all(ackPromises);
+    this.outputDistribOperate('ruinDistrib', location);
   }
 
   async ruinAllDistrib(locations) {
@@ -505,6 +606,7 @@ class DistribRouter extends Router {
         await Promise.all(ackPromises);
       }
     }
+    this.outputDistribOperate('replaceDistrib', location);
   }
 
   async reviseDistrib(location, content) {
@@ -525,6 +627,7 @@ class DistribRouter extends Router {
         await Promise.all(ackPromises);
       }
     }
+    this.outputDistribOperate('reviseDistrib', location);
   }
 }
 

@@ -308,9 +308,9 @@ describe('[Class] WebDistribRouter;', () => {
     }, 8020, newRouters);
     await WebDistribRouter.join([webDistribRouter3], [webDistribRouter1, webDistribRouter2]);
     await webDistribRouter3.attachDistrib('/male/robert', { name: 'robert', age: 18, });
-    //expect(JSON.stringify(webDistribRouter1.matchInner('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
-    //expect(JSON.stringify(webDistribRouter2.matchInner('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
-    //expect(JSON.stringify(webDistribRouter3.matchInner('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
-    //await WebDistribRouter.release([webDistribRouter1, webDistribRouter2, webDistribRouter3]);
+    expect(JSON.stringify(webDistribRouter1.matchInner('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(webDistribRouter2.matchInner('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    expect(JSON.stringify(webDistribRouter3.matchInner('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    await WebDistribRouter.release([webDistribRouter1, webDistribRouter2, webDistribRouter3]);
   });
 });

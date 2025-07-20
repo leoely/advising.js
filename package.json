@@ -1,6 +1,6 @@
 {
   "name": "advising.js",
-  "version": "1.0.16",
+  "version": "1.0.18",
   "description": "Frontend router project.",
   "main": "dist/index.js",
   "repository": "git@github.com:leoely/advising.js.git",
@@ -10,7 +10,7 @@
     "lint": "eslint ./src",
     "build": "gulp build",
     "test": "jest",
-    "run": "yarn run build && node dist/demo.js"
+    "run": "yarn run build && node dist/index.js"
   },
   "devDependencies": {
     "@babel/cli": "^7.20.7",
@@ -25,6 +25,6 @@
   "dependencies": {
     "fulmination": "^1.1.3",
     "gulp": "^4.0.2",
-    "manner.js": "^1.0.7"
+    "manner.js": "^1.0.35"
   }
 }

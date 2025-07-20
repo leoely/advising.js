@@ -96,7 +96,7 @@ class Thing extends Node {
     const { rate, } = this;
     const dutyCycle = this.getDutyCycle();
     this.debugDetail(`
-      (+) bold; green: * ~~ (+) yellow; bold: * Location (+) bold; dim: * ` + location + `. &
+      (+) bold; green: * >> (+) yellow; bold: * Location (+) bold; dim: * ` + location + `. &
       (+) bold; green: ** └─ (+): * | (+) bold: * count (+) dim: : ` + count + `(+): * |
       (+) bold: * rate (+) dim: : ` + rate + ` (+): * |
       (+) bold: * dutyCycle (+) dim: : ` + dutyCycle + ` (+): * | &

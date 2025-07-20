@@ -1,6 +1,8 @@
-import appendToLog from '~/lib/appendToLog';
+import {
+  appendToLog,
+  getGTMNowString,
+} from 'manner.js/server';
 import checkMemory from '~/lib/checkMemory';
-import getGTMNowString from '~/lib/getGTMNowString';
 import global from '~/obj/global';
 
 const {

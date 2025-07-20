@@ -1,5 +1,8 @@
 import os from 'os';
-import appendToLog from '~/lib/appendToLog';
+import {
+  appendToLog,
+  logOutOfMemory,
+} from 'manner.js/server';
 
 export default function checkMemory(logPath, value, outputable) {
   let ans = true;
@@ -7,10 +10,7 @@ export default function checkMemory(logPath, value, outputable) {
   if (value === undefined) {
     if (freemem <= 0) {
       ans = false;
-      appendToLog(
-        logPath,
-        ' || ████ ❗❗❗❗FREEMEN:' + freemem + ' & ████ REASON: Out fo memory ████ ||\n'
-      );
+      appendOutOfMemory(logPath, freemem);
       if (outputable instanceof Node) {
         const node = outputable;
         const {
@@ -27,10 +27,7 @@ export default function checkMemory(logPath, value, outputable) {
     if (typeof value === 'number') {
       if (freemem < value) {
         ans = false;
-        appendToLog(
-          logPath,
-          ' || ████ ❗❗❗❗FREEMEN:' + freemem + ' & ████ REASON: Out fo memory ████ ||\n'
-        );
+        appendOutOfMemory(logPath, freemem);
         if (outputable instanceof Node) {
           const node = outputable;
           const {

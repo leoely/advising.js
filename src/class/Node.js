@@ -1,6 +1,6 @@
+import { getGTMNowString, } from 'manner.js/server';
 import Outputable from '~/class/Outputable';
 import checkMemory from '~/lib/checkMemory';
-import getGTMNowString from '~/lib/getGTMNowString';
 
 class Node extends Outputable {
   constructor(options) {

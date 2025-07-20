@@ -1,10 +1,10 @@
+import { getGTMNowString, } from 'manner.js/server';
 import Fusion from '~/class/Fusion';
 import Alloy from '~/class/Alloy';
 import Mixture from '~/class/Mixture';
 import Thing from '~/class/Thing';
 import Node from '~/class/Node';
 import checkCompound from '~/lib/checkCompound';
-import getGTMNowString from '~/lib/getGTMNowString';
 
 function checkChar(char) {
   if (!(typeof char === 'string' && char.length === 1)) {
