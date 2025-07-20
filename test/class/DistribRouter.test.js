@@ -7,7 +7,7 @@ describe('[Class] DistribRouter;', () => {
   test('DistribRouter should support ipv4 addresses.', async () => {
     const [ipAddress] = getOwnIpAddresses();
     const { ipv4, } = ipAddress;
-    const routerArray = [
+    const routers = [
       [ipv4, 8000],
       [ipv4, 8001],
     ];
@@ -20,7 +20,7 @@ describe('[Class] DistribRouter;', () => {
       logInterval: 5,
       interception: undefined,
       debug: false,
-    }, 8000, routerArray);
+    }, 8000, routers);
     const distribRouter2 = new DistribRouter({
       threshold: 0.5,
       number: 1,
@@ -30,11 +30,11 @@ describe('[Class] DistribRouter;', () => {
       logInterval: 5,
       interception: undefined,
       debug: false,
-    }, 8001, routerArray);
-    expect(JSON.stringify(distribRouter1.routerArray)).toMatch(JSON.stringify([
+    }, 8001, routers);
+    expect(JSON.stringify(distribRouter1.routers)).toMatch(JSON.stringify([
       [ipv4, 8001],
     ]));
-    expect(JSON.stringify(distribRouter2.routerArray)).toMatch(JSON.stringify([
+    expect(JSON.stringify(distribRouter2.routers)).toMatch(JSON.stringify([
       [ipv4, 8000],
     ]));
   });
@@ -42,7 +42,7 @@ describe('[Class] DistribRouter;', () => {
   test('DistribRouter should support ipv6 addresses.', async () => {
     const [ipAddress] = getOwnIpAddresses();
     const { ipv6, } = ipAddress;
-    const routerArray = [
+    const routers = [
       [wrapIpv6(ipv6),  8002],
       [wrapIpv6(ipv6),  8003],
     ];
@@ -55,8 +55,8 @@ describe('[Class] DistribRouter;', () => {
       logInterval: 5,
       interception: undefined,
       debug: false,
-    }, 8002, routerArray);
-    expect(JSON.stringify(distribRouter1.routerArray)).toMatch(JSON.stringify([
+    }, 8002, routers);
+    expect(JSON.stringify(distribRouter1.routers)).toMatch(JSON.stringify([
       [wrapIpv6(ipv6),  8003],
     ]));
     const distribRouter2 = new DistribRouter({
@@ -68,8 +68,8 @@ describe('[Class] DistribRouter;', () => {
       logInterval: 5,
       interception: undefined,
       debug: false,
-    }, 8003, routerArray);
-    expect(JSON.stringify(distribRouter2.routerArray)).toMatch(JSON.stringify([
+    }, 8003, routers);
+    expect(JSON.stringify(distribRouter2.routers)).toMatch(JSON.stringify([
       [wrapIpv6(ipv6),  8002],
     ]));
   });
@@ -77,7 +77,7 @@ describe('[Class] DistribRouter;', () => {
   test('DistribRouter should be able to support both ipv4 and ipv6 addresses.', async () => {
     const [ipAddress] = getOwnIpAddresses();
     const { ipv4, ipv6, } = ipAddress;
-    const routerArray = [
+    const routers = [
       [wrapIpv6(ipv6),  8004],
       [ipv4, 8005],
     ];
@@ -90,8 +90,8 @@ describe('[Class] DistribRouter;', () => {
       logInterval: 5,
       interception: undefined,
       debug: false,
-    }, 8004, routerArray);
-    expect(JSON.stringify(distribRouter1.routerArray)).toMatch(JSON.stringify([
+    }, 8004, routers);
+    expect(JSON.stringify(distribRouter1.routers)).toMatch(JSON.stringify([
       [ipv4, 8005],
     ]));
     const distribRouter2 = new DistribRouter({
@@ -103,8 +103,8 @@ describe('[Class] DistribRouter;', () => {
       logInterval: 5,
       interception: undefined,
       debug: false,
-    }, 8005, routerArray);
-    expect(JSON.stringify(distribRouter2.routerArray)).toMatch(JSON.stringify([
+    }, 8005, routers);
+    expect(JSON.stringify(distribRouter2.routers)).toMatch(JSON.stringify([
       [wrapIpv6(ipv6),  8004],
     ]));
   });
@@ -112,7 +112,7 @@ describe('[Class] DistribRouter;', () => {
   test('DistribRouter should start normally.', async () => {
     const [ipAddress] = getOwnIpAddresses();
     const { ipv4, ipv6, } = ipAddress;
-    const routerArray = [
+    let routers = [
       [ipv4, 8006],
       [ipv4, 8007],
     ];
@@ -125,7 +125,7 @@ describe('[Class] DistribRouter;', () => {
       logInterval: 5,
       interception: undefined,
       debug: false,
-    }, 8006, routerArray);
+    }, 8006, routers);
     const distribRouter2 = new DistribRouter({
       threshold: 0.5,
       number: 1,
@@ -135,7 +135,7 @@ describe('[Class] DistribRouter;', () => {
       logInterval: 5,
       interception: undefined,
       debug: false,
-    }, 8007, routerArray);
+    }, 8007, routers);
     await DistribRouter.combine([distribRouter1, distribRouter2]);
     expect(distribRouter1.server instanceof net.Server).toBe(true);
     const { clients: clients1, } = distribRouter1;

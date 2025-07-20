@@ -6,7 +6,7 @@ import {
 import Thing from '~/class/Thing';
 import Router from '~/class/Router';
 
-function  getBinBuf(params) {
+function getBinBuf(params) {
   if (!Array.isArray(params)) {
     throw new Error('[Error] The params parameter should be an array type.');
   }
@@ -50,9 +50,28 @@ class DistribRouter extends Router {
       return distribRouter.setUpClients();
     });
     await Promise.all(serverPromises.concat(clientsPromises));
-    const connectionsPromises = distribRouters.forEach((distribRouter) => {
-      return distribRouter.setUpConnections();
+  }
+
+  static async join(newDistribRouters, originDistribRouters) {
+    if (!Array.isArray(newDistribRouters)) {
+      throw new Error('[Error] The new distributed routings should beo fo array type..');
+    }
+    if (!Array.isArray(originDistribRouters)) {
+      throw new Error('[Error] The origin distributed routings should be of array type.');
+    }
+    const serverPromises = newDistribRouters.map((distribRouter) => {
+      return distribRouter.setUpServer();
     });
+    const clientsPromises = newDistribRouters.map((distribRouter) => {
+      return distribRouter.setUpClients();
+    });
+    const addPromises = originDistribRouters.map((originDistribRouter) => {
+      return newDistribRouters.map((newDistribRouter) => {
+        const { ip, port, } = newDistribRouter;
+        originDistribRouter.addRouter(ip, port);
+      });
+    }).flat();
+    await Promise.all(serverPromises.concat(clientsPromises).concat(addPromises));
   }
 
   static async release(distribRouters) {
@@ -97,9 +116,12 @@ class DistribRouter extends Router {
     if (Number.isInteger(port) !== true) {
       throw new Error('[Error] The parameter port should be of integer type.');
     }
+    if (!(port >= 0)) {
+      throw new Error('[Error] Parameter id needs to be a postive integer.');
+    }
     this.port = port
     if (Array.isArray(allRouters) !== true) {
-      throw new Error('[Error] The parameter routerArray should be array type.');
+      throw new Error('[Error] The parameter all routers should be array type.');
     }
     const ipAddresses = getOwnIpAddresses();
     const locations = [];
@@ -109,7 +131,7 @@ class DistribRouter extends Router {
       locations.push('[' + ipv6 + ']:' + port);
     });
     const hash = {};
-    const routerArray = allRouters.filter((router) => {
+    const routers = allRouters.filter((router) => {
       const [_, port] = router;
       if (hash[port] === undefined) {
         hash[port] = true;
@@ -120,16 +142,19 @@ class DistribRouter extends Router {
       for (let i = 0; i< locations.length ; i += 1) {
         const location = locations[i];
         if (router.join(':') === location) {
+          const [ip] = router;
+          this.ip = ip;
           flag = false;
+          break;
         }
       }
       return flag;
     });
-    this.routerArray = routerArray;
+    this.routers = routers;
   }
 
   async closeServer() {
-    return new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
       this.getServer().close(() => {
         resolve();
       });
@@ -138,7 +163,7 @@ class DistribRouter extends Router {
 
   closeClients() {
     this.getClients().forEach((client) => {
-      client.destroy();
+      client.destroySoon();
     });
   }
 
@@ -151,7 +176,7 @@ class DistribRouter extends Router {
       throw new Error('[Error] The length of the connections is zero.Perhaps the combine was not completed;');
     }
     connections.forEach((connection) => {
-      connection.destroy();
+      connection.destroySoon();
     });
   }
 
@@ -181,7 +206,7 @@ class DistribRouter extends Router {
 
   async setUpServer() {
     const {
-      routerArray: {
+      routers: {
         length,
       },
     } = this;
@@ -189,6 +214,9 @@ class DistribRouter extends Router {
     this.connections = [];
     this.server = await new Promise((resolve, reject) => {
       const server = net.createServer((connection) => {
+        connection.on('data', (buf) => {
+          this.dealConnectionBuf(buf, connection);
+        });
         count += 1;
         this.connections.push(connection);
         if (count === length) {
@@ -206,8 +234,8 @@ class DistribRouter extends Router {
   }
 
   async setUpClients() {
-    const { routerArray, } = this;
-    const clientPromises = routerArray.map((router) => {
+    const { routers, } = this;
+    const clientPromises = routers.map((router) => {
       const [ip, port] = router;
       return new Promise((resolve, reject) => {
         const client = net.createConnection(port, ip, () => {
@@ -215,23 +243,15 @@ class DistribRouter extends Router {
           client.port = port;
           resolve(client);
         });
-        client.on('end', () => {
+        client.on('close', () => {
           const { ip, port, } = client;
-          this.removeRouterArray(ip, port);
+          this.removeRouter(ip, port);
         });
       });
     });
     this.clients = await Promise.all(clientPromises);
-    const { client, } = this;
-    return client;
-  }
-
-  setUpConnections() {
-    this.getConnections().forEach((connection) => {
-      connection.on('data', (buf) => {
-        this.dealConnectionBuf(buf, connection);
-      });
-    });
+    const { clients, } = this;
+    return clients;
   }
 
   dealConnectionBuf(buf, connection) {
@@ -376,25 +396,37 @@ class DistribRouter extends Router {
     }
   }
 
-  dealClients(type, ) {
-    this.getClients().forEach((client) => {
-      const pbytes = [];
-      pbytes.push(Array.from(byteArray.fromInt(type)));
-      client.write();
-    });
-  }
-
-  removeRouterArray(ip, port) {
-    const { routerArray, } = this
-    for (let i = 0; i < routerArray.length; i += 1) {
-      const [routerIp, routerPort] = routerArray;
+  removeRouter(ip, port) {
+    const { routers, } = this;
+    for (let i = 0; i < routers.length; i += 1) {
+      const [routerIp, routerPort] = routers[i];
       if (routerIp === ip && routerPort === port) {
+        routers.splice(i, 1);
         const { clients, } = this;
-        routerArray.splice(i, 1);
-        clients.splice(i, 1);
+        if (Array.isArray(clients)) {
+          clients.splice(i, 1);
+          clients[i].destroySoon();
+        }
         break;
       }
     }
+  }
+
+  async addRouter(ip, port) {
+    return new Promise((resolve, reject) => {
+      const client = net.createConnection(port, ip, () => {
+        client.ip = ip;
+        client.port = port;
+        resolve(client);
+      });
+      client.on('close', () => {
+        const { ip, port, } = client;
+        this.removeRouter(ip, port);
+      });
+      const { routers, clients, } = this;
+      routers.push([ip, port]);
+      clients.push(client);
+    });
   }
 
   checkCombine() {

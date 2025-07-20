@@ -38,7 +38,7 @@ describe('[Class] WebDistribRouter;', () => {
     await WebDistribRouter.release([webDistribRouter1, webDistribRouter2]);
   });
 
-  test('WebDistribRouter should be switched correctly in distributed situations', async () => {
+  test('WebDistribRouter should be matched correctly in distributed situations', async () => {
     const [ipAddress] = getOwnIpAddresses();
     const { ipv4, } = ipAddress;
     const routerArray = [
@@ -78,7 +78,7 @@ describe('[Class] WebDistribRouter;', () => {
     await WebDistribRouter.release([webDistribRouter1, webDistribRouter2]);
   });
 
-  test('WebDistribRouter should be switched correctly in distributed situations', async () => {
+  test('WebDistribRouter should be ruined correctly in distributed situations', async () => {
     const [ipAddress] = getOwnIpAddresses();
     const { ipv4, } = ipAddress;
     const routerArray = [
@@ -120,7 +120,7 @@ describe('[Class] WebDistribRouter;', () => {
     await WebDistribRouter.release([webDistribRouter1, webDistribRouter2]);
   });
 
-  test('WebDistribRouter should be switched correctly in distributed situations', async () => {
+  test('WebDistribRouter should be all ruined correctly in distributed situations', async () => {
     const [ipAddress] = getOwnIpAddresses();
     const { ipv4, } = ipAddress;
     const routerArray = [
@@ -162,7 +162,7 @@ describe('[Class] WebDistribRouter;', () => {
     await WebDistribRouter.release([webDistribRouter1, webDistribRouter2]);
   });
 
-  test('WebDistribRouter should be switched correctly in distributed situations', async () => {
+  test('WebDistribRouter should be replaced correctly in distributed situations', async () => {
     const [ipAddress] = getOwnIpAddresses();
     const { ipv4, } = ipAddress;
     const routerArray = [
@@ -211,7 +211,7 @@ describe('[Class] WebDistribRouter;', () => {
     await WebDistribRouter.release([webDistribRouter1, webDistribRouter2]);
   });
 
-  test('WebDistribRouter should be switched correctly in distributed situations', async () => {
+  test('WebDistribRouter should be reivseed correctly in distributed situations', async () => {
     const [ipAddress] = getOwnIpAddresses();
     const { ipv4, } = ipAddress;
     const routerArray = [
@@ -258,5 +258,59 @@ describe('[Class] WebDistribRouter;', () => {
     expect(webDistribRouter2.root.find('male').find('john').count).toBe(4);
     expect(JSON.stringify(webDistribRouter2.matchInner('/male/robert'))).toBe('{\"name\":\"robert\",\"age\":18}');
     await WebDistribRouter.release([webDistribRouter1, webDistribRouter2]);
+  });
+
+  test('DistribRouter should be able to be added correctly.', async () => {
+    const [ipAddress] = getOwnIpAddresses();
+    const { ipv4, ipv6, } = ipAddress;
+    let routers = [
+      [ipv4, 8018],
+      [ipv4, 8019],
+    ];
+    const webDistribRouter1 = new WebDistribRouter({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 8,
+      logInterval: 5,
+      interception: undefined,
+      debug: false,
+    }, 8018, routers);
+    const webDistribRouter2 = new WebDistribRouter({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 8,
+      logInterval: 5,
+      interception: undefined,
+      debug: false,
+    }, 8019, routers);
+    await WebDistribRouter.combine([webDistribRouter1, webDistribRouter2]);
+    await webDistribRouter2.attachDistrib('/male/john', { name: 'john', age: 22, });
+    expect(JSON.stringify(webDistribRouter1.matchInner('/male/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
+    expect(JSON.stringify(webDistribRouter2.matchInner('/male/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
+    let newRouters = [
+      [ipv4, 8018],
+      [ipv4, 8019],
+      [ipv4, 8020],
+    ];
+    const webDistribRouter3 = new WebDistribRouter({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 8,
+      logInterval: 5,
+      interception: undefined,
+      debug: false,
+    }, 8020, newRouters);
+    await WebDistribRouter.join([webDistribRouter3], [webDistribRouter1, webDistribRouter2]);
+    await webDistribRouter3.attachDistrib('/male/robert', { name: 'robert', age: 18, });
+    //expect(JSON.stringify(webDistribRouter1.matchInner('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    //expect(JSON.stringify(webDistribRouter2.matchInner('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    //expect(JSON.stringify(webDistribRouter3.matchInner('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
+    //await WebDistribRouter.release([webDistribRouter1, webDistribRouter2, webDistribRouter3]);
   });
 });
