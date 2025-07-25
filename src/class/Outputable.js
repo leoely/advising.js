@@ -3,7 +3,7 @@ import {
   getGTMNowString,
 } from 'manner.js/server';
 import checkMemory from '~/lib/checkMemory';
-import global from '~/obj/global';
+import Fulmination from 'Fulmination';
 
 const {
   fulmination,
@@ -11,7 +11,7 @@ const {
 
 class Outputable {
   constructor() {
-    this.fulmination = fulmination;
+    this.fulmination = new Fulmination();
   }
 
   debugInfo(info) {

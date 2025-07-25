@@ -3730,10 +3730,10 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
-manner.js@^1.0.35:
-  version "1.0.35"
-  resolved "https://registry.yarnpkg.com/manner.js/-/manner.js-1.0.35.tgz#dba6a7a0f6b3c6a46ac632bfaa588d84d5ebcb0b"
-  integrity sha512-oAlw55aaQipwd3JS4s9zHY357ntK5NEsRl4eUslwlWJVNnvwFSTI5lK6WDS4jwnvio4x4NkGKG9xfX3N3VITmg==
+manner.js@^1.0.36:
+  version "1.0.36"
+  resolved "https://registry.yarnpkg.com/manner.js/-/manner.js-1.0.36.tgz#d7609ec5ed9d4d09a51d2a1f9383c4407bc8a6e2"
+  integrity sha512-O1vrxrB9MVQO29Ukxk3+EAbDHFv0QYu8aCZL71BDBm9nBhO/f5hJxdhxDoR3i7ksEbxc+eCmPkJSAXCVPGHD0Q==
   dependencies:
     advising.js "^1.0.17"
     babel-plugin-root-import "^6.6.0"

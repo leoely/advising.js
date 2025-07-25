@@ -3,6 +3,7 @@ import {
   appendToLog,
   logOutOfMemory,
 } from 'manner.js/server';
+import Outputable from '~/class/Outputable';
 
 export default function checkMemory(logPath, value, outputable) {
   let ans = true;
@@ -10,8 +11,8 @@ export default function checkMemory(logPath, value, outputable) {
   if (value === undefined) {
     if (freemem <= 0) {
       ans = false;
-      appendOutOfMemory(logPath, freemem);
-      if (outputable instanceof Node) {
+      logOutOfMemory(logPath, freemem);
+      if (outputable instanceof Outputable) {
         const node = outputable;
         const {
           options: {
@@ -27,8 +28,8 @@ export default function checkMemory(logPath, value, outputable) {
     if (typeof value === 'number') {
       if (freemem < value) {
         ans = false;
-        appendOutOfMemory(logPath, freemem);
-        if (outputable instanceof Node) {
+        logOutOfMemory(logPath, freemem);
+        if (outputable instanceof Outputable) {
           const node = outputable;
           const {
             options: {
