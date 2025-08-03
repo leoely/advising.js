@@ -283,7 +283,7 @@ class Router extends Outputable {
     }
     if (interception !== undefined) {
       if (!Number.isInteger(interception) && interception >= 0) {
-        throw new Error('[Error] Router option logLevel must be a integer type or undefined.');
+        throw new Error('[Error] Router option intercpetion must be a integer type or undefined.');
       }
     }
     if (logPath !== undefined) {

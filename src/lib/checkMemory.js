@@ -1,6 +1,5 @@
 import os from 'os';
 import {
-  appendToLog,
   logOutOfMemory,
 } from 'manner.js/server';
 import Outputable from '~/class/Outputable';
