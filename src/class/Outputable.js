@@ -3,7 +3,7 @@ import {
   getGTMNowString,
 } from 'manner.js/server';
 import checkMemory from '~/lib/checkMemory';
-import Fulmination from 'Fulmination';
+import Fulmination from 'fulmination';
 
 const {
   fulmination,
