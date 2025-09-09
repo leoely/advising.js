@@ -300,6 +300,18 @@ function getType(status) {
   }
 }
 
+function checkStringIsHex(string) {
+  let ans = true;
+  for (let i = 0; i < string.length; i += 1) {
+    const char = string.charAt(i);
+    if (!(char >= 'a' && char <= 'f')) {
+      ans = false;
+      break;
+    }
+  }
+  return ans;
+}
+
 class Cluster extends Node {
   constructor(options, root) {
     super(options);
@@ -340,6 +352,19 @@ class Cluster extends Node {
       default:
         throw new Error('[Error] The state should be in the interval [-1, 10].');
     }
+  }
+
+  checkBranchesIsHex() {
+    let ans = true;
+    const branches = this.getBranches();
+    outer: for (let i = 0; i < branches.length; i += 1) {
+      const branch = branches[i];
+      if (!checkStringIsHex(branch)) {
+        ans = false;
+        break outer;
+      }
+    }
+    return ans;
   }
 
   debugCluster() {
@@ -1029,7 +1054,7 @@ class Cluster extends Node {
           flags[0] = false;
         }
       }
-      if ((char>=  'A' && char <= 'Z') || ((char >= 'a' && char <= 'z'))) {
+      if ((char>= 'A' && char <= 'Z') || ((char >= 'a' && char <= 'z'))) {
         if (flags[1] !== false) {
           flags[1] = true;
         }
@@ -1065,12 +1090,33 @@ class Cluster extends Node {
           this.establishHash(0);
         } else {
           switch (status) {
-            case 2:
             case 0:
             case 1:
+            case 2:
+              break;
+            case 3:
+              if (this.checkBranchesIsHex()) {
+                this.status = 8;
+              } else {
+                throw new Error('[Error] Cluster is plain text type but the newly added type is a pure number.');
+              }
+              break;
+            case 4:
+              if (this.checkBranchesIsHex()) {
+                this.status = 9;
+              } else {
+                throw new Error('[Error] Cluster is plain text type but the newly added type is a pure number.');
+              }
+              break;
+            case 5:
+              if (this.checkBranchesIsHex()) {
+                this.reconstructionHash(10);
+              } else {
+                throw new Error('[Error] Cluster is plain text type but the newly added type is a pure number.');
+              }
               break;
             default:
-              throw new Error('[Error] Cluster is pure numeric type but the newly added is a pure letters.');
+              throw new Error('[Error] Cluster is plain text type but the newly added type is a pure number.');
           }
         }
         break;
@@ -1081,12 +1127,33 @@ class Cluster extends Node {
           this.establishHash(3);
         } else {
           switch (status) {
-            case 5:
             case 3:
             case 4:
+            case 5:
+              break;
+            case 0:
+              if (checkStringIsHex(key)) {
+                this.status = 8;
+              } else {
+                throw new Error('[Error] Cluster is pure numeric type but the newly added is a pure letters.');
+              }
+              break;
+            case 1:
+              if (checkStringIsHex(key)) {
+                this.status = 9;
+              } else {
+                throw new Error('[Error] Cluster is pure numeric type but the newly added is a pure letters.');
+              }
+              break;
+            case 2:
+              if (checkStringIsHex(key)) {
+                this.reconstructionHash(10);
+              } else {
+                throw new Error('[Error] Cluster is pure numeric type but the newly added is a pure letters.');
+              }
               break;
             default:
-              throw new Error('[Error] Cluster is plain text type but the newly added type is a pure number.');
+              throw new Error('[Error] Cluster is pure numeric type but the newly added is a pure letters.');
           }
         }
         break;

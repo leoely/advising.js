@@ -609,7 +609,7 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
       debug: false,
     });
     router.add('/chaos/letter', ['chaos', 'letter'], { type: 'letters', });
-    expect(() => router.add('/chaos/1', ['chaos', '1'], { type: 'numbers', })).toThrow('[Error] Cluster is pure numeric type but the newly added is a pure letters.');
+    expect(() => router.add('/chaos/1', ['chaos', '1'], { type: 'numbers', })).toThrow('[Error] Cluster is plain text type but the newly added type is a pure number.');
   });
 
   test('Router path should prevent numbers and letters from coexisting.', () => {
@@ -624,7 +624,7 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
       debug: false,
     });
     router.add('/chaos/1', ['chaos', '1'], { type: 'numbers', });
-    expect(() => router.add('/chaos/letter', ['chaos', 'letter'], { type: 'letters', })).toThrow('[Error] Cluster is plain text type but the newly added type is a pure number.');
+    expect(() => router.add('/chaos/letter', ['chaos', 'letter'], { type: 'letters', })).toThrow('[Error] Cluster is pure numeric type but the newly added is a pure letters.');
   });
 
   test('Router supports default parameters.', () => {
@@ -846,5 +846,69 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
     expect(JSON.stringify(router.match('/err', ['err']))).toMatch('{\"situation\":\"err\",\"level\":14}');
     expect(JSON.stringify(router.match('/er', ['er']))).toMatch('{\"situation\":\"er\",\"level\":68}');
     expect(JSON.stringify(router.match('/errorDeal', ['errorDeal']))).toMatch('{\"situation\":\"errorDeal\",\"level\":48}');
+  });
+
+  test('Router can handle type init hash upgrades to hexadecimal.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 4,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 7,
+      logInterval: 5,
+      interception: 5,
+      hideError: true,
+      debug: false,
+    });
+    router.add('/multiple/afec', ['multiple', 'afec'], { type: 'letter', content: 'afec', });
+    expect(JSON.stringify(router.match('/multiple/afec', ['multiple', 'afec']))).toMatch('{\"type\":\"letter\",\"content\":\"afec\"}');
+    router.add('/multiple/fdb', ['multiple', 'fdb'], { type: 'letter', content: 'fdb', });
+    expect(JSON.stringify(router.match('/multiple/fdb', ['multiple', 'fdb']))).toMatch('{\"type\":\"letter\",\"content\":\"fdb\"}');
+    router.add('/multiple/1', ['multiple', '1'], { type: 'number', content: 1, });
+    expect(JSON.stringify(router.match('/multiple/1', ['multiple', '1']))).toMatch('{\"type\":\"number\",\"content\":1}');
+  });
+
+  test('Router can handle type middle hash upgrades to hexadecimal.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 7,
+      logInterval: 5,
+      interception: 5,
+      hideError: true,
+      debug: false,
+    });
+    router.add('/multiple/afec', ['multiple', 'afec'], { type: 'letter', content: 'afec', });
+    expect(JSON.stringify(router.match('/multiple/afec', ['multiple', 'afec']))).toMatch('{\"type\":\"letter\",\"content\":\"afec\"}');
+    router.add('/multiple/fdb', ['multiple', 'fdb'], { type: 'letter', content: 'fdb', });
+    expect(JSON.stringify(router.match('/multiple/fdb', ['multiple', 'fdb']))).toMatch('{\"type\":\"letter\",\"content\":\"fdb\"}');
+    router.add('/multiple/1', ['multiple', '1'], { type: 'number', content: 1, });
+    expect(JSON.stringify(router.match('/multiple/1', ['multiple', '1']))).toMatch('{\"type\":\"number\",\"content\":1}');
+  });
+
+  test('Router can handle type extension hash upgrade to hexadecimal.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 7,
+      logInterval: 5,
+      interception: 5,
+      hideError: true,
+      debug: false,
+    });
+    router.add('/multiple/afec', ['multiple', 'afec'], { type: 'letter', content: 'afec', });
+    expect(JSON.stringify(router.match('/multiple/afec', ['multiple', 'afec']))).toMatch('{\"type\":\"letter\",\"content\":\"afec\"}');
+    router.add('/multiple/fdb', ['multiple', 'fdb'], { type: 'letter', content: 'fdb', });
+    expect(JSON.stringify(router.match('/multiple/fdb', ['multiple', 'fdb']))).toMatch('{\"type\":\"letter\",\"content\":\"fdb\"}');
+    expect(JSON.stringify(router.match('/multiple/fdb', ['multiple', 'fdb']))).toMatch('{\"type\":\"letter\",\"content\":\"fdb\"}');
+    expect(JSON.stringify(router.match('/multiple/fdb', ['multiple', 'fdb']))).toMatch('{\"type\":\"letter\",\"content\":\"fdb\"}');
+    expect(JSON.stringify(router.match('/multiple/fdb', ['multiple', 'fdb']))).toMatch('{\"type\":\"letter\",\"content\":\"fdb\"}');
+    expect(JSON.stringify(router.match('/multiple/fdb', ['multiple', 'fdb']))).toMatch('{\"type\":\"letter\",\"content\":\"fdb\"}');
+    router.add('/multiple/1', ['multiple', '1'], { type: 'number', content: 1, });
+    expect(JSON.stringify(router.match('/multiple/1', ['multiple', '1']))).toMatch('{\"type\":\"number\",\"content\":1}');
   });
 });

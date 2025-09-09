@@ -29,5 +29,9 @@ describe('[Class] Ipv6Router;', () => {
     ipv6Router.attach('2001:db8:0:1:1:1:1:1', { ip: '2001:db8:0:1:1:1:1:1', time: 23, });
     ipv6Router.attach('::1', { ip: '::1', time: 67, });
     expect(JSON.stringify(ipv6Router.gain('::1'))).toMatch('{\"ip\":\"::1\",\"time\":67}');
+    ipv6Router.attach(':::ffff:172.18.0.1', { ip: ':::ffff:172.18.0.1', time: 58, });
+    expect(JSON.stringify(ipv6Router.gain(':::ffff:172.18.0.1'))).toMatch('{\"ip\":\":::ffff:172.18.0.1\",\"time\":58}');
+    ipv6Router.attach('::ffff:192.168.1.10', { ip: '::ffff:192.168.1.10', time: 28, });
+    expect(JSON.stringify(ipv6Router.gain('::ffff:192.168.1.10'))).toMatch('{\"ip\":\"::ffff:192.168.1.10\",\"time\":28}');
   });
 });
