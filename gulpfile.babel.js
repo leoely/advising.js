@@ -1,13 +1,16 @@
 import { series, src, dest, } from 'gulp';
 import babel from 'gulp-babel';
-import uglify from 'gulp-uglify';
+import minify from 'gulp-babel-minify';
 
 function build() {
   return src('src/**/*.js')
     .pipe(babel())
-    .pipe(uglify())
+    .pipe(minify({
+      mangle: {
+        keepClassName: true
+      }
+    }))
     .pipe(dest('dist'));
 }
 
 exports.build = build;
-
