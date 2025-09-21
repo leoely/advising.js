@@ -237,6 +237,31 @@ class Router extends Outputable {
     }
   }
 
+  outputOperateError(operate, locations, error) {
+    const {
+      options: {
+        debug,
+        logLevel,
+      },
+    } = this;
+    if (debug === true) {
+      locations.forEach((location) => {
+        this.debugDetail(`
+          (+) bold; red: * !! (+) yellow; bold: * Location (+) bold; dim: * ` + location + `. &
+          (+) bold; red: ** └─ (+): * | (+) bold: * operate (+) dim: : * ` + operate + `(+): * | &
+        `);
+      });
+    }
+    if (logLevel !== 0) {
+      locations.forEach((location) => {
+        this.appendToLog(
+          ' || ████ Location:' + location + ' ████ & ████ OPERATE:' + operate + ' ████ ||\n',
+        );
+      });
+      this.addToLog(error.stack + '\n');
+    }
+  }
+
   dealOptions() {
     const {
       options: {
@@ -303,64 +328,79 @@ class Router extends Outputable {
   }
 
   match(location, paths, needThing, changeCount) {
-    this.total += 1;
-    const {
-      total,
-      root,
-      options: {
-        hideError,
-      },
-    } = this;
-    const thing = matchRecursion(root, 0, paths, total, needThing, changeCount, hideError);
-    if (thing === undefined) {
-      if (hideError === true) {
-        return thing;
+    try {
+      this.total += 1;
+      const {
+        total,
+        root,
+        options: {
+          hideError,
+        },
+      } = this;
+      const thing = matchRecursion(root, 0, paths, total, needThing, changeCount, hideError);
+      if (thing === undefined) {
+        if (hideError === true) {
+          return thing;
+        } else {
+          throw Error('[Error] Router matching the location does not exist.');
+        }
       } else {
-        throw Error('[Error] Router matching the location does not exist.');
+        if (needThing === true) {
+          return thing;
+        } else {
+          return thing.getContent(total, location);
+        }
       }
-    } else {
-      if (needThing === true) {
-        return thing;
-      } else {
-        return thing.getContent(total, location);
-      }
+      this.debugInfo('successfully matched');
+    } catch (error) {
+      this.outputOperateError('match', [location], error);
+      throw error;
     }
-    this.debugInfo('successfully matched');
   }
 
   add(location, paths, multiple, pathKeys) {
-    if (multiple instanceof Thing) {
-      const thing = multiple;
-      addRecursion(root, 0, paths, options, thing);
-    } else {
-      const content = multiple;
-      const { root, options, } = this;
-      const ThingClass = this.getThingClass();
-      switch (ThingClass.name) {
-        case 'WebThing': {
-          const thing = new ThingClass(options, content, pathKeys);
-          addRecursion(root, 0, paths, options, thing);
-          break;
-        }
-        default: {
-          const thing = new ThingClass(options, content);
-          addRecursion(root, 0, paths, options, thing);
-          break;
+    try {
+      if (multiple instanceof Thing) {
+        const thing = multiple;
+        addRecursion(root, 0, paths, options, thing);
+      } else {
+        const content = multiple;
+        const { root, options, } = this;
+        const ThingClass = this.getThingClass();
+        switch (ThingClass.name) {
+          case 'WebThing': {
+            const thing = new ThingClass(options, content, pathKeys);
+            addRecursion(root, 0, paths, options, thing);
+            break;
+          }
+          default: {
+            const thing = new ThingClass(options, content);
+            addRecursion(root, 0, paths, options, thing);
+            break;
+          }
         }
       }
+      this.outputOperate('add', location);
+    } catch (error) {
+      this.outputOperateError('add', [location], error);
+      throw error;
     }
-    this.outputOperate('add', location);
   }
 
   delete(location, paths) {
-    const thing = this.match(location, paths, true);
-    if (thing instanceof Thing) {
-      const { root, } = this;
-      const [path] = paths;
-      deleteRecursion(root, 0, paths, thing, path, root);
-      this.outputOperate('delete', location);
-    } else {
-      throw new Error('[Error] The deleted route dose not exist.');
+    try {
+      const thing = this.match(location, paths, true);
+      if (thing instanceof Thing) {
+        const { root, } = this;
+        const [path] = paths;
+        deleteRecursion(root, 0, paths, thing, path, root);
+        this.outputOperate('delete', location);
+      } else {
+        throw new Error('[Error] The deleted route dose not exist.');
+      }
+    } catch (error) {
+      this.outputOperateError('delete', [location], error);
+      throw error;
     }
   }
 
@@ -371,49 +411,64 @@ class Router extends Outputable {
   }
 
   update(location, paths, multiple, pathKeys) {
-    const thing = this.match(location, paths, true);
-    if (thing !== undefined) {
-      const { root, } = this;
-      const [path] = paths;
-      if (multiple instanceof Thing) {
-        const newThing = multiple;
-        if (newThing instanceof WebThing) {
-          newThing.setPathKeys(pathKeys);
-        }
-        updateRecursion(root, 0, paths, thing, newThing, path, root);
-      } else {
-        const content = multiple;
+    try {
+      const thing = this.match(location, paths, true);
+      if (thing !== undefined) {
+        const { root, } = this;
         const [path] = paths;
-        const { root, options, } = this;
-        const ThingClass = this.getThingClass();
-        const newThing = new ThingClass(options, content);
-        if (newThing instanceof WebThing) {
-          newThing.setPathKeys(pathKeys);
+        if (multiple instanceof Thing) {
+          const newThing = multiple;
+          if (newThing instanceof WebThing) {
+            newThing.setPathKeys(pathKeys);
+          }
+          updateRecursion(root, 0, paths, thing, newThing, path, root);
+        } else {
+          const content = multiple;
+          const [path] = paths;
+          const { root, options, } = this;
+          const ThingClass = this.getThingClass();
+          const newThing = new ThingClass(options, content);
+          if (newThing instanceof WebThing) {
+            newThing.setPathKeys(pathKeys);
+          }
+          updateRecursion(root, 0, paths, thing, newThing, path, root);
         }
-        updateRecursion(root, 0, paths, thing, newThing, path, root);
+        this.outputOperate('update', location);
+      } else {
+        throw new Error('[Error] The updated route already exists.');
       }
-      this.outputOperate('update', location);
-    } else {
-      throw new Error('[Error] The updated route already exists.');
+    } catch (error) {
+      this.outputOperateError('update', [location], error);
+      throw error;
     }
   }
 
   swap(location1, location2, paths1, paths2) {
-    const thing1 = this.match(location1, paths1, true);
-    const thing2 = this.match(location2, paths2, true);
-    this.update(location2, paths2, thing1);
-    this.update(location1, paths1, thing2);
-    this.outputOperate('swap', location1);
-    this.outputOperate('swap', location2);
+    try {
+      const thing1 = this.match(location1, paths1, true);
+      const thing2 = this.match(location2, paths2, true);
+      this.update(location2, paths2, thing1);
+      this.update(location1, paths1, thing2);
+      this.outputOperate('swap', location1);
+      this.outputOperate('swap', location2);
+    } catch (error) {
+      this.outputOperateError('swap', [location1, location2], error);
+      throw error;
+    }
   }
 
   fix(location, paths, content) {
-    const thing = this.match(location, paths, true);
-    if (thing !== undefined) {
-      thing.setContent(content)
-      this.outputOperate('fix', location);
-    } else {
-      throw new Error('[Error] The corrected route does not exist.');
+    try {
+      const thing = this.match(location, paths, true);
+      if (thing !== undefined) {
+        thing.setContent(content)
+        this.outputOperate('fix', location);
+      } else {
+        throw new Error('[Error] The corrected route does not exist.');
+      }
+    } catch (error) {
+      this.outputOperateError('fix', [location], error);
+      throw error;
     }
   }
 
@@ -469,5 +524,4 @@ class Router extends Outputable {
     return this.match(location, paths);
   }
 }
-
 export default Router;

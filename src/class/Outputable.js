@@ -1,4 +1,5 @@
 import {
+  addToLog,
   appendToLog,
   getGTMNowString,
 } from 'manner.js/server';
@@ -64,6 +65,18 @@ class Outputable {
     } = this;
     if (logLevel !== 0) {
       appendToLog(logPath, content);
+    }
+  }
+
+  addToLog(content) {
+    const {
+      options: {
+        logPath,
+        logLevel,
+      },
+    } = this;
+    if (logLevel !== 0) {
+      addToLog(logPath, content);
     }
   }
 

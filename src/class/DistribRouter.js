@@ -213,6 +213,31 @@ class DistribRouter extends Router {
     }
   }
 
+  outputDistribOperateError(operate, locations, error) {
+    const {
+      options: {
+        logLevel,
+        debug,
+      },
+    } = this;
+    if (logLevel !== 0) {
+      locations.forEach((location) => {
+        this.appendToLog(
+          ' || ████ Location:' + location + ' ████ & ████ OPERATE:' + operate + ' ████ ||\n',
+        );
+      });
+      this.addToLog(error.stack + '\n');
+    }
+    if (debug === true) {
+      locations.forEach((location) => {
+        this.debugDetail(`
+          (+) bold; red: * !! (+) green; bold: * Location (+) bold; dim: * ` + location + `. &
+          (+) bold; red: ** └─ (+): * | (+) bold: * operate (+) dim: : * ` + operate + `(+): * | &
+        `);
+      })
+    }
+  }
+
   outputDistribFunction(operate) {
     const {
       options: {
@@ -235,6 +260,29 @@ class DistribRouter extends Router {
     }
   }
 
+  outputDistribFunctionError(operate, error) {
+    const {
+      options: {
+        logLevel,
+        debug,
+      },
+    } = this;
+    if (logLevel !== 0) {
+      const { ip, port, } = this;
+      this.appendToLog(
+        ' || ████ Ip:' + ip + ' ████ & ████ Port:' + port +  ' ████ & ████ OPEARATE:' + operate + ' ████ ||\n',
+      );
+      this.addToLog(error.stack);
+    }
+    if (debug === true) {
+      const { ip, port, } = this;
+      this.debugDetail(`
+        (+) bold; red: * !! (+) green; bold: * Ip (+) bold; dim: * ` + ip + ` (+) green; bold: * Port (+) bold; dim: * ` + port + ` . &
+        (+) bold; red: ** └─ (+): * | (+) bold: * operate (+) dim: : * ` + operate + `(+): * | &
+      `);
+    }
+  }
+
   getRouters() {
     const { routers, } = this;
     if (!Array.isArray(routers)) {
@@ -244,32 +292,48 @@ class DistribRouter extends Router {
   }
 
   async closeServer() {
-    await new Promise((resolve, reject) => {
-      this.getServer().close(() => {
-        resolve();
-      });
-    })
-    this.outputDistribFunction('close server');
+    try {
+      await new Promise((resolve, reject) => {
+        this.getServer().close(() => {
+          resolve();
+        });
+      })
+      this.outputDistribFunction('close server');
+    } catch (error) {
+      this.outputDistribFunctionError('close server', error);
+      throw error;
+    }
   }
 
   closeClients() {
-    this.getClients().forEach((client) => {
-      client.destroySoon();
-    });
-    this.outputDistribFunction('close client');
+    try {
+      this.getClients().forEach((client) => {
+        client.destroySoon();
+      });
+      this.outputDistribFunction('close client');
+    } catch (error) {
+      this.outputDistribFunctionError('close client', error);
+      throw error;
+    }
   }
 
   closeConnections() {
-    const { connections, } = this;
-    if (!Array.isArray(connections)) {
-      throw new Error('[Error] The connections is not an array type or the combine is not complete.');
+    try {
+      const { connections, } = this;
+      if (!Array.isArray(connections)) {
+        throw new Error('[Error] The connections is not an array type or the combine is not complete.');
+      }
+      if (connections.length === 0) {
+        throw new Error('[Error] The length of the connections is zero.Perhaps the combine was not completed;');
+      }
+      connections.forEach((connection) => {
+        connection.destroySoon();
+      });
+      this.outputDistribFunction('close connection');
+    } catch (error) {
+      this.outputDistribFunctionError('close connection', error);
+      throw error;
     }
-    if (connections.length === 0) {
-      throw new Error('[Error] The length of the connections is zero.Perhaps the combine was not completed;');
-    }
-    connections.forEach((connection) => {
-      connection.destroySoon();
-    });
   }
 
   getServer() {
@@ -297,57 +361,67 @@ class DistribRouter extends Router {
   }
 
   async setUpServer() {
-    const {
-      routers: {
-        length,
-      },
-    } = this;
-    let count = 0;
-    this.connections = [];
-    this.server = await new Promise((resolve, reject) => {
-      const server = net.createServer((connection) => {
-        connection.on('data', (buf) => {
-          this.dealConnectionBuf(buf, connection);
+    try {
+      const {
+        routers: {
+          length,
+        },
+      } = this;
+      let count = 0;
+      this.connections = [];
+      this.server = await new Promise((resolve, reject) => {
+        const server = net.createServer((connection) => {
+          connection.on('data', (buf) => {
+            this.dealConnectionBuf(buf, connection);
+          });
+          count += 1;
+          this.connections.push(connection);
+          if (count === length) {
+            resolve(server);
+          }
         });
-        count += 1;
-        this.connections.push(connection);
-        if (count === length) {
-          resolve(server);
-        }
+        const { port, } = this;
+        server.on('error', (error) => {
+          throw error;
+        });
+        server.listen(port);
       });
-      const { port, } = this;
-      server.on('error', (error) => {
-        throw error;
-      });
-      server.listen(port);
-    });
-    const { server, } = this;
-    this.outputDistribFunction('setup client');
-    this.checkMemory();
-    return server;
+      const { server, } = this;
+      this.outputDistribFunction('setup client');
+      this.checkMemory();
+      return server;
+    } catch (error) {
+      this.outputDistribFunctionError('setup client', error);
+      throw error;
+    }
   }
 
   async setUpClients() {
-    const { routers, } = this;
-    const clientPromises = routers.map((router) => {
-      const [ip, port] = router;
-      return new Promise((resolve, reject) => {
-        const client = net.createConnection(port, ip, () => {
-          client.ip = ip;
-          client.port = port;
-          resolve(client);
-        });
-        client.on('close', () => {
-          const { ip, port, } = client;
-          this.removeRouter(ip, port);
+    try {
+      const { routers, } = this;
+      const clientPromises = routers.map((router) => {
+        const [ip, port] = router;
+        return new Promise((resolve, reject) => {
+          const client = net.createConnection(port, ip, () => {
+            client.ip = ip;
+            client.port = port;
+            resolve(client);
+          });
+          client.on('close', () => {
+            const { ip, port, } = client;
+            this.removeRouter(ip, port);
+          });
         });
       });
-    });
-    this.clients = await Promise.all(clientPromises);
-    const { clients, } = this;
-    this.outputDistribFunction('setup client');
-    this.checkMemory();
-    return clients;
+      this.clients = await Promise.all(clientPromises);
+      const { clients, } = this;
+      this.outputDistribFunction('setup client');
+      this.checkMemory();
+      return clients;
+    } catch (error) {
+      this.outputDistribFunctionError('setup client');
+      throw error;
+    }
   }
 
   dealConnectionBuf(buf, connection) {
@@ -359,7 +433,7 @@ class DistribRouter extends Router {
         s = i + 1;
       }
     }
-    const bigInt1 = nonZeroByteArray.toInt(segments.shift())
+    const bigInt1 = nonZeroByteArray.toInt(segments.shift());
     const code = Number(bigInt1);
     let params;
     switch (code) {
@@ -536,43 +610,60 @@ class DistribRouter extends Router {
   }
 
   async attachDistrib(location, content) {
-    this.checkCombine();
-    this.attach(location, content);
-    switch (typeof content) {
-      case 'function': {
-        const ackPromises = this.getAckPromises((client) => {
-          client.write(getBinBuf([0, 1, location, content.toString()]));
-        });
-        await Promise.all(ackPromises);
-        break;
+    try {
+      this.checkCombine();
+      this.attach(location, content);
+      switch (typeof content) {
+        case 'function': {
+          const ackPromises = this.getAckPromises((client) => {
+            client.write(getBinBuf([0, 1, location, content.toString()]));
+          });
+          await Promise.all(ackPromises);
+          break;
+        }
+        default: {
+          const ackPromises = this.getAckPromises((client) => {
+            client.write(getBinBuf([0, 0, location, JSON.stringify(content)]));
+          });
+          await Promise.all(ackPromises);
+        }
       }
-      default: {
-        const ackPromises = this.getAckPromises((client) => {
-          client.write(getBinBuf([0, 0, location, JSON.stringify(content)]));
-        });
-        await Promise.all(ackPromises);
-      }
+      this.outputDistribOperate('attachDistrib', location);
+    } catch (error) {
+      this.outputDistribOperateError('attachDistrib', [locaiton]);
+      throw error;
     }
-    this.outputDistribOperate('attachDistrib', location);
   }
 
   async exchangeDistrib(location1, location2) {
-    this.checkCombine();
-    this.exchange(location1, location2);
-    const ackPromises = this.getAckPromises((client) => {
-      client.write(getBinBuf([1, location1, location2]));
-    });
-    await Promise.all(ackPromises);
+    try {
+      this.checkCombine();
+      this.exchange(location1, location2);
+      const ackPromises = this.getAckPromises((client) => {
+        client.write(getBinBuf([1, location1, location2]));
+      });
+      await Promise.all(ackPromises);
+      this.outputDistribOperate('exchangeDistrib', location1);
+      this.outputDistribOperate('exchangeDistrib', location2);
+    } catch (error) {
+      this.outputDistribOperateError('exchangeDistrib', [locaiton1, location2]);
+      throw error;
+    }
   }
 
   async ruinDistrib(location) {
-    this.checkCombine();
-    this.ruin(location);
-    const ackPromises = this.getAckPromises((client) => {
-      client.write(getBinBuf([2, location]));
-    });
-    await Promise.all(ackPromises);
-    this.outputDistribOperate('ruinDistrib', location);
+    try {
+      this.checkCombine();
+      this.ruin(location);
+      const ackPromises = this.getAckPromises((client) => {
+        client.write(getBinBuf([2, location]));
+      });
+      await Promise.all(ackPromises);
+      this.outputDistribOperate('ruinDistrib', location);
+    } catch (error) {
+      this.outputDistribOperateError('ruinDistrib', [location]);
+      throw error;
+    }
   }
 
   async ruinAllDistrib(locations) {
@@ -585,49 +676,59 @@ class DistribRouter extends Router {
   }
 
   async replaceDistrib(location, multiple) {
-    if (multiple instanceof Thing) {
-      throw new Error('[Error] Distributed operations are not easy to transmit');
-    }
-    const content = multiple;
-    this.checkCombine();
-    this.replace(location, content);
-    switch (typeof content) {
-      case 'function': {
-        const ackPromises = this.getAckPromises((client) => {
-          client.write(getBinBuf([4, 1, location, content.toString()]));
-        });
-        await Promise.all(ackPromises);
-        break;
+    try {
+      if (multiple instanceof Thing) {
+        throw new Error('[Error] Distributed operations are not easy to transmit');
       }
-      default: {
-        const ackPromises = this.getAckPromises((client) => {
-          client.write(getBinBuf([4, 0, location, JSON.stringify(content)]));
-        });
-        await Promise.all(ackPromises);
+      const content = multiple;
+      this.checkCombine();
+      this.replace(location, content);
+      switch (typeof content) {
+        case 'function': {
+          const ackPromises = this.getAckPromises((client) => {
+            client.write(getBinBuf([4, 1, location, content.toString()]));
+          });
+          await Promise.all(ackPromises);
+          break;
+        }
+        default: {
+          const ackPromises = this.getAckPromises((client) => {
+            client.write(getBinBuf([4, 0, location, JSON.stringify(content)]));
+          });
+          await Promise.all(ackPromises);
+        }
       }
+      this.outputDistribOperate('replaceDistrib', location);
+    } catch (error) {
+      this.outputDistribOperateError('replaceDistrib', [location]);
+      throw error;
     }
-    this.outputDistribOperate('replaceDistrib', location);
   }
 
   async reviseDistrib(location, content) {
-    this.checkCombine();
-    this.revise(location, content);
-    switch (typeof content) {
-      case 'function': {
-        const ackPromises = this.getAckPromises((client) => {
-          client.write(getBinBuf([5, 1, location, content.toString()]));
-        });
-        await Promise.all(ackPromises);
-        break;
+    try {
+      this.checkCombine();
+      this.revise(location, content);
+      switch (typeof content) {
+        case 'function': {
+          const ackPromises = this.getAckPromises((client) => {
+            client.write(getBinBuf([5, 1, location, content.toString()]));
+          });
+          await Promise.all(ackPromises);
+          break;
+        }
+        default: {
+          const ackPromises = this.getAckPromises((client) => {
+            client.write(getBinBuf([5, 0, location, JSON.stringify(content)]));
+          });
+          await Promise.all(ackPromises);
+        }
       }
-      default: {
-        const ackPromises = this.getAckPromises((client) => {
-          client.write(getBinBuf([5, 0, location, JSON.stringify(content)]));
-        });
-        await Promise.all(ackPromises);
-      }
+      this.outputDistribOperate('reviseDistrib', location);
+    } catch (error) {
+      this.outputDistribOperateError('reviseDistrib', [location]);
+      throw error;
     }
-    this.outputDistribOperate('reviseDistrib', location);
   }
 }
 
