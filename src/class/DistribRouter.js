@@ -236,6 +236,7 @@ class DistribRouter extends Router {
         `);
       })
     }
+    throw error;
   }
 
   outputDistribFunction(operate) {
@@ -281,6 +282,7 @@ class DistribRouter extends Router {
         (+) bold; red: ** └─ (+): * | (+) bold: * operate (+) dim: : * ` + operate + `(+): * | &
       `);
     }
+    throw error;
   }
 
   getRouters() {
@@ -301,7 +303,6 @@ class DistribRouter extends Router {
       this.outputDistribFunction('close server');
     } catch (error) {
       this.outputDistribFunctionError('close server', error);
-      throw error;
     }
   }
 
@@ -313,7 +314,6 @@ class DistribRouter extends Router {
       this.outputDistribFunction('close client');
     } catch (error) {
       this.outputDistribFunctionError('close client', error);
-      throw error;
     }
   }
 
@@ -332,7 +332,6 @@ class DistribRouter extends Router {
       this.outputDistribFunction('close connection');
     } catch (error) {
       this.outputDistribFunctionError('close connection', error);
-      throw error;
     }
   }
 
@@ -392,7 +391,6 @@ class DistribRouter extends Router {
       return server;
     } catch (error) {
       this.outputDistribFunctionError('setup client', error);
-      throw error;
     }
   }
 
@@ -420,7 +418,6 @@ class DistribRouter extends Router {
       return clients;
     } catch (error) {
       this.outputDistribFunctionError('setup client');
-      throw error;
     }
   }
 
@@ -631,7 +628,6 @@ class DistribRouter extends Router {
       this.outputDistribOperate('attachDistrib', location);
     } catch (error) {
       this.outputDistribOperateError('attachDistrib', [locaiton]);
-      throw error;
     }
   }
 
@@ -647,7 +643,6 @@ class DistribRouter extends Router {
       this.outputDistribOperate('exchangeDistrib', location2);
     } catch (error) {
       this.outputDistribOperateError('exchangeDistrib', [locaiton1, location2]);
-      throw error;
     }
   }
 
@@ -662,7 +657,6 @@ class DistribRouter extends Router {
       this.outputDistribOperate('ruinDistrib', location);
     } catch (error) {
       this.outputDistribOperateError('ruinDistrib', [location]);
-      throw error;
     }
   }
 
@@ -701,7 +695,6 @@ class DistribRouter extends Router {
       this.outputDistribOperate('replaceDistrib', location);
     } catch (error) {
       this.outputDistribOperateError('replaceDistrib', [location]);
-      throw error;
     }
   }
 
@@ -727,7 +720,6 @@ class DistribRouter extends Router {
       this.outputDistribOperate('reviseDistrib', location);
     } catch (error) {
       this.outputDistribOperateError('reviseDistrib', [location]);
-      throw error;
     }
   }
 }

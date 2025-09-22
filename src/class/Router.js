@@ -260,6 +260,7 @@ class Router extends Outputable {
       });
       this.addToLog(error.stack + '\n');
     }
+    throw error;
   }
 
   dealOptions() {
@@ -354,7 +355,6 @@ class Router extends Outputable {
       this.debugInfo('successfully matched');
     } catch (error) {
       this.outputOperateError('match', [location], error);
-      throw error;
     }
   }
 
@@ -383,7 +383,6 @@ class Router extends Outputable {
       this.outputOperate('add', location);
     } catch (error) {
       this.outputOperateError('add', [location], error);
-      throw error;
     }
   }
 
@@ -400,7 +399,6 @@ class Router extends Outputable {
       }
     } catch (error) {
       this.outputOperateError('delete', [location], error);
-      throw error;
     }
   }
 
@@ -439,7 +437,6 @@ class Router extends Outputable {
       }
     } catch (error) {
       this.outputOperateError('update', [location], error);
-      throw error;
     }
   }
 
@@ -453,7 +450,6 @@ class Router extends Outputable {
       this.outputOperate('swap', location2);
     } catch (error) {
       this.outputOperateError('swap', [location1, location2], error);
-      throw error;
     }
   }
 
@@ -468,7 +464,6 @@ class Router extends Outputable {
       }
     } catch (error) {
       this.outputOperateError('fix', [location], error);
-      throw error;
     }
   }
 
