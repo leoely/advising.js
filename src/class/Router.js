@@ -476,46 +476,82 @@ class Router extends Outputable {
 
   attach(location, content) {
     this.checkGetPathsFromLocation('attach');
-    const paths = this.getPathsFromLocation(location);
+    let paths;
+    try {
+      paths = this.getPathsFromLocation(location);
+    } catch (error) {
+      this.outputOperateError('attach', [location], error);
+    }
     this.add(location, paths, content);
   }
 
   exchange(location1, location2) {
     this.checkGetPathsFromLocation('exchange');
-    const paths1 = this.getPathsFromLocation(location1);
-    const paths2 = this.getPathsFromLocation(location2);
+    let paths1;
+    let paths2;
+    try {
+      paths1 = this.getPathsFromLocation(location1);
+      paths2 = this.getPathsFromLocation(location2);
+    } catch (error) {
+      this.outputOperateError('exchange', [location1, location2], error);
+    }
     this.swap(location1, location2, paths1, paths2);
   }
 
   ruin(location) {
     this.checkGetPathsFromLocation('ruin');
-    const paths = this.getPathsFromLocation(location);
+    let paths;
+    try {
+      paths = this.getPathsFromLocation(location);
+    } catch (error) {
+      this.outputOperateError('ruin', [location], error);
+    }
     this.delete(location, paths);
   }
 
   ruinAll(locations) {
     this.checkGetPathsFromLocation('ruinAll');
-    const paramArray = locations.map((location) => {
-      return [location, this.getPathsFromLocation(location)];
-    });
+    let paramArray;
+    try {
+      paramArray = locations.map((location) => {
+        return [location, this.getPathsFromLocation(location)];
+      });
+    } catch (error) {
+      this.outputOpeateError('ruinAll', locations, error);
+    }
     this.deleteAll(paramArray);
   }
 
   replace(location, multiple) {
     this.checkGetPathsFromLocation('replace');
-    const paths = this.getPathsFromLocation(location);
+    let paths;
+    try {
+      paths = this.getPathsFromLocation(location);
+    } catch (error) {
+      this.outputOperateError('replace', [location], error);
+    }
     this.update(url, paths, multiple);
   }
 
   revise(location, content) {
     this.checkGetPathsFromLocation('revise');
-    const paths = this.getPathsFromLocation(location);
+    let paths;
+    try {
+      paths = this.getPathsFromLocation(location);
+    } catch (error) {
+      this.outputOperateError('revise', [location], error);
+    }
     this.fix(location, paths, content);
   }
 
   gain(location) {
     this.checkGetPathsFromLocation('gain');
-    const paths = this.getPathsFromLocation(location);
+    let paths;
+    try {
+      paths = this.getPathsFromLocation(location);
+    } catch (error) {
+      this.outputOperateError('gain', [location], error);
+    }
     return this.match(location, paths);
   }
 }

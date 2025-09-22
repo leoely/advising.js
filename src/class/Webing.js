@@ -165,34 +165,42 @@ class Webing {
   }
 
   static attach(url, content) {
-    const [url1, pathKeys] = parsePathKeys(url);
-    const {
-      options: {
-        hideError,
-      },
-    } = this;
-    if (url1 === url) {
-      const paths = getPathsFromUrl(url, hideError);
-      this.add(url, paths, content);
-    } else {
-      const paths = getPathsFromUrl(url1, hideError);
-      this.add(url, paths, content, pathKeys);
+    try {
+      const [url1, pathKeys] = parsePathKeys(url);
+      const {
+        options: {
+          hideError,
+        },
+      } = this;
+      if (url1 === url) {
+        const paths = getPathsFromUrl(url, hideError);
+        this.add(url, paths, content);
+      } else {
+        const paths = getPathsFromUrl(url1, hideError);
+        this.add(url, paths, content, pathKeys);
+      }
+    } catch (error) {
+      this.outputOperateError('attach', [url], error);
     }
   }
 
   static replace(url, multiple) {
-    const [url1, pathKeys] = parsePathKeys(url);
-    const {
-      options: {
-        hideError,
-      },
-    } = this;
-    if (url1 === url) {
-      const paths = getPathsFromUrl(url, hideError);
-      this.update(url, paths, multiple);
-    } else {
-      const paths1 = getPathsFromUrl(url1, hideError);
-      this.update(url1, paths1, multiple, pathKeys);
+    try {
+      const [url1, pathKeys] = parsePathKeys(url);
+      const {
+        options: {
+          hideError,
+        },
+      } = this;
+      if (url1 === url) {
+        const paths = getPathsFromUrl(url, hideError);
+        this.update(url, paths, multiple);
+      } else {
+        const paths1 = getPathsFromUrl(url1, hideError);
+        this.update(url1, paths1, multiple, pathKeys);
+      }
+    } catch (error) {
+      this.outputOperateError('replace', [url], error);
     }
   }
 
@@ -202,8 +210,14 @@ class Webing {
         hideError,
       },
     } = this;
-    const paths1 = getPathsFromUrl(url1, hideError);
-    const paths2 = getPathsFromUrl(url2, hideError);
+    let paths1;
+    let paths2;
+    try {
+      paths1 = getPathsFromUrl(url1, hideError);
+      paths2 = getPathsFromUrl(url2, hideError);
+    } catch (error) {
+      this.outputOperateError('exchange', [url1, url2], error);
+    }
     this.swap(url1, url2, paths1, paths2);
   }
 
@@ -213,32 +227,45 @@ class Webing {
         hideError,
       },
     } = this;
-    const paths = getPathsFromUrl(url, hideError);
+    let paths;
+    try {
+      paths = getPathsFromUrl(url, hideError);
+    } catch (error) {
+      this.outputOperateError('revise', [url], error);
+    }
     this.fix(url, paths, content);
   }
 
   static setPathKeys(url) {
-    const {
-      options: {
-        debug,
-        logLevel,
-        hideError,
-      },
-    } = this;
-    const [url1, pathKeys] = parsePathKeys(url);
-    const paths1 = getPathsFromUrl(url1, hideError);
-    const thing = this.match(url1, paths1, true);
-    thing.setPathKeys(pathKeys);
-    if (logLevel !== 0) {
-      this.appendToLog(
-        ' || ████ Location:' + url1 + ' ████ & ████ OPERATE:setPathKeys ████ ||\n',
-      );
+    try {
+      const {
+        options: {
+          debug,
+          logLevel,
+          hideError,
+        },
+      } = this;
+      const [url1, pathKeys] = parsePathKeys(url);
+      const paths1 = getPathsFromUrl(url1, hideError);
+      const thing = this.match(url1, paths1, true);
+      thing.setPathKeys(pathKeys);
+      if (logLevel !== 0) {
+        this.appendToLog(
+          ' || ████ Location:' + url1 + ' ████ & ████ OPERATE:setPathKeys ████ ||\n',
+        );
+      }
+      this.outputOperate('setPathKeys', url);
+    } catch (error) {
+      this.outputOperateError('setPathKeys', [url], error);
     }
-    this.outputOperate('setPathKeys', url);
   }
 
   static gain(url) {
-    return this.matchInner(url, false, true);
+    try {
+      return this.matchInner(url, false, true);
+    } catch (error) {
+      this.outputOperateError('gain', [url], error);
+    }
   }
 
   static matchInner(url, needThing, web) {

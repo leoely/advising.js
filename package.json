@@ -1,6 +1,6 @@
 {
   "name": "advising.js",
-  "version": "1.0.33",
+  "version": "1.0.35",
   "description": "Backend router project.",
   "main": "dist/index.js",
   "repository": "git@github.com:leoely/advising.js.git",

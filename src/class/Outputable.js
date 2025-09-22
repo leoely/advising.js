@@ -75,9 +75,7 @@ class Outputable {
         logLevel,
       },
     } = this;
-    if (logLevel !== 0) {
-      addToLog(logPath, content);
-    }
+    addToLog(logPath, content);
   }
 
   checkMemory(value) {
