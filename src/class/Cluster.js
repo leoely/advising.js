@@ -313,10 +313,11 @@ function checkStringIsHex(string) {
 }
 
 class Cluster extends Node {
-  constructor(options, root) {
+  constructor(options, notice, root) {
     super(options);
     this.status = -1;
     this.number = 0;
+    this.notice = notice;
     this.checkMemory();
     if (root !== true) {
       this.debugInfo('was created successfully');

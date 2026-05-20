@@ -218,9 +218,6 @@ describe('[Class] Router: Time complexity test cases;', () => {
   });
 });
 
-describe('[Class] Router:', () => {
-});
-
 describe('[Class] Router: Space complexity test cases;', () => {
   test('Router initial space is small.', () => {
     const router = new Router({
@@ -910,5 +907,26 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
     expect(JSON.stringify(router.match('/multiple/fdb', ['multiple', 'fdb']))).toMatch('{\"type\":\"letter\",\"content\":\"fdb\"}');
     router.add('/multiple/1', ['multiple', '1'], { type: 'number', content: 1, });
     expect(JSON.stringify(router.match('/multiple/1', ['multiple', '1']))).toMatch('{\"type\":\"number\",\"content\":1}');
+  });
+
+  test('Router should generate notifications.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 7,
+      logInterval: 5,
+      interception: 5,
+      hideError: true,
+      debug: false,
+    });
+    router.setTemporaryMemorySwitch(true);
+    let notice = false;
+    router.addNotice('check_memory', () => {
+      notice = true;
+    });
+    router.add('/notice/check_mem', ['notice', 'check_mem'], { type: 'check_mem', });
+    expect(notice).toBe(true);
   });
 });

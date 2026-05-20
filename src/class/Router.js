@@ -51,19 +51,19 @@ function matchRecursion(node, index, paths, total, needThing, changeCount, hideE
   }
 }
 
-function blendFromThing(node, path, thing, options, beforePath, beforeNode) {
-  const cluster = new Cluster(options);
+function blendFromThing(node, path, thing, options, beforePath, beforeNode, notice) {
+  const cluster = new Cluster(options, notice);
   cluster.put(path, thing);
   const mixture = new Mixture(cluster, node);
   beforeNode.mixFromThing(mixture, beforePath);
   return cluster;
 }
 
-function addRecursion(node, index, paths, options, thing, beforePath, beforeNode) {
+function addRecursion(node, index, paths, options, thing, beforePath, beforeNode, notice) {
   const path = paths[index];
   if (index === paths.length - 1) {
     if (node instanceof Thing) {
-      blendFromThing(node, path, thing, options, beforePath, beforeNode);
+      blendFromThing(node, path, thing, options, beforePath, beforeNode, notice);
     } else {
       if (node.find(path) instanceof Cluster) {
         node.mixFromCluster(new Mixture(node, thing));
@@ -73,12 +73,12 @@ function addRecursion(node, index, paths, options, thing, beforePath, beforeNode
     }
   } else {
     if (node instanceof Cluster && node.find(path) === undefined) {
-      node.put(path, new Cluster(options));
+      node.put(path, new Cluster(options, notice));
       addRecursion(
         node.find(path), index + 1, paths, options, thing, path, node
       );
     } else if (node instanceof Thing)  {
-      const cluster = blendFromThing(node, path, thing, options, beforePath, beforeNode);
+      const cluster = blendFromThing(node, path, thing, options, beforePath, beforeNode, notice);
       addRecursion(
         cluster.find(path), index + 1, paths, options, thing, path, node
       );
@@ -152,6 +152,9 @@ function updateRecursion(node, index, paths, thing, newThing, beforePath, before
 
 class Router extends Outputable {
   constructor(options = {}) {
+    if (typeof options !== 'object' && options !== null) {
+      throw new Error('[Error] The parameter options should be of type object.');
+    }
     super();
     const defaultOptions = {
       threshold: 0.01,
@@ -164,11 +167,14 @@ class Router extends Outputable {
       debug: true,
       hideError: false,
       logPath: '/var/log/advising.js/',
+      temporaryMemorySwitch: false,
     };
     this.options = Object.assign(defaultOptions, options);
     this.dealOptions(options);
     this.total = 0;
-    this.root = new Cluster(this.options, true);
+    const notice = {};
+    this.notice = notice;
+    this.root = new Cluster(this.options, notice, true);
     const {
       logPath,
     } = this.options;
@@ -215,6 +221,24 @@ class Router extends Outputable {
       default:
         throw new Error('[Error] Unexpected types occur.');
     }
+  }
+
+  setTemporaryMemorySwitch(temporaryMemorySwitch) {
+    if (typeof temporaryMemorySwitch !== 'boolean') {
+      throw new Error('[Error] Parameter temporaryMemorySwtich should be of boolean type.');
+    }
+    this.options.temporaryMemorySwitch = temporaryMemorySwitch;
+  }
+
+  addNotice(phrase, callback) {
+    if (typeof phrase !== 'string') {
+      throw new Error('[Error] The parameter phase should be a string type.');
+    }
+    if (typeof callback !== 'function') {
+      throw new Error('[Error] The parameter callback should be a function type.');
+    }
+    const { notice, } = this;
+    notice[phrase] = callback;
   }
 
   outputOperate(operate, location) {
@@ -359,10 +383,11 @@ class Router extends Outputable {
   }
 
   add(location, paths, multiple, pathKeys) {
+    const { notice, } = this;
     try {
       if (multiple instanceof Thing) {
         const thing = multiple;
-        addRecursion(root, 0, paths, options, thing);
+        addRecursion(root, 0, paths, options, thing, notice);
       } else {
         const content = multiple;
         const { root, options, } = this;
@@ -370,12 +395,12 @@ class Router extends Outputable {
         switch (ThingClass.name) {
           case 'WebThing': {
             const thing = new ThingClass(options, content, pathKeys);
-            addRecursion(root, 0, paths, options, thing);
+            addRecursion(root, 0, paths, options, thing, notice);
             break;
           }
           default: {
             const thing = new ThingClass(options, content);
-            addRecursion(root, 0, paths, options, thing);
+            addRecursion(root, 0, paths, options, thing, notice);
             break;
           }
         }
@@ -555,4 +580,5 @@ class Router extends Outputable {
     return this.match(location, paths);
   }
 }
+
 export default Router;

@@ -4,13 +4,19 @@ import {
 } from 'manner.js/server';
 import Outputable from '~/class/Outputable';
 
-export default function checkMemory(logPath, value, outputable) {
+export default function checkMemory(logPath, value, outputable, temporaryMemorySwitch, callback) {
   let ans = true;
-  const freemem = os.freemem();
+  let freemem = os.freemem();
+  if (temporaryMemorySwitch === true) {
+    freemem = 0;
+  }
   if (value === undefined) {
     if (freemem <= 0) {
       ans = false;
       logOutOfMemory(logPath, freemem);
+      if (typeof callback === 'function') {
+        callback();
+      }
       if (outputable instanceof Outputable) {
         const node = outputable;
         const {
@@ -28,6 +34,9 @@ export default function checkMemory(logPath, value, outputable) {
       if (freemem < value) {
         ans = false;
         logOutOfMemory(logPath, freemem);
+        if (typeof callback === 'function') {
+          callback();
+        }
         if (outputable instanceof Outputable) {
           const node = outputable;
           const {

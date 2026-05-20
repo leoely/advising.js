@@ -80,11 +80,16 @@ class Outputable {
 
   checkMemory(value) {
     const {
+      notice,
       options: {
         logPath,
+        temporaryMemorySwitch,
       },
     } = this;
-    return checkMemory(logPath, value, this);
+    if (notice !== undefined) {
+      const callback = notice['check_memory'];
+      return checkMemory(logPath, value, this, temporaryMemorySwitch, callback);
+    }
   }
 }
 
