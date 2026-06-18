@@ -2,7 +2,7 @@ import { describe, expect, test, } from '@jest/globals';
 import Ipv4Router from '~/class/Ipv4Router';
 
 describe('[Class] Ipv4Router;', () => {
-  test('Ipv4Router should be able to obtain corresponding things..', () => {
+  test('Ipv4Router should be able to obtain corresponding things.', () => {
     const ipv4Router = new Ipv4Router({
       threshold: 0.5,
       number: 1,
