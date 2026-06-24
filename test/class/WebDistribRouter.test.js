@@ -6,10 +6,10 @@ import WebDistribRouter from '~/class/WebDistribRouter';
 describe('[Class] WebDistribRouter;', () => {
   test('WebDistribRouter should be added correctly in distributed situations.', async () => {
     const [ipAddress] = getOwnIpAddresses();
-    const { ipv4, } = ipAddress;
+    const { ipv6, } = ipAddress;
     const routerArray = [
-      [ipv4, 8008],
-      [ipv4, 8009],
+      [ipv6, 8008],
+      [ipv6, 8009],
     ];
     const webDistribRouter1 = new WebDistribRouter({
       threshold: 0.5,

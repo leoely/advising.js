@@ -1,6 +1,6 @@
 import net from 'net';
 import { describe, expect, test, } from '@jest/globals';
-import { getOwnIpAddresses, wrapIpv6, } from 'manner.js/server';
+import { getOwnIpAddresses, } from 'manner.js/server';
 import DistribRouter from '~/class/DistribRouter';
 
 describe('[Class] DistribRouter;', () => {
@@ -43,8 +43,8 @@ describe('[Class] DistribRouter;', () => {
     const [ipAddress] = getOwnIpAddresses();
     const { ipv6, } = ipAddress;
     const routers = [
-      [wrapIpv6(ipv6),  8002],
-      [wrapIpv6(ipv6),  8003],
+      [ipv6,  8002],
+      [ipv6,  8003],
     ];
     const distribRouter1 = new DistribRouter({
       threshold: 0.5,
@@ -57,7 +57,7 @@ describe('[Class] DistribRouter;', () => {
       debug: false,
     }, 8002, routers);
     expect(JSON.stringify(distribRouter1.routers)).toMatch(JSON.stringify([
-      [wrapIpv6(ipv6),  8003],
+      [ipv6,  8003],
     ]));
     const distribRouter2 = new DistribRouter({
       threshold: 0.5,
@@ -70,7 +70,7 @@ describe('[Class] DistribRouter;', () => {
       debug: false,
     }, 8003, routers);
     expect(JSON.stringify(distribRouter2.routers)).toMatch(JSON.stringify([
-      [wrapIpv6(ipv6),  8002],
+      [ipv6,  8002],
     ]));
   });
 
@@ -78,7 +78,7 @@ describe('[Class] DistribRouter;', () => {
     const [ipAddress] = getOwnIpAddresses();
     const { ipv4, ipv6, } = ipAddress;
     const routers = [
-      [wrapIpv6(ipv6),  8004],
+      [ipv6,  8004],
       [ipv4, 8005],
     ];
     const distribRouter1 = new DistribRouter({
@@ -105,7 +105,7 @@ describe('[Class] DistribRouter;', () => {
       debug: false,
     }, 8005, routers);
     expect(JSON.stringify(distribRouter2.routers)).toMatch(JSON.stringify([
-      [wrapIpv6(ipv6),  8004],
+      [ipv6,  8004],
     ]));
   });
 
