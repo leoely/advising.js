@@ -2,11 +2,13 @@ import net from 'net';
 import {
   getGTMNowString,
   getOwnIpAddresses,
-  nonZeroByteArray,
+  ByteArray,
   appendToLog,
 } from 'manner.js/server';
 import Thing from '~/class/Thing';
 import Router from '~/class/Router';
+
+const nonZeroByteArray = new ByteArray({ size: 256n, shift: 1n, });
 
 function getBinBuf(params) {
   if (!Array.isArray(params)) {
@@ -145,11 +147,23 @@ class DistribRouter extends Router {
       let flag = true;
       for (let i = 0; i< locations.length ; i += 1) {
         const location = locations[i];
-        if (router.join(':') === location) {
-          const [ip] = router;
-          this.ip = ip;
-          flag = false;
-          break;
+        const [ip] = router;
+        if (net.isIPv4(ip)) {
+          if (router.join(':') === location) {
+            const [ip] = router;
+            this.ip = ip;
+            flag = false;
+            break;
+          }
+        } else if (net.isIPv6(ip)) {
+          const [ip, port] = router;
+          const formatStorage = ['[' + ip + ']', port];
+          if (formatStorage.join(':') === location) {
+            const [ip] = router;
+            this.ip = ip;
+            flag = false;
+            break;
+          }
         }
       }
       return flag;
