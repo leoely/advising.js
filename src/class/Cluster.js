@@ -60,18 +60,6 @@ function bitToByte(bit) {
   return byte;
 }
 
-function estimateArrInc(multiple) {
-  let length;
-  if (Array.isArray(multiple)) {
-    const array = multiple;
-    length = array.length;
-  } else if (Number.isInteger(multiple)) {
-    length = multiple;
-  } else {
-    throw new Error('[Error] The parameter multiple does not match the expected type.');
-  }
-  return (length * 2 + 1) * 64;
-}
 
 function estimateStr(string) {
   if (typeof string !== 'string') {
@@ -79,40 +67,6 @@ function estimateStr(string) {
   }
   const { length, } = string;
   return (length + 1) * 4 * 8;
-}
-
-function estimatePtr() {
-  return 64;
-}
-
-function estimateExpandHashInc(key, type) {
-  if (typeof key !== 'string') {
-    throw new Error('[Error] Key paramter should be of string type.');
-  }
-  if (!Number.isInteger(type)) {
-    throw new Error('[Error] Type paramter should be an integer type.');
-  }
-  const { length, } = key;
-  let ans = 0;
-  for (let i = 0; i < length; i += 1) {
-    const char = key.charAt(i);
-    const value = getIndexFromChar(char, type);
-    ans += estimateArrInc(value + 1);
-  }
-  return ans;
-}
-
-function estimateObjInc(hash) {
-  if (typeof hash !== 'object') {
-    throw new Error('[Error] Inner hash should be of type object.');
-  }
-  let ans = estimateArrInc(5);
-  const keys = Object.keys(hash);
-  ans += estimateArrInc(keys.length);
-  keys.forEach((key) => {
-    ans += estimatePtr() + estimateStr(key);
-  });
-  return ans;
 }
 
 function setRootAmong(root, index, cluster) {
@@ -391,6 +345,63 @@ class Cluster extends Node {
         console.log(getGTMNowString() + '\n');
       }
     }
+  }
+
+  estimateExpandHashInc(key, type) {
+    if (typeof key !== 'string') {
+      throw new Error('[Error] Key paramter should be of string type.');
+    }
+    if (!Number.isInteger(type)) {
+      throw new Error('[Error] Type paramter should be an integer type.');
+    }
+    const { length, } = key;
+    let ans = 0;
+    for (let i = 0; i < length; i += 1) {
+      const char = key.charAt(i);
+      const value = getIndexFromChar(char, type);
+      ans += this.estimateArrInc(value + 1);
+    }
+    return ans;
+  }
+
+  estimateObjInc(hash) {
+    if (typeof hash !== 'object') {
+      throw new Error('[Error] Inner hash should be of type object.');
+    }
+    let ans = this.estimateArrInc(5);
+    const keys = Object.keys(hash);
+    ans += this.estimateArrInc(keys.length);
+    keys.forEach((key) => {
+      ans += this.estimatePtr() + estimateStr(key);
+    });
+    return ans;
+  }
+
+  estimateArrInc(multiple) {
+    let length;
+    if (Array.isArray(multiple)) {
+      const array = multiple;
+      length = array.length;
+    } else if (Number.isInteger(multiple)) {
+      length = multiple;
+    } else {
+      throw new Error('[Error] The parameter multiple does not match the expected type.');
+    }
+    const {
+      options: {
+        bitWidth,
+      },
+    }  = this;
+    return (length * 2 + 1) * bitWidth;
+  }
+
+  estimatePtr() {
+    const {
+      options: {
+        bitWidth,
+      },
+    } = this;
+    return bitWidth;
   }
 
   addInterceptionHash(hash) {
@@ -934,11 +945,11 @@ class Cluster extends Node {
     }
     let ans = 0;
     const keys = Object.keys(hash);
-    ans += estimateArrInc(keys);
-    ans += 2 * estimateArrInc(keys);
+    ans += this.estimateArrInc(keys);
+    ans += 2 * this.estimateArrInc(keys);
     keys.forEach((key) => {
       ans += estimateStr(key);
-      ans += estimatePtr();
+      ans += this.estimatePtr();
     });
     return ans;
   }
@@ -951,9 +962,9 @@ class Cluster extends Node {
     const keys = Object.keys(hash);
     let ans = this.estimateChildrensInc();
     keys.forEach((key) => {
-      ans += estimateExpandHashInc(key, type) - estimateStr(key);
+      ans += this.estimateExpandHashInc(key, type) - estimateStr(key);
     });
-    ans -= estimateObjInc(hash);
+    ans -= this.estimateObjInc(hash);
     return ans;
   }
 
@@ -962,13 +973,13 @@ class Cluster extends Node {
     if (typeof hash !== 'object') {
       throw new Error('[Error] Inner hash should be of type object.');
     }
-    let ans = -estimateArrInc(hash);
+    let ans = -this.estimateArrInc(hash);
     hash.forEach((multiple) => {
       if (typeof multiple === 'object') {
         const object = multiple;
-        ans -= estimateObjInc(object);
+        ans -= this.estimateObjInc(object);
         Object.keys(object).forEach((key) => {
-          ans += estimateExpandHashInc(key, type);
+          ans += this.estimateExpandHashInc(key, type);
         });
       }
     });

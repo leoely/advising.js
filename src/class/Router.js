@@ -1,3 +1,4 @@
+import os from 'os';
 import fs from 'fs';
 import { checkLogPath, } from 'manner.js/server';
 import Outputable from '~/class/Outputable';
@@ -150,6 +151,23 @@ function updateRecursion(node, index, paths, thing, newThing, beforePath, before
   }
 }
 
+function getBitWidth() {
+  const arch = os.arch();
+  switch (arch) {
+    case 'ia32':
+    case 'arm':
+    case 's390x':
+      return 32;
+    case 'x64':
+    case 'riscv64':
+    case 'ppc64':
+    case 'mips':
+    case 'loong64':
+    case 'arm64':
+      return 64;
+  }
+}
+
 class Router extends Outputable {
   constructor(options = {}) {
     if (typeof options !== 'object' && options !== null) {
@@ -169,6 +187,7 @@ class Router extends Outputable {
       logPath: '/var/log/advising.js/',
       temporaryMemorySwitch: false,
     };
+    defaultOptions.bitWidth = getBitWidth();
     this.options = Object.assign(defaultOptions, options);
     this.dealOptions(options);
     this.total = 0;
@@ -300,6 +319,7 @@ class Router extends Outputable {
         interception,
         hideError,
         logPath,
+        bitWidth,
       },
     } = this;
     if (threshold !== undefined) {
@@ -346,6 +366,9 @@ class Router extends Outputable {
       if (typeof hideError !== 'boolean') {
         throw new Error('[Error] Router option hideError must be a boolean type or undefined.');
       }
+    }
+    if (!Number.isInteger(bitWidth)) {
+      throw new Error('[Error] The option bitWidth should be a integer type.');
     }
   }
 
