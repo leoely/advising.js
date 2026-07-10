@@ -978,12 +978,12 @@ class Cluster extends Node {
   checkExpandInitMemory(type) {
     const childrensInc = this.estimateChildrensInc();
     const expandHashInc = this.estimateExpandInitInc(type);
-    return this.checkMemory(childrensInc + expandHashInc);
+    return this.checkMemory(bitToByte(childrensInc + expandHashInc));
   }
 
   checkExpandMiddleMemory(type) {
     const expandHashInc = this.estimateExpandMiddleInc(type);
-    return this.checkMemory(expandHashInc);
+    return this.checkMemory(bitToByte(expandHashInc));
   }
 
   appendMiddleHash(key, value) {
