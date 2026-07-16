@@ -1270,7 +1270,7 @@ class Cluster extends Node {
       return count >= bond && this.getDutyCycle() >= dutyCycle;
     }
     if (threshold !== undefined && dutyCycle !== undefined && bond === undefined) {
-      const { rate, count, } = this;
+      const { rate, } = this;
       return threshold >= threshold && this.getDutyCycle() >= dutyCycle;
     }
     if (threshold !== undefined && bond !== undefined && dutyCycle === undefined) {
