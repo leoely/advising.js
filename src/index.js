@@ -6,3 +6,4 @@ export { default as WebDistribRouter, } from '~/class/WebDistribRouter';
 export { default as Ipv4Router, } from '~/class/Ipv4Router';
 export { default as Ipv6Router, } from '~/class/Ipv6Router';
 export { default as ObjectRouter, } from '~/class/ObjectRouter';
+export { default as NamespaceRouter, } from '~/class/NamespaceRouter';

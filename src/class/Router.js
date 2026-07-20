@@ -221,6 +221,7 @@ class Router extends Outputable {
       case 'Ipv6Router':
       case 'WebRouter':
       case 'ObjectRouter':
+      case 'NamespaceRouter':
       case 'Router':
         this.debugShort(`
           [+] bold:

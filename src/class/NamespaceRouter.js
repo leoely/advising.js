@@ -29,4 +29,4 @@ class NamespaceRouter extends Router {
   }
 }
 
-export default ObjectRouter;
+export default NamespaceRouter;
