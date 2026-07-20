@@ -923,10 +923,10 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
     });
     router.setTemporaryMemorySwitch(true);
     let notice = false;
-    router.addNotice('check_memory', () => {
+    router.addSystemNotice('mem>chk', () => {
       notice = true;
     });
-    router.add('/notice/check_mem', ['notice', 'check_mem'], { type: 'check_mem', });
+    router.add('/notice/mem>chk', ['notice', 'check_mem'], { type: 'check_mem', });
     expect(notice).toBe(true);
   });
 });

@@ -61,7 +61,7 @@ function bitToByte(bit) {
 }
 
 
-function estimateStr(string) {
+function getStringOccupy(string) {
   if (typeof string !== 'string') {
     throw new Error('[Error] String paramter should be of string type.');
   }
@@ -347,7 +347,7 @@ class Cluster extends Node {
     }
   }
 
-  estimateExpandHashInc(key, type) {
+  getExpandHashIncrease(key, type) {
     if (typeof key !== 'string') {
       throw new Error('[Error] Key paramter should be of string type.');
     }
@@ -359,25 +359,25 @@ class Cluster extends Node {
     for (let i = 0; i < length; i += 1) {
       const char = key.charAt(i);
       const value = getIndexFromChar(char, type);
-      ans += this.estimateArrInc(value + 1);
+      ans += this.getArrayIncrease(value + 1);
     }
     return ans;
   }
 
-  estimateObjInc(hash) {
+  getObjectIncrease(hash) {
     if (typeof hash !== 'object') {
       throw new Error('[Error] Inner hash should be of type object.');
     }
-    let ans = this.estimateArrInc(5);
+    let ans = this.getArrayIncrease(5);
     const keys = Object.keys(hash);
-    ans += this.estimateArrInc(keys.length);
+    ans += this.getArrayIncrease(keys.length);
     keys.forEach((key) => {
-      ans += this.estimatePtr() + estimateStr(key);
+      ans += this.getPointerOccupy() + getStringOccupy(key);
     });
     return ans;
   }
 
-  estimateArrInc(multiple) {
+  getArrayIncrease(multiple) {
     let length;
     if (Array.isArray(multiple)) {
       const array = multiple;
@@ -395,7 +395,7 @@ class Cluster extends Node {
     return (length * 2 + 1) * bitWidth;
   }
 
-  estimatePtr() {
+  getPointerOccupy() {
     const {
       options: {
         bitWidth,
@@ -938,48 +938,48 @@ class Cluster extends Node {
     this.checkMemory();
   }
 
-  estimateChildrensInc() {
+  getChildrensIncrease() {
     const { hash, } = this;
     if (typeof hash !== 'object') {
       throw new Error('[Error] Inner hash should be of type object.');
     }
     let ans = 0;
     const keys = Object.keys(hash);
-    ans += this.estimateArrInc(keys);
-    ans += 2 * this.estimateArrInc(keys);
+    ans += this.getArrayIncrease(keys);
+    ans += 2 * this.getArrayIncrease(keys);
     keys.forEach((key) => {
-      ans += estimateStr(key);
-      ans += this.estimatePtr();
+      ans += getStringOccupy(key);
+      ans += this.getPointerOccupy();
     });
     return ans;
   }
 
-  estimateExpandInitInc(type) {
+  getExpandInitIncrease(type) {
     const { hash, } = this;
     if (typeof hash !== 'object') {
       throw new Error('[Error] Inner hash should be of type object.');
     }
     const keys = Object.keys(hash);
-    let ans = this.estimateChildrensInc();
+    let ans = this.getChildrensIncrease();
     keys.forEach((key) => {
-      ans += this.estimateExpandHashInc(key, type) - estimateStr(key);
+      ans += this.getExpandHashIncrease(key, type) - getStringOccupy(key);
     });
-    ans -= this.estimateObjInc(hash);
+    ans -= this.getObjectIncrease(hash);
     return ans;
   }
 
-  estimateExpandMiddleInc(type) {
+  getExpandMiddleIncrease(type) {
     const { hash, } = this;
     if (typeof hash !== 'object') {
       throw new Error('[Error] Inner hash should be of type object.');
     }
-    let ans = -this.estimateArrInc(hash);
+    let ans = -this.getArrayIncrease(hash);
     hash.forEach((multiple) => {
       if (typeof multiple === 'object') {
         const object = multiple;
-        ans -= this.estimateObjInc(object);
+        ans -= this.getObjectIncrease(object);
         Object.keys(object).forEach((key) => {
-          ans += this.estimateExpandHashInc(key, type);
+          ans += this.getExpandHashIncrease(key, type);
         });
       }
     });
@@ -987,13 +987,13 @@ class Cluster extends Node {
   }
 
   checkExpandInitMemory(type) {
-    const childrensInc = this.estimateChildrensInc();
-    const expandHashInc = this.estimateExpandInitInc(type);
+    const childrensInc = this.getChildrensIncrease();
+    const expandHashInc = this.getExpandInitIncrease(type);
     return this.checkMemory(bitToByte(childrensInc + expandHashInc));
   }
 
   checkExpandMiddleMemory(type) {
-    const expandHashInc = this.estimateExpandMiddleInc(type);
+    const expandHashInc = this.getExpandMiddleIncrease(type);
     return this.checkMemory(bitToByte(expandHashInc));
   }
 

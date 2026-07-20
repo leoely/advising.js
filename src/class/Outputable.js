@@ -87,7 +87,7 @@ class Outputable {
       },
     } = this;
     if (notice !== undefined) {
-      const callback = notice['check_memory'];
+      const callback = notice['mem>chk'];
       return checkMemory(logPath, value, this, temporaryMemorySwitch, callback);
     }
   }

@@ -250,7 +250,7 @@ class Router extends Outputable {
     this.options.temporaryMemorySwitch = temporaryMemorySwitch;
   }
 
-  addNotice(phrase, callback) {
+  addSystemNotice(phrase, callback) {
     if (typeof phrase !== 'string') {
       throw new Error('[Error] The parameter phase should be a string type.');
     }
