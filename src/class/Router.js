@@ -180,12 +180,12 @@ class Router extends Outputable {
       bond: 500,
       dutyCycle: 500,
       logLevel: 7,
-      logInterval: 5,
+      logInterval: 20,
       interception: 8,
       debug: true,
       hideError: false,
       logPath: '/var/log/advising.js/',
-      temporaryMemorySwitch: false,
+      safeMemoryCapacity: 4 * 1024 * 1024 * 1024,
     };
     defaultOptions.bitWidth = getBitWidth();
     this.options = Object.assign(defaultOptions, options);
@@ -318,9 +318,11 @@ class Router extends Outputable {
         logLevel,
         logInterval,
         interception,
+        debug,
         hideError,
         logPath,
         bitWidth,
+        safeMemoryCapacity,
       },
     } = this;
     if (threshold !== undefined) {
@@ -358,9 +360,9 @@ class Router extends Outputable {
         throw new Error('[Error] Router option intercpetion must be a integer type or undefined.');
       }
     }
-    if (logPath !== undefined) {
-      if (typeof logPath !== 'string') {
-        throw new Error('[Error] Router option logPath must be a string type or undefined.');
+    if (debug !== undefined) {
+      if (typeof debug !== 'boolean') {
+        throw new Error('[Error] Router option debug must be a boolean type or undefined.');
       }
     }
     if (hideError !== undefined) {
@@ -368,8 +370,26 @@ class Router extends Outputable {
         throw new Error('[Error] Router option hideError must be a boolean type or undefined.');
       }
     }
-    if (!Number.isInteger(bitWidth)) {
-      throw new Error('[Error] The option bitWidth should be a integer type.');
+    if (logPath !== undefined) {
+      if (typeof logPath !== 'string') {
+        throw new Error('[Error] Router option logPath must be a string type or undefined.');
+      }
+    }
+    if (bitWidth !== undefined) {
+      if (!Number.isInteger(bitWidth)) {
+        throw new Error('[Error] The option bitWidth must be a integer type or undefined.');
+      }
+      if (!(bitWidth > 0)) {
+        throw new Error('[Error] The option bit width should be a postive integer.')
+      }
+    }
+    if (safeMemoryCapacity !== undefined) {
+      if (!Number.isInteger(safeMemoryCapacity)) {
+        throw new Error('[Error] The option bitWidth must be a integer type or undefined.');
+      }
+      if (!(safeMemoryCapacity > 0)) {
+        throw new Error('[Error] The option safe memory capacity should be a postive integer.')
+      }
     }
   }
 

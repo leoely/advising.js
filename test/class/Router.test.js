@@ -926,7 +926,7 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
     router.addSystemNotice('mem>chk', () => {
       notice = true;
     });
-    router.add('/notice/mem>chk', ['notice', 'check_mem'], { type: 'check_mem', });
+    router.add('/notice/checkMemory', ['notice', 'checkMemory'], { type: 'checkMemory', });
     expect(notice).toBe(true);
   });
 });
