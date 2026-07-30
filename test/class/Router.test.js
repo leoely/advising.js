@@ -909,7 +909,7 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
     expect(JSON.stringify(router.match('/multiple/1', ['multiple', '1']))).toMatch('{\"type\":\"number\",\"content\":1}');
   });
 
-  test('Router should generate notifications.', () => {
+  test('Router should generate memory check notifications.', () => {
     const router = new Router({
       threshold: 0.5,
       number: 1,

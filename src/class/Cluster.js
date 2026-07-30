@@ -4,6 +4,7 @@ import Alloy from '~/class/Alloy';
 import Mixture from '~/class/Mixture';
 import Thing from '~/class/Thing';
 import Node from '~/class/Node';
+import Outputable from '~/class/Outputable';
 import checkCompound from '~/lib/checkCompound';
 
 function checkChar(char) {
@@ -1981,6 +1982,28 @@ class Cluster extends Node {
           }
         } else {
           root = generateRootAmong(root, char, type, this);
+        }
+      }
+    }
+    const {
+      constructor: {
+        name,
+      },
+    } = this;
+    const { notice, } = Outputable;
+    const callback = notice['frequent>call'];
+    if (typeof callback === 'function') {
+      const {
+        constructor: {
+          name,
+        },
+      } = value;
+      if (name === 'WebThing') {
+        const {
+          content,
+        } = value
+        if (typeof content === 'function') {
+          callback();
         }
       }
     }

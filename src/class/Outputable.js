@@ -30,6 +30,24 @@ class Outputable {
         notice[phrase] = callback;
         break;
       }
+      case 'frequent>call': {
+        const {
+          constructor: {
+            name,
+          },
+        } = this;
+        switch (name) {
+          case 'WebRouter':
+          case 'WebDistribRouter': {
+            const { notice, } = Outputable;
+            notice[phrase] = callback;
+            break;
+          }
+          default:
+            throw new Error('[Error] The frequent call phrase is limited to WebRouter and WebDistribRouter.');
+        }
+        break;
+      }
       default:
         throw new Error('[Error] The current system notification phrase does not exist.');
     }

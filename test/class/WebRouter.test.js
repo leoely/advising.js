@@ -291,4 +291,29 @@ describe('[Class] WebRouter;', () => {
     expect(JSON.stringify(webRouter.gain('vu99*$(83)#24-hn23'))).toMatch('{\"queryParams\":{},\"pathVariables\":{}}');
     expect(JSON.stringify(webRouter.gain('***423u0vfds#@0iuj234b#*$'))).toMatch('{\"queryParams\":{},\"pathVariables\":{}}');
   });
+
+  test('WebRouter should generate frequent call notifications.', () => {
+    const webRouter = new WebRouter({
+      threshold: 0.5,
+      number: 4,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 7,
+      logInterval: 5,
+      interception: undefined,
+      hideError: true,
+      debug: false,
+    });
+    let notice = false;
+    webRouter.addSystemNotice('frequent>call', () => {
+      notice = true;
+    });
+    webRouter.add('/notice/frequentCall', ['notice', 'frequentCall'], async () => {});
+    webRouter.gain('/notice/frequencyCall');
+    webRouter.gain('/notice/frequencyCall');
+    webRouter.gain('/notice/frequencyCall');
+    webRouter.gain('/notice/frequencyCall');
+    webRouter.gain('/notice/frequencyCall');
+    expect(notice).toBe(true);
+  });
 });
