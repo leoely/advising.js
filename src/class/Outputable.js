@@ -6,10 +6,6 @@ import {
 import checkMemory from '~/lib/checkMemory';
 import Fulmination from 'fulmination';
 
-const {
-  fulmination,
-} = global;
-
 class Outputable {
   constructor() {
     this.fulmination = new Fulmination();
