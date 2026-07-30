@@ -157,7 +157,7 @@ function deleteRootAmong(root, char, type, duplicate) {
   if (typeof duplicate !== 'boolean') {
     throw new Error('[Error] Parameter repetition should be of boolean type.');
   }
-  const index = getIndexFromChar(char, 0);
+  const index = getIndexFromChar(char, type);
   let beforeRoot = root;
   const {
     constructor: {
@@ -1206,6 +1206,7 @@ class Cluster extends Node {
         this.getChildrens().forEach(([key, value]) => {
           this.setExpandHash(key, value, 1);
         });
+        this.status = toStatus;
         break;
       }
       default:

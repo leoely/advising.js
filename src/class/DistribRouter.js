@@ -402,7 +402,6 @@ class DistribRouter extends Router {
       const { server, } = this;
       this.outputDistribFunction('setup client');
       this.checkMemory();
-      return server;
     } catch (error) {
       this.outputDistribFunctionError('setup client', error);
     }
@@ -429,7 +428,6 @@ class DistribRouter extends Router {
       const { clients, } = this;
       this.outputDistribFunction('setup client');
       this.checkMemory();
-      return clients;
     } catch (error) {
       this.outputDistribFunctionError('setup client', error);
     }

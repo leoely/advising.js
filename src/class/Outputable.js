@@ -24,8 +24,15 @@ class Outputable {
     if (typeof callback !== 'function') {
       throw new Error('[Error] The parameter callback should be a function type.');
     }
-    const { notice, } = Outputable;
-    notice[phrase] = callback;
+    switch (phrase) {
+      case 'mem>chk': {
+        const { notice, } = Outputable;
+        notice[phrase] = callback;
+        break;
+      }
+      default:
+        throw new Error('[Error] The current system notification phrase does not exist.');
+    }
   }
 
   debugInfo(info) {
