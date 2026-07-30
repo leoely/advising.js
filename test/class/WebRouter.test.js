@@ -305,7 +305,7 @@ describe('[Class] WebRouter;', () => {
       debug: false,
     });
     let notice = false;
-    webRouter.addSystemNotice('frequent>call', () => {
+    webRouter.addSystemNotice('freq>call', () => {
       notice = true;
     });
     webRouter.add('/notice/frequentCall', ['notice', 'frequentCall'], async () => {});

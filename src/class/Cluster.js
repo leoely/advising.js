@@ -1991,7 +1991,7 @@ class Cluster extends Node {
       },
     } = this;
     const { notice, } = Outputable;
-    const callback = notice['frequent>call'];
+    const callback = notice['freq>call'];
     if (typeof callback === 'function') {
       const {
         constructor: {

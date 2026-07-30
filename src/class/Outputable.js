@@ -30,7 +30,7 @@ class Outputable {
         notice[phrase] = callback;
         break;
       }
-      case 'frequent>call': {
+      case 'freq>call': {
         const {
           constructor: {
             name,
