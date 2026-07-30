@@ -52,19 +52,19 @@ function matchRecursion(node, index, paths, total, needThing, changeCount, hideE
   }
 }
 
-function blendFromThing(node, path, thing, options, beforePath, beforeNode, notice) {
-  const cluster = new Cluster(options, notice);
+function blendFromThing(node, path, thing, options, beforePath, beforeNode) {
+  const cluster = new Cluster(options);
   cluster.put(path, thing);
   const mixture = new Mixture(cluster, node);
   beforeNode.mixFromThing(mixture, beforePath);
   return cluster;
 }
 
-function addRecursion(node, index, paths, options, thing, beforePath, beforeNode, notice) {
+function addRecursion(node, index, paths, options, thing, beforePath, beforeNode) {
   const path = paths[index];
   if (index === paths.length - 1) {
     if (node instanceof Thing) {
-      blendFromThing(node, path, thing, options, beforePath, beforeNode, notice);
+      blendFromThing(node, path, thing, options, beforePath, beforeNode);
     } else {
       if (node.find(path) instanceof Cluster) {
         node.mixFromCluster(new Mixture(node, thing));
@@ -74,12 +74,12 @@ function addRecursion(node, index, paths, options, thing, beforePath, beforeNode
     }
   } else {
     if (node instanceof Cluster && node.find(path) === undefined) {
-      node.put(path, new Cluster(options, notice));
+      node.put(path, new Cluster(options));
       addRecursion(
         node.find(path), index + 1, paths, options, thing, path, node
       );
     } else if (node instanceof Thing)  {
-      const cluster = blendFromThing(node, path, thing, options, beforePath, beforeNode, notice);
+      const cluster = blendFromThing(node, path, thing, options, beforePath, beforeNode);
       addRecursion(
         cluster.find(path), index + 1, paths, options, thing, path, node
       );
@@ -191,9 +191,7 @@ class Router extends Outputable {
     this.options = Object.assign(defaultOptions, options);
     this.dealOptions(options);
     this.total = 0;
-    const notice = {};
-    this.notice = notice;
-    this.root = new Cluster(this.options, notice, true);
+    this.root = new Cluster(this.options,  true);
     const {
       logPath,
     } = this.options;
@@ -249,17 +247,6 @@ class Router extends Outputable {
       throw new Error('[Error] Parameter temporaryMemorySwtich should be of boolean type.');
     }
     this.options.temporaryMemorySwitch = temporaryMemorySwitch;
-  }
-
-  addSystemNotice(phrase, callback) {
-    if (typeof phrase !== 'string') {
-      throw new Error('[Error] The parameter phase should be a string type.');
-    }
-    if (typeof callback !== 'function') {
-      throw new Error('[Error] The parameter callback should be a function type.');
-    }
-    const { notice, } = this;
-    notice[phrase] = callback;
   }
 
   outputOperate(operate, location) {
@@ -428,11 +415,10 @@ class Router extends Outputable {
   }
 
   add(location, paths, multiple, pathKeys) {
-    const { notice, } = this;
     try {
       if (multiple instanceof Thing) {
         const thing = multiple;
-        addRecursion(root, 0, paths, options, thing, notice);
+        addRecursion(root, 0, paths, options, thing);
       } else {
         const content = multiple;
         const { root, options, } = this;
@@ -440,12 +426,12 @@ class Router extends Outputable {
         switch (ThingClass.name) {
           case 'WebThing': {
             const thing = new ThingClass(options, content, pathKeys);
-            addRecursion(root, 0, paths, options, thing, notice);
+            addRecursion(root, 0, paths, options, thing);
             break;
           }
           default: {
             const thing = new ThingClass(options, content);
-            addRecursion(root, 0, paths, options, thing, notice);
+            addRecursion(root, 0, paths, options, thing);
             break;
           }
         }

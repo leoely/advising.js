@@ -431,7 +431,7 @@ class DistribRouter extends Router {
       this.checkMemory();
       return clients;
     } catch (error) {
-      this.outputDistribFunctionError('setup client');
+      this.outputDistribFunctionError('setup client', error);
     }
   }
 
@@ -641,7 +641,7 @@ class DistribRouter extends Router {
       }
       this.outputDistribOperate('attachDistrib', location);
     } catch (error) {
-      this.outputDistribOperateError('attachDistrib', [locaiton]);
+      this.outputDistribOperateError('attachDistrib', [location]);
     }
   }
 

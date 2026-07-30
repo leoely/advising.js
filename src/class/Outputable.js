@@ -15,6 +15,19 @@ class Outputable {
     this.fulmination = new Fulmination();
   }
 
+  static notice = {};
+
+  addSystemNotice(phrase, callback) {
+    if (typeof phrase !== 'string') {
+      throw new Error('[Error] The parameter phase should be a string type.');
+    }
+    if (typeof callback !== 'function') {
+      throw new Error('[Error] The parameter callback should be a function type.');
+    }
+    const { notice, } = Outputable;
+    notice[phrase] = callback;
+  }
+
   debugInfo(info) {
     const {
       options: {
@@ -85,8 +98,8 @@ class Outputable {
         logPath,
         temporaryMemorySwitch,
       },
-      notice,
     } = this;
+    const { notice, } = Outputable;
     return checkMemory(logPath, safeMemoryCapacity, value, this, temporaryMemorySwitch, notice['mem>chk']);
   }
 }
