@@ -11,7 +11,13 @@ class Outputable {
     this.fulmination = new Fulmination();
   }
 
+  static global = null;
+
   static notice = {};
+
+  setGlobal(global) {
+    Outputable.global = global;
+  }
 
   addSystemNotice(phrase, callback) {
     if (typeof phrase !== 'string') {

@@ -40,6 +40,7 @@ function getBinBuf(params) {
 class DistribRouter extends Router {
   constructor(options, port, allRouters) {
     super(options);
+    this.global = null;
     this.dealParams(port, allRouters);
     this.outputDistribTopology();
     this.checkMemory();
@@ -97,6 +98,10 @@ class DistribRouter extends Router {
       distribRouter.closeConnections();
       delete distribRouter.connections;
     });
+  }
+
+  setGlobal(global) {
+    this.global = global;
   }
 
   getAckPromises(callback) {
@@ -465,6 +470,14 @@ class DistribRouter extends Router {
           return segment.toString();
         });
         break;
+        params = segments.map((segment, index) => {
+          switch (index) {
+            case 0:
+              return segment.toString();
+            case 1:
+              return new Function('return ' + segment.toString())();
+          }
+        }); case 6:
     }
     switch (code) {
       case 0: {
@@ -473,7 +486,7 @@ class DistribRouter extends Router {
         switch (type) {
           case 0: {
             if (rests.length !== 2) {
-              throw new Error('[Error] The remaining parameter lengths do not match convertion.');
+              throw new Error('[Error] The remaining parameter length should be equal to two.');
             }
             const [location, content] = rests;
             this.attach(location, JSON.parse(content));
@@ -482,7 +495,7 @@ class DistribRouter extends Router {
           }
           case 1: {
             if (rests.length !== 2) {
-              throw new Error('[Error] The remaining parameter lengths do not match convertion.');
+              throw new Error('[Error] The remaining parameter length should be equal to two.');
             }
             const [location, content] = rests;
             this.attach(location, new Function(content));
@@ -496,7 +509,7 @@ class DistribRouter extends Router {
       }
       case 1: {
         if (params.length !== 2) {
-          throw new Error('[Error] The parameter lengths do not match convertion.');
+          throw new Error('[Error] The parameters length should be equal to two.');
         }
         const [location1, location2] = params;
         this.exchange(location1, location2);
@@ -505,7 +518,7 @@ class DistribRouter extends Router {
       }
       case 2: {
         if (params.length !== 1) {
-          throw new Error('[Error] The parameters lengths do not match convertion.');
+          throw new Error('[Error] The parameters length should be equal to two.');
         }
         const [location] = params;
         this.ruin(location);
@@ -522,7 +535,7 @@ class DistribRouter extends Router {
         switch (type) {
           case 0: {
             if (rests.length !== 2) {
-              throw new Error('[Error] The remaining parameter lengths do not match convertion.');
+              throw new Error('[Error] The remaining parameter length should be equal to two.');
             }
             const [location, content] = rests;
             this.replace(location, JSON.parse(content));
@@ -531,7 +544,7 @@ class DistribRouter extends Router {
           }
           case 1: {
             if (rests.length !== 2) {
-              throw new Error('[Error] The remaining parameter lengths do not match convertion.');
+              throw new Error('[Error] The remaining parameter length should be equal to two.');
             }
             const [location, content] = rests;
             this.replace(location, new Function(content));
@@ -549,7 +562,7 @@ class DistribRouter extends Router {
         switch (type) {
           case 0: {
             if (rests.length !== 2) {
-              throw new Error('[Error] The remaining parameter lengths do not match convertion.');
+              throw new Error('[Error] The remaining parameter length should be equal to two.');
             }
             const [location, content] = rests;
             this.revise(location, JSON.parse(content));
@@ -558,7 +571,7 @@ class DistribRouter extends Router {
           }
           case 1: {
             if (rests.length !== 2) {
-              throw new Error('[Error] The remaining parameter lengths do not match convertion.');
+              throw new Error('[Error] The remaining parameter length should be equal to two.');
             }
             const [location, content] = rests;
             this.revise(location, new Function(content));
@@ -568,6 +581,15 @@ class DistribRouter extends Router {
           default:
             throw new Error('[Error] Type values should be in the range [0, 1].');
         }
+        break;
+      }
+      case 6: {
+        if (params.length !== 2) {
+          throw new Error('[Error] The parameter length should be equal to two.');
+        }
+        const [phrase, callback] = params;
+        this.addSystemNotice(phrase, callback);
+        connection.write('ack');
         break;
       }
       default:
@@ -733,7 +755,20 @@ class DistribRouter extends Router {
     } catch (error) {
       this.outputDistribOperateError('reviseDistrib', [location], error);
     }
-  }
+
+  async addSystemNoticeDistrib(phrase, callback) {
+    try {
+      this.checkCombine();
+      this.addSystemNotice(phrase, callback);
+      const ackPromises = this.getAckPromises((client) => {
+        client.write(getBinBuf([6, phrase, callback.toString()]));
+      });
+      await Promise.all(ackPromises);
+      this.outputDistribFunction('addSystemNotice distrib');
+    } catch (error) {
+      this.outputDistribFunctionError('addSystemNotice distrib', error);
+    }
+  } }
 }
 
 export default DistribRouter;
