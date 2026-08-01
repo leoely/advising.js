@@ -2003,7 +2003,8 @@ class Cluster extends Node {
           content,
         } = value
         if (typeof content === 'function') {
-          callback();
+          const { global, } = Outputable;
+          callback(global);
         }
       }
     }

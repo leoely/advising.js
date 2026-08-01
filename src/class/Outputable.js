@@ -126,8 +126,8 @@ class Outputable {
         temporaryMemorySwitch,
       },
     } = this;
-    const { notice, } = Outputable;
-    return checkMemory(logPath, safeMemoryCapacity, value, this, temporaryMemorySwitch, notice['mem>chk']);
+    const { notice, global, } = Outputable;
+    return checkMemory(logPath, safeMemoryCapacity, value, this, temporaryMemorySwitch, notice['mem>chk'], global);
   }
 }
 
