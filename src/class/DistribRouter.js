@@ -639,7 +639,7 @@ class DistribRouter extends Router {
       }
       this.outputDistribOperate('attachDistrib', location);
     } catch (error) {
-      this.outputDistribOperateError('attachDistrib', [location]);
+      this.outputDistribOperateError('attachDistrib', [location], error);
     }
   }
 
@@ -654,7 +654,7 @@ class DistribRouter extends Router {
       this.outputDistribOperate('exchangeDistrib', location1);
       this.outputDistribOperate('exchangeDistrib', location2);
     } catch (error) {
-      this.outputDistribOperateError('exchangeDistrib', [locaiton1, location2]);
+      this.outputDistribOperateError('exchangeDistrib', [locaiton1, location2], error);
     }
   }
 
@@ -668,7 +668,7 @@ class DistribRouter extends Router {
       await Promise.all(ackPromises);
       this.outputDistribOperate('ruinDistrib', location);
     } catch (error) {
-      this.outputDistribOperateError('ruinDistrib', [location]);
+      this.outputDistribOperateError('ruinDistrib', [location], error);
     }
   }
 
@@ -706,7 +706,7 @@ class DistribRouter extends Router {
       }
       this.outputDistribOperate('replaceDistrib', location);
     } catch (error) {
-      this.outputDistribOperateError('replaceDistrib', [location]);
+      this.outputDistribOperateError('replaceDistrib', [location], error);
     }
   }
 
@@ -731,7 +731,7 @@ class DistribRouter extends Router {
       }
       this.outputDistribOperate('reviseDistrib', location);
     } catch (error) {
-      this.outputDistribOperateError('reviseDistrib', [location]);
+      this.outputDistribOperateError('reviseDistrib', [location], error);
     }
   }
 }
