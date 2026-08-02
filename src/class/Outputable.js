@@ -11,12 +11,44 @@ class Outputable {
     this.fulmination = new Fulmination();
   }
 
-  static global = null;
+  static globalHash = {};
 
   static notice = {};
 
   setGlobal(global) {
-    Outputable.global = global;
+    const {
+      constructor: {
+        name,
+      },
+    } = this;
+    switch (name) {
+      case 'DistribRouter':
+      case 'WebDistribRouter': {
+        const { address, } = this;
+        Outputable.globalHash[address] = global;
+        break;
+      }
+      default:
+        throw new Error('[Error] Only distributed instances can set global object.');
+    }
+    this.checkMemory();
+  }
+
+  getGlobal() {
+    const {
+      constructor: {
+        name,
+      },
+    } = this;
+    switch (name) {
+      case 'DistribRouter':
+      case 'WebDistribRouter': {
+        const { address, } = this;
+        return Outputable.globalHash[address];
+      }
+      default:
+        return undefined;
+    }
   }
 
   addSystemNotice(phrase, callback) {
@@ -53,6 +85,7 @@ class Outputable {
       default:
         throw new Error('[Error] The current system notification phrase does not exist.');
     }
+    this.checkMemory();
   }
 
   debugInfo(info) {
@@ -126,7 +159,8 @@ class Outputable {
         temporaryMemorySwitch,
       },
     } = this;
-    const { notice, global, } = Outputable;
+    const { notice, } = Outputable;
+    const global = this.getGlobal();
     return checkMemory(logPath, safeMemoryCapacity, value, this, temporaryMemorySwitch, notice['mem>chk'], global);
   }
 }

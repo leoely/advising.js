@@ -18,7 +18,7 @@ export default function checkMemory(logPath, safeMemoryCapacity, value, outputab
       ans = false;
       logOutOfMemory(logPath, freemem);
       if (typeof callback === 'function') {
-        callback();
+        callback(global);
       }
       if (outputable instanceof Outputable) {
         const node = outputable;

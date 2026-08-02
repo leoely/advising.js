@@ -4191,10 +4191,10 @@ makeerror@1.0.12:
   dependencies:
     tmpl "1.0.5"
 
-manner.js@^1.1.4:
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/manner.js/-/manner.js-1.1.4.tgz#f0ebd15dac526a3b6a348dd70e2b086e0b128577"
-  integrity sha512-AME35QhegDgL2Q8AYOM/di+38Vi8b0cfWnUUKFaSycC0xX4uVemmT6kHHJY7wyzSSTfiQd0ynz4ZdLnRNULJ4A==
+manner.js@^1.2.7:
+  version "1.2.7"
+  resolved "https://registry.yarnpkg.com/manner.js/-/manner.js-1.2.7.tgz#e21af8d04ed86c5ff7981c45e364ea32f7aadbe1"
+  integrity sha512-1ua6gWt4AvgmMGT6debx2Dr4nrpysU/5U6XqEYuq98DidcMDmh8XrXgeD584/l5ab4inR2a2s6hn1UvYiMsX/w==
   dependencies:
     babel-plugin-root-import "^6.6.0"
     gulp "^4.0.2"

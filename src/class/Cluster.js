@@ -1342,6 +1342,7 @@ class Cluster extends Node {
     const { count, } = this;
     this.rate = count / total;
     this.adjust();
+    this.checkMemory();
     return this.find(key);
     this.debugInfo('successfully obtained the value');
   }

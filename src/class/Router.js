@@ -180,7 +180,7 @@ class Router extends Outputable {
       bond: 500,
       dutyCycle: 500,
       logLevel: 7,
-      logInterval: 20,
+      logInterval: 50,
       interception: 8,
       debug: true,
       hideError: false,

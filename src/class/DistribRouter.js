@@ -4,6 +4,7 @@ import {
   getOwnIpAddresses,
   ByteArray,
   appendToLog,
+  getAddress,
 } from 'manner.js/server';
 import Thing from '~/class/Thing';
 import Router from '~/class/Router';
@@ -40,7 +41,6 @@ function getBinBuf(params) {
 class DistribRouter extends Router {
   constructor(options, port, allRouters) {
     super(options);
-    this.global = null;
     this.dealParams(port, allRouters);
     this.outputDistribTopology();
     this.checkMemory();
@@ -100,10 +100,6 @@ class DistribRouter extends Router {
     });
   }
 
-  setGlobal(global) {
-    this.global = global;
-  }
-
   getAckPromises(callback) {
     if (typeof callback !== 'function') {
       throw new Error('[Error] Parameter callback should be a funciton type.');
@@ -138,8 +134,8 @@ class DistribRouter extends Router {
     const locations = [];
     ipAddresses.forEach((ipAddress) => {
       const { ipv4, ipv6, } = ipAddress;
-      locations.push(ipv4 + ':' + port);
-      locations.push('[' + ipv6 + ']:' + port);
+      locations.push(getAddress(ipv4, port));
+      locations.push(getAddress(ipv6, port));
     });
     const hash = {};
     const routers = allRouters.filter((router) => {
@@ -153,26 +149,17 @@ class DistribRouter extends Router {
       for (let i = 0; i< locations.length ; i += 1) {
         const location = locations[i];
         const [ip] = router;
-        if (net.isIPv4(ip)) {
-          if (router.join(':') === location) {
-            const [ip] = router;
-            this.ip = ip;
-            flag = false;
-            break;
-          }
-        } else if (net.isIPv6(ip)) {
-          const [ip, port] = router;
-          const formatStorage = ['[' + ip + ']', port];
-          if (formatStorage.join(':') === location) {
-            const [ip] = router;
-            this.ip = ip;
-            flag = false;
-            break;
-          }
+        if (getAddress(ip, port) === location) {
+          const [ip] = router;
+          this.ip = ip;
+          flag = false;
+          break;
         }
       }
       return flag;
     });
+    const { ip, } = this;
+    this.address = getAddress(ip, this.port);
     this.routers = routers;
   }
 
@@ -470,6 +457,7 @@ class DistribRouter extends Router {
           return segment.toString();
         });
         break;
+      case 6:
         params = segments.map((segment, index) => {
           switch (index) {
             case 0:
@@ -477,7 +465,7 @@ class DistribRouter extends Router {
             case 1:
               return new Function('return ' + segment.toString())();
           }
-        }); case 6:
+        });
     }
     switch (code) {
       case 0: {
@@ -755,6 +743,7 @@ class DistribRouter extends Router {
     } catch (error) {
       this.outputDistribOperateError('reviseDistrib', [location], error);
     }
+  }
 
   async addSystemNoticeDistrib(phrase, callback) {
     try {
@@ -768,7 +757,7 @@ class DistribRouter extends Router {
     } catch (error) {
       this.outputDistribFunctionError('addSystemNotice distrib', error);
     }
-  } }
+  }
 }
 
 export default DistribRouter;
