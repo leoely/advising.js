@@ -1091,8 +1091,78 @@ class Cluster extends Node {
     switch (flag) {
       case -1: {
         const { status, } = this;
-        if (status === -1) {
-          this.establishHash(6);
+        switch (status) {
+          case -1:
+            this.establishHash(6);
+            break;
+          case 0:
+          case 3:
+          case 8: {
+            const {
+              options: {
+                convertToFullHash,
+              },
+            } = this;
+            if (convertToFullHash === true) {
+              this.status = 6;
+              this.hash = {};
+              const keys = Object.keys(hash);
+              keys.forEach((key) => {
+                this.put(key, hash[key]);
+              });
+              this.debugInfo('partially converted to init full hash.');
+            } else {
+              switch (status) {
+                case 0:
+                  throw new Error('[Error] The current cluster is a numberic type but cannot be converted into a full hash.');
+                  break;
+                case 3:
+                  throw new Error('[Error] The current cluster is a plain text but cannot be converted into a full hash.');
+                  break;
+                case 8:
+                  throw new Error('[Error] The current cluster is of hexadecmic type but cannot be converted into a full hash.');
+                  break;
+              }
+            }
+            break;
+          }
+          case 1:
+          case 4:
+          case 9:
+          case 2:
+          case 5:
+          case 10: {
+            const {
+              options: {
+                convertToFullHash,
+              },
+            } = this;
+            if (convertToFullHash === true) {
+              this.status = 7;
+              this.hash = [];
+              const childrens = this.getChildrens();
+              childrens.forEach(([key, value]) => {
+                this.put(key, value);
+              });
+              this.debugInfo('partially converted to middle full hash.');
+            } else {
+              switch (status) {
+                case 1:
+                case 2:
+                  throw new Error('[Error] The current cluster is a numberic type but cannot be converted into a full hash.');
+                  break;
+                case 4:
+                case 5:
+                  throw new Error('[Error] The current cluster is a plain text but cannot be converted into a full hash.');
+                  break;
+                case 9:
+                case 10:
+                  throw new Error('[Error] The current cluster is of hexadecmic type but cannot be converted into a full hash.');
+                  break;
+              }
+            }
+            break;
+          }
         }
         break;
       }
@@ -1164,6 +1234,9 @@ class Cluster extends Node {
                 throw new Error('[Error] Cluster is pure numeric type but the newly added is a pure letters.');
               }
               break;
+            case 6:
+            case 7:
+              break;
             default:
               throw new Error('[Error] Cluster is pure numeric type but the newly added is a pure letters.');
           }
@@ -1184,6 +1257,7 @@ class Cluster extends Node {
             case 3:
             case 1:
             case 4:
+            case 7:
             case 8:
             case 9:
             case 10:

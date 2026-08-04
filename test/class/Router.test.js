@@ -929,4 +929,48 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
     router.add('/notice/checkMemory', ['notice', 'checkMemory'], { type: 'checkMemory', });
     expect(notice).toBe(true);
   });
+
+  test('Router should be able to convert the full hash.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 7,
+      logInterval: 5,
+      interception: 5,
+      hideError: true,
+      debug: false,
+      convertToFullHash: true,
+    });
+    router.add('/letters/sbd', ['letters', 'sbd'], { content: 'sdb', });
+    router.add('/letters/abc', ['letters', 'abc'], { content: 'abc', });
+    router.add('/letters/s#&3*vfs', ['letters', 's#&3*vfs'], { content: 's#&3*vfs', });
+    router.add('letters/eid', ['letters', 'eid'], { content: 'eid', });
+    router.add('/letters/%f3#gfb@*', ['letters', '%f3#gfb@*'], { content: '%f3#gfb@*', });
+    expect(JSON.stringify(router.match('/letters/sbd', ['letters', 'sbd']))).toMatch('{\"content\":\"sdb\"}');
+    expect(JSON.stringify(router.match('/letters/abc', ['letters', 'abc']))).toMatch('{\"content\":\"abc\"}');
+    expect(JSON.stringify(router.match('/letters/s#&3*vfs', ['letters', 's#&3*vfs']))).toMatch('{\"content\":\"s#&3*vfs\"}');
+    expect(JSON.stringify(router.match('/letters/eid', ['letters', 'eid']))).toMatch('{\"content\":\"eid\"}');
+    expect(JSON.stringify(router.match('/letters/%f3#gfb@*', ['letters', '%f3#gfb@*']))).toMatch('{\"content\":\"%f3#gfb@*\"}');
+  });
+
+  test('Router that doesn\'t allow conversion to a full hash should also throw an error.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 7,
+      logInterval: 5,
+      interception: 5,
+      hideError: true,
+      debug: false,
+    });
+    router.add('/letters/sbd', ['letters', 'sbd'], { content: 'sdb', });
+    router.add('/letters/abc', ['letters', 'abc'], { content: 'abc', });
+    expect(() => router.add('/letters/s#&3*vfs', ['letters', 's#&3*vfs'], { content: 's#&3*vfs', })).toThrow('[Error] The current cluster is a plain text but cannot be converted into a full hash.');
+    expect(JSON.stringify(router.match('/letters/sbd', ['letters', 'sbd']))).toMatch('{\"content\":\"sdb\"}');
+    expect(JSON.stringify(router.match('/letters/abc', ['letters', 'abc']))).toMatch('{\"content\":\"abc\"}');
+  });
 });

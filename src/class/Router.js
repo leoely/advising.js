@@ -184,6 +184,7 @@ class Router extends Outputable {
       interception: 8,
       debug: true,
       hideError: false,
+      convertToFullHash: false,
       logPath: '/var/log/advising.js/',
       safeMemoryCapacity: 4 * 1024 * 1024 * 1024,
     };
@@ -309,6 +310,7 @@ class Router extends Outputable {
         hideError,
         logPath,
         bitWidth,
+        convertToFullHash,
         safeMemoryCapacity,
       },
     } = this;
@@ -368,6 +370,11 @@ class Router extends Outputable {
       }
       if (!(bitWidth > 0)) {
         throw new Error('[Error] The option bit width should be a postive integer.')
+      }
+    }
+    if (convertToFullHash !== undefined) {
+      if (typeof convertToFullHash !== 'boolean') {
+        throw new Error('[Error] The options convertToFullHash should be a boolean type.');
       }
     }
     if (safeMemoryCapacity !== undefined) {
