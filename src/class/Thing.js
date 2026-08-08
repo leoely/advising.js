@@ -107,7 +107,7 @@ class Thing extends Node {
     if (typeof total !== 'number') {
       throw new Error('[Error] Get content parameter total should be a numberic type.');
     }
-    if (typeof location !== 'string') {
+    if (typeof location !== 'string' && typeof location !== 'number') {
       throw new Error('[Error] Get content parameter location should be a string type.');
     }
     this.match(total, location);

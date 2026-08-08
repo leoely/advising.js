@@ -9,3 +9,4 @@ export { default as ObjectRouter, } from '~/class/ObjectRouter';
 export { default as NamespaceRouter, } from '~/class/NamespaceRouter';
 export { default as HostnameRouter, } from '~/class/HostnameRouter';
 export { default as IntegerRouter, } from '~/class/IntegerRouter';
+export { default as HostRouter, } from '~/class/HostRouter';

@@ -181,7 +181,7 @@ class Router extends Outputable {
       dutyCycle: 500,
       logLevel: 7,
       logInterval: 50,
-      interception: 3,
+      interception: 8,
       debug: true,
       hideError: false,
       convertToFullHash: false,
@@ -223,6 +223,7 @@ class Router extends Outputable {
       case 'NamespaceRouter':
       case 'HostnameRouter':
       case 'IntegerRouter':
+      case 'HostRouter':
       case 'Router':
         this.debugShort(`
           [+] bold:
