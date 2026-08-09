@@ -1197,6 +1197,10 @@ class Cluster extends Node {
                 throw new Error('[Error] Cluster is plain text type but the newly added type is a pure number.');
               }
               break;
+            case 8:
+            case 9:
+            case 10:
+              break;
             default:
               throw new Error('[Error] Cluster is plain text type but the newly added type is a pure number.');
           }

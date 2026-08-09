@@ -20,7 +20,7 @@ function getPathsFromHost(host) {
   let paths = [];
   const [address, port] = splitHost(host);
   if (net.isIPv4(address)) {
-    paths.push(addres.split('.'));
+    paths = paths.concat(address.split('.'));
   } else {
     if (/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/.test(address)) {
       address.split('.').forEach((p) => {
@@ -29,7 +29,7 @@ function getPathsFromHost(host) {
     } else {
       const {
         length,
-      } = this;
+      } = address;
       const ipv6 = address.substring(1, length - 1);
       if (net.isIPv6(ipv6)) {
         paths = ipv6.split(':');
