@@ -72,28 +72,21 @@ class DistribRouter extends Router {
       return distribRouter.setUpClients();
     });
     await Promise.all(serverPromises.concat(clientsPromises));
+    distribRouters.map((distribRouter) => {
+      distribRouter.setUpSockets();
+    });
   }
 
-  static async join(newDistribRouters, originDistribRouters) {
-    if (!Array.isArray(newDistribRouters)) {
-      throw new Error('[Error] The new distributed routings should beo fo array type..');
-    }
-    if (!Array.isArray(originDistribRouters)) {
-      throw new Error('[Error] The origin distributed routings should be of array type.');
-    }
-    const serverPromises = newDistribRouters.map((distribRouter) => {
-      return distribRouter.setUpServer();
+  static async join(newDistribRouters, originDistribRouters, allRouters) {
+    await DistribRouter.release(originDistribRouters);
+    originDistribRouters.forEach((originDistribRouter) => {
+      originDistribRouter.setAllRouters(allRouters);
     });
-    const clientsPromises = newDistribRouters.map((distribRouter) => {
-      return distribRouter.setUpClients();
+    distribRouters = originDistribRouters.concat(newDistribRouters);
+    distribRouters.forEach((distribRouter, index) => {
+      distribRouter.index = index;
     });
-    const addPromises = originDistribRouters.map((originDistribRouter) => {
-      return newDistribRouters.map((newDistribRouter) => {
-        const { ip, port, } = newDistribRouter;
-        originDistribRouter.addRouter(ip, port);
-      });
-    }).flat();
-    await Promise.all(serverPromises.concat(clientsPromises).concat(addPromises));
+    await DistribRouter.combine(distribRouters);
   }
 
   static async release(distribRouters) {
@@ -124,7 +117,7 @@ class DistribRouter extends Router {
       callback(socket);
       return new Promise((resolve, reject) => {
         eventEmitter.on('data:receive', (buffer) => {
-          const data = buf.toString();
+          const data = buffer.toString();
           switch (data) {
             case 'ack':
               resolve();
@@ -135,6 +128,49 @@ class DistribRouter extends Router {
     });
   }
 
+  setAllRouters(allRouters) {
+    if (Array.isArray(allRouters) !== true) {
+      throw new Error('[Error] The parameter all routers should be array type.');
+    }
+    const { port, } = this;
+    const ipAddresses = getOwnIpAddresses();
+    const locations = [];
+    ipAddresses.forEach((ipAddress) => {
+      const { ipv4, ipv6, } = ipAddress;
+      locations.push(getAddress(ipv4, port));
+      locations.push(getAddress(ipv6, port));
+    });
+    const hash = {};
+    allRouters = allRouters.map((router, index) => {
+      const [ip, port] = router;
+      return [ip, port, index];
+    });
+    const routers = allRouters.filter((router, index) => {
+      const [_, port] = router;
+      if (hash[port] === undefined) {
+        hash[port] = true;
+      } else {
+        throw new Error('[Error] A port can only be bound to one router');
+      }
+      let flag = true;
+      for (let i = 0; i< locations.length ; i += 1) {
+        const location = locations[i];
+        const [ip] = router;
+        if (getAddress(ip, port) === location) {
+          const [ip] = router;
+          this.index = index;
+          this.ip = ip;
+          flag = false;
+          break;
+        }
+      }
+      return flag;
+    });
+    const { ip, } = this;
+    this.address = getAddress(ip, this.port);
+    this.routers = routers;
+  }
+
   dealParams(port, allRouters) {
     if (Number.isInteger(port) !== true) {
       throw new Error('[Error] The parameter port should be of integer type.');
@@ -142,7 +178,7 @@ class DistribRouter extends Router {
     if (!(port >= 0)) {
       throw new Error('[Error] Parameter id needs to be a postive integer.');
     }
-    this.port = port
+    this.port = port;
     if (Array.isArray(allRouters) !== true) {
       throw new Error('[Error] The parameter all routers should be array type.');
     }
@@ -388,21 +424,10 @@ class DistribRouter extends Router {
 
   getSockets() {
     this.checkCombine();
-    const { sockets, } = this;
-    if (sockets === undefined) {
-      const { clients, connections, } = this;
-      this.sockets = clients.concat(connections);
-      const { sockets: socketList, } = this;
-      socketList.forEach((socket) => {
-        this.socket = socket;
-        socket.on('data', this.dealReceiveAndSendBuffer);
-      })
-      delete this.socket;
-    }
     return this.sockets;
   }
 
-  dealReceiveAndSendBuffer(buffer) {
+  dealReceiveAndSendBuffer(buffer, socket) {
     const flag = buffer[0];
     const {
       length,
@@ -413,12 +438,11 @@ class DistribRouter extends Router {
         const {
           eventEmitter,
         } = this;
-        eventEmitter.send('data:receive', buffer);
+        eventEmitter.emit('data:receive', buffer);
         break;
       }
       case 1: {
-        const { socket, } = this;
-        this.dealSendBuffer(buffer, socket);
+        this.dealReceiveBuffer(buffer, socket);
         break;
       }
     }
@@ -484,6 +508,23 @@ class DistribRouter extends Router {
       this.clients = await Promise.all(clientPromises);
       const { clients, } = this;
       this.outputDistribFunction('setup client');
+      this.checkMemory();
+    } catch (error) {
+      this.outputDistribFunctionError('setup client', error);
+    }
+  }
+
+  setUpSockets() {
+    try {
+      const { clients, connections, } = this;
+      this.sockets = clients.concat(connections);
+      const { sockets: socketList, } = this;
+      socketList.forEach((socket) => {
+        socket.on('data', (buffer) => {
+          this.dealReceiveAndSendBuffer(buffer, socket);
+        });
+      })
+      this.outputDistribFunction('setup sockets');
       this.checkMemory();
     } catch (error) {
       this.outputDistribFunctionError('setup client', error);
