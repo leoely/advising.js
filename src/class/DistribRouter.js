@@ -1,3 +1,4 @@
+import EventEmitter from 'events';
 import net from 'net';
 import {
   getGTMNowString,
@@ -38,11 +39,25 @@ function getBinBuf(params) {
   return buf;
 }
 
+function addBufferFlag(flag, buffer) {
+  if (!Number.isInteger(flag)) {
+    throw new Error('[Error] The parameter flag should be an integer type');
+  }
+  if (!Buffer.isBuffer(buffer)) {
+    throw new Error('[Error] The parameter buffer should be of type buffer.');
+  }
+  const fbytes = Buffer.from([flag]);
+  return Buffer.concat([fbytes, buffer]);
+}
+
 class DistribRouter extends Router {
   constructor(options, port, allRouters) {
     super(options);
     this.dealParams(port, allRouters);
     this.outputDistribTopology();
+    this.eventEmitter = new EventEmitter();
+    this.dealReceiveBuffer = this.dealReceiveBuffer.bind(this);
+    this.dealReceiveAndSendBuffer = this.dealReceiveAndSendBuffer.bind(this);
     this.checkMemory();
   }
 
@@ -104,10 +119,11 @@ class DistribRouter extends Router {
     if (typeof callback !== 'function') {
       throw new Error('[Error] Parameter callback should be a funciton type.');
     }
-    return this.getClients().map((client) => {
-      callback(client);
+    const { eventEmitter, } = this;
+    return this.getSockets().map((socket) => {
+      callback(socket);
       return new Promise((resolve, reject) => {
-        client.on('data', (buf) => {
+        eventEmitter.on('data:receive', (buffer) => {
           const data = buf.toString();
           switch (data) {
             case 'ack':
@@ -138,7 +154,11 @@ class DistribRouter extends Router {
       locations.push(getAddress(ipv6, port));
     });
     const hash = {};
-    const routers = allRouters.filter((router) => {
+    allRouters = allRouters.map((router, index) => {
+      const [ip, port] = router;
+      return [ip, port, index];
+    });
+    const routers = allRouters.filter((router, index) => {
       const [_, port] = router;
       if (hash[port] === undefined) {
         hash[port] = true;
@@ -151,6 +171,7 @@ class DistribRouter extends Router {
         const [ip] = router;
         if (getAddress(ip, port) === location) {
           const [ip] = router;
+          this.index = index;
           this.ip = ip;
           flag = false;
           break;
@@ -301,11 +322,14 @@ class DistribRouter extends Router {
 
   async closeServer() {
     try {
-      await new Promise((resolve, reject) => {
-        this.getServer().close(() => {
-          resolve();
-        });
-      })
+      const server = this.getServer();
+      if (server !== null) {
+        await new Promise((resolve, reject) => {
+          this.getServer().close(() => {
+            resolve();
+          });
+        })
+      }
       this.outputDistribFunction('close server');
     } catch (error) {
       this.outputDistribFunctionError('close server', error);
@@ -328,9 +352,6 @@ class DistribRouter extends Router {
       const { connections, } = this;
       if (!Array.isArray(connections)) {
         throw new Error('[Error] The connections is not an array type or the combine is not complete.');
-      }
-      if (connections.length === 0) {
-        throw new Error('[Error] The length of the connections is zero.Perhaps the combine was not completed;');
       }
       connections.forEach((connection) => {
         connection.destroySoon();
@@ -365,6 +386,44 @@ class DistribRouter extends Router {
     return clients;
   }
 
+  getSockets() {
+    this.checkCombine();
+    const { sockets, } = this;
+    if (sockets === undefined) {
+      const { clients, connections, } = this;
+      this.sockets = clients.concat(connections);
+      const { sockets: socketList, } = this;
+      socketList.forEach((socket) => {
+        this.socket = socket;
+        socket.on('data', this.dealReceiveAndSendBuffer);
+      })
+      delete this.socket;
+    }
+    return this.sockets;
+  }
+
+  dealReceiveAndSendBuffer(buffer) {
+    const flag = buffer[0];
+    const {
+      length,
+    } = buffer;
+    buffer = buffer.subarray(1, length);
+    switch (flag) {
+      case 0: {
+        const {
+          eventEmitter,
+        } = this;
+        eventEmitter.send('data:receive', buffer);
+        break;
+      }
+      case 1: {
+        const { socket, } = this;
+        this.dealSendBuffer(buffer, socket);
+        break;
+      }
+    }
+  }
+
   async setUpServer() {
     try {
       const {
@@ -374,24 +433,25 @@ class DistribRouter extends Router {
       } = this;
       let count = 0;
       this.connections = [];
-      this.server = await new Promise((resolve, reject) => {
-        const server = net.createServer((connection) => {
-          connection.on('data', (buf) => {
-            this.dealConnectionBuf(buf, connection);
+      const { index, } = this;
+      if (length - index === 0) {
+        this.server = null;
+      } else {
+        this.server = await new Promise((resolve, reject) => {
+          const server = net.createServer((connection) => {
+            count += 1;
+            this.connections.push(connection);
+            if (count === length - index) {
+              resolve(server);
+            }
           });
-          count += 1;
-          this.connections.push(connection);
-          if (count === length) {
-            resolve(server);
-          }
+          const { port, } = this;
+          server.on('error', (error) => {
+            throw error;
+          });
+          server.listen(port);
         });
-        const { port, } = this;
-        server.on('error', (error) => {
-          throw error;
-        });
-        server.listen(port);
-      });
-      const { server, } = this;
+      }
       this.outputDistribFunction('setup client');
       this.checkMemory();
     } catch (error) {
@@ -401,20 +461,25 @@ class DistribRouter extends Router {
 
   async setUpClients() {
     try {
-      const { routers, } = this;
-      const clientPromises = routers.map((router) => {
-        const [ip, port] = router;
-        return new Promise((resolve, reject) => {
-          const client = net.createConnection(port, ip, () => {
-            client.ip = ip;
-            client.port = port;
-            resolve(client);
+      const { routers, index, } = this;
+      const clientPromises = [];
+      routers.map((router) => {
+        const [_1, _2, i] = router;
+        if (index > i && i >= 0) {
+          const [ip, port] = router;
+          const clientPromise = new Promise((resolve, reject) => {
+            const client = net.createConnection(port, ip, () => {
+              client.ip = ip;
+              client.port = port;
+              resolve(client);
+            });
+            client.on('close', () => {
+              const { ip, port, } = client;
+              this.removeRouter(ip, port);
+            });
           });
-          client.on('close', () => {
-            const { ip, port, } = client;
-            this.removeRouter(ip, port);
-          });
-        });
+          clientPromises.push(clientPromise);
+        }
       });
       this.clients = await Promise.all(clientPromises);
       const { clients, } = this;
@@ -425,7 +490,7 @@ class DistribRouter extends Router {
     }
   }
 
-  dealConnectionBuf(buf, connection) {
+  dealReceiveBuffer(buf, socket) {
     const segments = [];
     let s = 0;
     for (let i = 0; i < buf.length; i += 1) {
@@ -478,7 +543,7 @@ class DistribRouter extends Router {
             }
             const [location, content] = rests;
             this.attach(location, JSON.parse(content));
-            connection.write('ack');
+            socket.write(addBufferFlag(0, Buffer.from('ack')));
             break;
           }
           case 1: {
@@ -487,7 +552,7 @@ class DistribRouter extends Router {
             }
             const [location, content] = rests;
             this.attach(location, new Function(content));
-            connection.write('ack');
+            socket.write(addBufferFlag(0, Buffer.from('ack')));
             break;
           }
           default:
@@ -501,7 +566,7 @@ class DistribRouter extends Router {
         }
         const [location1, location2] = params;
         this.exchange(location1, location2);
-        connection.write('ack');
+        socket.write(addBufferFlag(0, Buffer.from('ack')));
         break;
       }
       case 2: {
@@ -510,12 +575,12 @@ class DistribRouter extends Router {
         }
         const [location] = params;
         this.ruin(location);
-        connection.write('ack');
+        socket.write(addBufferFlag(0, Buffer.from('ack')));
         break;
       }
       case 3:
         this.ruinAll(params);
-        connection.write('ack');
+        socket.write(addBufferFlag(0, Buffer.from('ack')));
         break;
       case 4: {
         const [bigInt2, ...rests] = params;
@@ -527,7 +592,7 @@ class DistribRouter extends Router {
             }
             const [location, content] = rests;
             this.replace(location, JSON.parse(content));
-            connection.write('ack');
+            socket.write(addBufferFlag(0, Buffer.from('ack')));
             break;
           }
           case 1: {
@@ -536,7 +601,7 @@ class DistribRouter extends Router {
             }
             const [location, content] = rests;
             this.replace(location, new Function(content));
-            connection.write('ack');
+            socket.write(addBufferFlag(0, Buffer.from('ack')));
             break;
           }
           default:
@@ -554,7 +619,7 @@ class DistribRouter extends Router {
             }
             const [location, content] = rests;
             this.revise(location, JSON.parse(content));
-            connection.write('ack');
+            socket.write(addBufferFlag(0, Buffer.from('ack')));
             break;
           }
           case 1: {
@@ -563,7 +628,7 @@ class DistribRouter extends Router {
             }
             const [location, content] = rests;
             this.revise(location, new Function(content));
-            connection.write('ack');
+            socket.write(addBufferFlag(0, Buffer.from('ack')));
             break;
           }
           default:
@@ -577,7 +642,7 @@ class DistribRouter extends Router {
         }
         const [phrase, callback] = params;
         this.addSystemNotice(phrase, callback);
-        connection.write('ack');
+        socket.write(addBufferFlag(0, Buffer.from('ack')));
         break;
       }
       default:
@@ -634,15 +699,15 @@ class DistribRouter extends Router {
       this.attach(location, content);
       switch (typeof content) {
         case 'function': {
-          const ackPromises = this.getAckPromises((client) => {
-            client.write(getBinBuf([0, 1, location, content.toString()]));
+          const ackPromises = this.getAckPromises((socket) => {
+            socket.write(addBufferFlag(1, getBinBuf([0, 1, location, content.toString()])));
           });
           await Promise.all(ackPromises);
           break;
         }
         default: {
-          const ackPromises = this.getAckPromises((client) => {
-            client.write(getBinBuf([0, 0, location, JSON.stringify(content)]));
+          const ackPromises = this.getAckPromises((socket) => {
+            socket.write(addBufferFlag(1, getBinBuf([0, 0, location, JSON.stringify(content)])));
           });
           await Promise.all(ackPromises);
         }
@@ -657,8 +722,8 @@ class DistribRouter extends Router {
     try {
       this.checkCombine();
       this.exchange(location1, location2);
-      const ackPromises = this.getAckPromises((client) => {
-        client.write(getBinBuf([1, location1, location2]));
+      const ackPromises = this.getAckPromises((socket) => {
+        socket.write(addBufferFlag(1, getBinBuf([1, location1, location2])));
       });
       await Promise.all(ackPromises);
       this.outputDistribOperate('exchangeDistrib', location1);
@@ -672,8 +737,8 @@ class DistribRouter extends Router {
     try {
       this.checkCombine();
       this.ruin(location);
-      const ackPromises = this.getAckPromises((client) => {
-        client.write(getBinBuf([2, location]));
+      const ackPromises = this.getAckPromises((socket) => {
+        socket.write(addBufferFlag(1, getBinBuf([2, location])));
       });
       await Promise.all(ackPromises);
       this.outputDistribOperate('ruinDistrib', location);
@@ -685,8 +750,8 @@ class DistribRouter extends Router {
   async ruinAllDistrib(locations) {
     this.checkCombine();
     this.ruinAll(locations);
-    const ackPromises = this.getAckPromises((client) => {
-      client.write(getBinBuf([3, ...locations]));
+    const ackPromises = this.getAckPromises((socket) => {
+      socket.write(addBufferFlag(1, getBinBuf([3, ...locations])));
     });
     await Promise.all(ackPromises);
   }
@@ -701,15 +766,15 @@ class DistribRouter extends Router {
       this.replace(location, content);
       switch (typeof content) {
         case 'function': {
-          const ackPromises = this.getAckPromises((client) => {
-            client.write(getBinBuf([4, 1, location, content.toString()]));
+          const ackPromises = this.getAckPromises((socket) => {
+            socket.write(addBufferFlag(1, getBinBuf([4, 1, location, content.toString()])));
           });
           await Promise.all(ackPromises);
           break;
         }
         default: {
-          const ackPromises = this.getAckPromises((client) => {
-            client.write(getBinBuf([4, 0, location, JSON.stringify(content)]));
+          const ackPromises = this.getAckPromises((socket) => {
+            socket.write(addBufferFlag(1, getBinBuf([4, 0, location, JSON.stringify(content)])));
           });
           await Promise.all(ackPromises);
         }
@@ -726,15 +791,15 @@ class DistribRouter extends Router {
       this.revise(location, content);
       switch (typeof content) {
         case 'function': {
-          const ackPromises = this.getAckPromises((client) => {
-            client.write(getBinBuf([5, 1, location, content.toString()]));
+          const ackPromises = this.getAckPromises((socket) => {
+            socket.write(addBufferFlag(1, getBinBuf([5, 1, location, content.toString()])));
           });
           await Promise.all(ackPromises);
           break;
         }
         default: {
-          const ackPromises = this.getAckPromises((client) => {
-            client.write(getBinBuf([5, 0, location, JSON.stringify(content)]));
+          const ackPromises = this.getAckPromises((socket) => {
+            socket.write(addBufferFlag(1, getBinBuf([5, 0, location, JSON.stringify(content)])));
           });
           await Promise.all(ackPromises);
         }
@@ -749,8 +814,8 @@ class DistribRouter extends Router {
     try {
       this.checkCombine();
       this.addSystemNotice(phrase, callback);
-      const ackPromises = this.getAckPromises((client) => {
-        client.write(getBinBuf([6, phrase, callback.toString()]));
+      const ackPromises = this.getAckPromises((socket) => {
+        socket.write(addBufferFlag(1, getBinBuf([6, phrase, callback.toString()])));
       });
       await Promise.all(ackPromises);
       this.outputDistribFunction('addSystemNotice distrib');

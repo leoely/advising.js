@@ -32,10 +32,10 @@ describe('[Class] DistribRouter;', () => {
       debug: false,
     }, 8001, routers);
     expect(JSON.stringify(distribRouter1.routers)).toMatch(JSON.stringify([
-      [ipv4, 8001],
+      [ipv4, 8001, 1],
     ]));
     expect(JSON.stringify(distribRouter2.routers)).toMatch(JSON.stringify([
-      [ipv4, 8000],
+      [ipv4, 8000, 0],
     ]));
   });
 
@@ -57,7 +57,7 @@ describe('[Class] DistribRouter;', () => {
       debug: false,
     }, 8002, routers);
     expect(JSON.stringify(distribRouter1.routers)).toMatch(JSON.stringify([
-      [ipv6,  8003],
+      [ipv6,  8003, 1],
     ]));
     const distribRouter2 = new DistribRouter({
       threshold: 0.5,
@@ -70,7 +70,7 @@ describe('[Class] DistribRouter;', () => {
       debug: false,
     }, 8003, routers);
     expect(JSON.stringify(distribRouter2.routers)).toMatch(JSON.stringify([
-      [ipv6,  8002],
+      [ipv6,  8002, 0],
     ]));
   });
 
@@ -92,7 +92,7 @@ describe('[Class] DistribRouter;', () => {
       debug: false,
     }, 8004, routers);
     expect(JSON.stringify(distribRouter1.routers)).toMatch(JSON.stringify([
-      [ipv4, 8005],
+      [ipv4, 8005, 1],
     ]));
     const distribRouter2 = new DistribRouter({
       threshold: 0.5,
@@ -105,7 +105,7 @@ describe('[Class] DistribRouter;', () => {
       debug: false,
     }, 8005, routers);
     expect(JSON.stringify(distribRouter2.routers)).toMatch(JSON.stringify([
-      [ipv6,  8004],
+      [ipv6,  8004, 0],
     ]));
   });
 
@@ -143,7 +143,7 @@ describe('[Class] DistribRouter;', () => {
       const client = clients1[i];
       expect(client instanceof net.Socket).toBe(true);
     }
-    expect(distribRouter2.server instanceof net.Server).toBe(true);
+    expect(distribRouter2.server === null).toBe(true);
     const { clients: clients2, } = distribRouter2;
     for (let i = 0; i < clients2.length; i += 1) {
       const client = clients2[i];
