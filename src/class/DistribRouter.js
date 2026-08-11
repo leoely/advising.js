@@ -358,14 +358,11 @@ class DistribRouter extends Router {
 
   async closeServer() {
     try {
-      const server = this.getServer();
-      if (server !== null) {
-        await new Promise((resolve, reject) => {
-          this.getServer().close(() => {
-            resolve();
-          });
-        })
-      }
+      await new Promise((resolve, reject) => {
+        this.getServer().close(() => {
+          resolve();
+        });
+      })
       this.outputDistribFunction('close server');
     } catch (error) {
       this.outputDistribFunctionError('close server', error);
