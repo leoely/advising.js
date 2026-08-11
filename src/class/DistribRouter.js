@@ -497,10 +497,10 @@ class DistribRouter extends Router {
           server.listen(port);
         });
       }
-      this.outputDistribFunction('setup client');
+      this.outputDistribFunction('setup server');
       this.checkMemory();
     } catch (error) {
-      this.outputDistribFunctionError('setup client', error);
+      this.outputDistribFunctionError('setup server', error);
     }
   }
 
@@ -527,7 +527,6 @@ class DistribRouter extends Router {
         }
       });
       this.clients = await Promise.all(clientPromises);
-      const { clients, } = this;
       this.outputDistribFunction('setup client');
       this.checkMemory();
     } catch (error) {
@@ -553,7 +552,7 @@ class DistribRouter extends Router {
       this.outputDistribFunction('setup sockets');
       this.checkMemory();
     } catch (error) {
-      this.outputDistribFunctionError('setup client', error);
+      this.outputDistribFunctionError('setup socket', error);
     }
   }
 
@@ -718,34 +717,44 @@ class DistribRouter extends Router {
   }
 
   removeClient(client) {
-    const { clients, } = this;
-    if (clients !== undefined) {
-      for (let i = 0; i < clients.length; i += 1) {
-        const currentClient = clients[i];
-        if (client === currentClient) {
-          clients.splice(i, 1);
-          currentClient.destroySoon();
-          this.setUpSockets(false);
-          break;
+    try {
+      const { clients, } = this;
+      if (clients !== undefined) {
+        for (let i = 0; i < clients.length; i += 1) {
+          const currentClient = clients[i];
+          if (client === currentClient) {
+            clients.splice(i, 1);
+            currentClient.destroySoon();
+            this.setUpSockets(false);
+            break;
+          }
         }
+        this.outputDistribTopology();
+        this.outputDistribFunction('remove client');
       }
-      this.outputDistribTopology();
+    } catch (error) {
+      this.outputDistribFunctionError('remove client', error);
     }
   }
 
   removeConnection(connection) {
-    const { connections, } = this;
-    if (connections !== undefined) {
-      for (let i = 0; i < clients.length; i += 1) {
-        const currentConneciton = connections[i];
-        if (connection === connections[i]) {
-          connections.splice(i, 1);
-          currentConnection.destroySoon();
-          this.setUpSockets(false);
-          break;
+    try {
+      const { connections, } = this;
+      if (connections !== undefined) {
+        for (let i = 0; i < clients.length; i += 1) {
+          const currentConneciton = connections[i];
+          if (connection === connections[i]) {
+            connections.splice(i, 1);
+            currentConnection.destroySoon();
+            this.setUpSockets(false);
+            break;
+          }
         }
+        this.outputDistribTopology();
+        this.outputDistribFunction('remove connection');
       }
-      this.outputDistribTopology();
+    } catch (error) {
+      this.outputDistribFunction('remove connection', error);
     }
   }
 
