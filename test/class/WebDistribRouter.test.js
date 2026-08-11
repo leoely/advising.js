@@ -351,14 +351,14 @@ describe('[Class] WebDistribRouter;', () => {
       value2: 20,
     }
     webDistribRouter2.setGlobal(global2);
+    webDistribRouter1.setTemporaryMemorySwitch(true);
+    webDistribRouter2.setTemporaryMemorySwitch(true);
     await WebDistribRouter.combine([webDistribRouter1, webDistribRouter2]);
     await webDistribRouter2.addSystemNoticeDistrib('mem>chk', (global) => {
       if (global !== undefined) {
         global.value1 += 1;
       }
     });
-    webDistribRouter1.setTemporaryMemorySwitch(true);
-    webDistribRouter2.setTemporaryMemorySwitch(true);
     await webDistribRouter1.attachDistrib('/personnel/maintain', ['Aubrey', 'Jackie']);
     expect(global1.value1).toBe(11);
     expect(global2.value1).toBe(21);

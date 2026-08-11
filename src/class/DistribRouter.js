@@ -87,6 +87,9 @@ class DistribRouter extends Router {
       distribRouter.index = index;
     });
     await DistribRouter.combine(newDistribRouters);
+    originDistribRouters.forEach((originDistribRouter) => {
+      originDistribRouter.setUpSockets(false);
+    });
   }
 
   static async release(distribRouters) {
@@ -541,9 +544,9 @@ class DistribRouter extends Router {
     try {
       const { clients, connections, } = this;
       this.sockets = clients.concat(connections);
-      const { sockets: socketList, } = this;
       if (bind === true) {
-        socketList.forEach((socket) => {
+        const { sockets, } = this;
+        sockets.forEach((socket) => {
           socket.on('data', (buffer) => {
             this.dealReceiveAndSendBuffer(buffer, socket);
           });
