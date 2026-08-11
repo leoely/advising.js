@@ -459,7 +459,11 @@ class DistribRouter extends Router {
       const { index, } = this;
       if (length - index === 0) {
         this.server = net.createServer((connection) => {
+          this.count += 1;
           this.connections.push(connection);
+          connection.on('close', () => {
+            this.removeConnection(connection);
+          });
           connection.on('data', (buffer) => {
             this.dealReceiveAndSendBuffer(buffer, connection);
           });
@@ -476,6 +480,9 @@ class DistribRouter extends Router {
           const server = net.createServer((connection) => {
             this.count += 1;
             this.connections.push(connection);
+            connection.on('close', () => {
+              this.removeConnection(connection);
+            });
             const { count, } = this;
             if (count === length - index) {
               resolve(server);
@@ -516,7 +523,7 @@ class DistribRouter extends Router {
             });
             client.on('close', () => {
               const { ip, port, } = client;
-              this.removeRouter(ip, port);
+              this.removeClient(client);
             });
           });
           clientPromises.push(clientPromise);
@@ -713,40 +720,36 @@ class DistribRouter extends Router {
     }
   }
 
-  removeRouter(ip, port) {
-    const { routers, } = this;
-    for (let i = 0; i < routers.length; i += 1) {
-      const [routerIp, routerPort] = routers[i];
-      if (routerIp === ip && routerPort === port) {
-        routers.splice(i, 1);
-        const { clients, } = this;
-        if (Array.isArray(clients)) {
+  removeClient(client) {
+    const { clients, } = this;
+    if (clients !== undefined) {
+      for (let i = 0; i < clients.length; i += 1) {
+        const currentClient = clients[i];
+        if (client === currentClient) {
           clients.splice(i, 1);
-          clients[i].destroySoon();
+          currentClient.destroySoon();
+          this.setUpSockets(false);
+          break;
         }
-        break;
       }
+      this.outputDistribTopology();
     }
-    this.outputDistribTopology();
   }
 
-  async addRouter(ip, port) {
-    return new Promise((resolve, reject) => {
-      const client = net.createConnection(port, ip, () => {
-        client.ip = ip;
-        client.port = port;
-        resolve(client);
-      });
-      client.on('close', () => {
-        const { ip, port, } = client;
-        this.removeRouter(ip, port);
-      });
-      const { routers, clients, } = this;
-      routers.push([ip, port]);
-      clients.push(client);
-    });
-    this.checkMemory();
-    this.outputDistribTopology();
+  removeConnection(connection) {
+    const { connections, } = this;
+    if (connections !== undefined) {
+      for (let i = 0; i < clients.length; i += 1) {
+        const currentConneciton = connections[i];
+        if (connection === connections[i]) {
+          connections.splice(i, 1);
+          currentConnection.destroySoon();
+          this.setUpSockets(false);
+          break;
+        }
+      }
+      this.outputDistribTopology();
+    }
   }
 
   checkCombine() {
