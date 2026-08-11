@@ -143,7 +143,7 @@ describe('[Class] DistribRouter;', () => {
       const client = clients1[i];
       expect(client instanceof net.Socket).toBe(true);
     }
-    expect(distribRouter2.server === null).toBe(true);
+    expect(distribRouter2.server instanceof net.Server).toBe(true);
     const { clients: clients2, } = distribRouter2;
     for (let i = 0; i < clients2.length; i += 1) {
       const client = clients2[i];

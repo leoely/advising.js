@@ -58,6 +58,7 @@ class DistribRouter extends Router {
     this.eventEmitter = new EventEmitter();
     this.dealReceiveBuffer = this.dealReceiveBuffer.bind(this);
     this.dealReceiveAndSendBuffer = this.dealReceiveAndSendBuffer.bind(this);
+    this.count = 0;
     this.checkMemory();
   }
 
@@ -73,12 +74,11 @@ class DistribRouter extends Router {
     });
     await Promise.all(serverPromises.concat(clientsPromises));
     distribRouters.map((distribRouter) => {
-      distribRouter.setUpSockets();
+      distribRouter.setUpSockets(true);
     });
   }
 
   static async join(newDistribRouters, originDistribRouters, allRouters) {
-    await DistribRouter.release(originDistribRouters);
     originDistribRouters.forEach((originDistribRouter) => {
       originDistribRouter.setAllRouters(allRouters);
     });
@@ -86,7 +86,7 @@ class DistribRouter extends Router {
     distribRouters.forEach((distribRouter, index) => {
       distribRouter.index = index;
     });
-    await DistribRouter.combine(distribRouters);
+    await DistribRouter.combine(newDistribRouters);
   }
 
   static async release(distribRouters) {
@@ -455,18 +455,35 @@ class DistribRouter extends Router {
           length,
         },
       } = this;
-      let count = 0;
       this.connections = [];
       const { index, } = this;
       if (length - index === 0) {
-        this.server = null;
+        this.server = net.createServer((connection) => {
+          this.connections.push(connection);
+          connection.on('data', (buffer) => {
+            this.dealReceiveAndSendBuffer(buffer, connection);
+          });
+          this.setUpSockets(false);
+        });
+        const { server, } = this;
+        server.on('error', (error) => {
+          throw error;
+        });
+        const { port, } = this;
+        server.listen(port);
       } else {
         this.server = await new Promise((resolve, reject) => {
           const server = net.createServer((connection) => {
-            count += 1;
+            this.count += 1;
             this.connections.push(connection);
+            const { count, } = this;
             if (count === length - index) {
               resolve(server);
+            } else if (count > length - index) {
+              connection.on('data', (buffer) => {
+                this.dealReceiveAndSendBuffer(buffer, connection);
+              });
+              this.setUpSockets(false);
             }
           });
           const { port, } = this;
@@ -514,16 +531,21 @@ class DistribRouter extends Router {
     }
   }
 
-  setUpSockets() {
+  setUpSockets(bind) {
+    if (typeof bind !== 'boolean') {
+      throw new Error('[Error] The parameter bind should be boolean type.');
+    }
     try {
       const { clients, connections, } = this;
       this.sockets = clients.concat(connections);
       const { sockets: socketList, } = this;
-      socketList.forEach((socket) => {
-        socket.on('data', (buffer) => {
-          this.dealReceiveAndSendBuffer(buffer, socket);
-        });
-      })
+      if (bind === true) {
+        socketList.forEach((socket) => {
+          socket.on('data', (buffer) => {
+            this.dealReceiveAndSendBuffer(buffer, socket);
+          });
+        })
+      }
       this.outputDistribFunction('setup sockets');
       this.checkMemory();
     } catch (error) {
