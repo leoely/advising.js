@@ -73,7 +73,7 @@ class DistribRouter extends Router {
       return distribRouter.setUpClients();
     });
     await Promise.all(serverPromises.concat(clientsPromises));
-    distribRouters.map((distribRouter) => {
+    distribRouters.forEach((distribRouter) => {
       distribRouter.setUpSockets(true);
     });
   }
