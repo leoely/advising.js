@@ -172,6 +172,7 @@ class DistribRouter extends Router {
     const { ip, } = this;
     this.address = getAddress(ip, this.port);
     this.routers = routers;
+    this.checkMemory();
   }
 
   dealParams(port, allRouters) {
