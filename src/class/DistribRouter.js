@@ -87,9 +87,6 @@ class DistribRouter extends Router {
       distribRouter.index = index;
     });
     await DistribRouter.combine(newDistribRouters);
-    originDistribRouters.forEach((originDistribRouter) => {
-      originDistribRouter.setUpSockets(false);
-    });
   }
 
   static async release(distribRouters) {
