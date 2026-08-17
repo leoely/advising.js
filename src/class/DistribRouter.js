@@ -127,8 +127,11 @@ class DistribRouter extends Router {
     const { ip, port, } = this;
     await this.removeRouterDistrib([ip, port]);
     this.closeClients();
+    delete this.clients;
     this.closeConnections();
+    delete this.connections;
     this.closeServer();
+    delete this.server;
   }
 
   getAckPromises(callback) {
