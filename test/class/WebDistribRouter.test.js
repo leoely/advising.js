@@ -1,3 +1,4 @@
+import timersPromises from 'timers/promises';
 import net from 'net';
 import { describe, expect, test, } from '@jest/globals';
 import { getOwnIpAddresses, wrapIpv6, } from 'manner.js/server';
@@ -379,5 +380,50 @@ describe('[Class] WebDistribRouter;', () => {
     expect(global1.value2).toBe(11);
     expect(global2.value2).toBe(21);
     await WebDistribRouter.release([webDistribRouter1, webDistribRouter2]);
+  });
+
+  test('DistribRouter should be able to be deleted correctly.', async () => {
+    const [ipAddress] = getOwnIpAddresses();
+    const { ipv4, ipv6, } = ipAddress;
+    let routers = [
+      [ipv4, 8025],
+      [ipv4, 8026],
+      [ipv4, 8027],
+    ];
+    const webDistribRouter1 = new WebDistribRouter({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 8,
+      logInterval: 5,
+      interception: undefined,
+      debug: false,
+    }, 8025, routers);
+    const webDistribRouter2 = new WebDistribRouter({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 8,
+      logInterval: 5,
+      interception: undefined,
+      debug: false,
+    }, 8026, routers);
+    const webDistribRouter3 = new WebDistribRouter({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 8,
+      logInterval: 5,
+      interception: undefined,
+      debug: false,
+    }, 8027, routers);
+    await WebDistribRouter.combine([webDistribRouter1, webDistribRouter2, webDistribRouter3]);
+    await webDistribRouter2.close();
+    expect(JSON.stringify(webDistribRouter1.routers)).toMatch('[[\"192.168.1.4\",8027,2]]');
+    expect(JSON.stringify(webDistribRouter3.routers)).toMatch('[[\"192.168.1.4\",8025,0]]');
+    await WebDistribRouter.release([webDistribRouter1, webDistribRouter3]);
   });
 });

@@ -1,6 +1,7 @@
 import EventEmitter from 'events';
 import net from 'net';
 import {
+  logUncaughtException,
   getGTMNowString,
   getOwnIpAddresses,
   ByteArray,
@@ -59,6 +60,7 @@ class DistribRouter extends Router {
     this.dealReceiveBuffer = this.dealReceiveBuffer.bind(this);
     this.dealReceiveAndSendBuffer = this.dealReceiveAndSendBuffer.bind(this);
     this.count = 0;
+    this.bindEvent();
     this.checkMemory();
   }
 
@@ -97,15 +99,35 @@ class DistribRouter extends Router {
       distribRouter.closeClients();
       delete distribRouter.clients;
     });
+    distribRouters.forEach((distribRouter) => {
+      distribRouter.closeConnections();
+      delete distribRouter.connections;
+    });
     for (let i = 0; i < distribRouters.length; i += 1) {
       const distribRouter = distribRouters[i];
       await distribRouter.closeServer();
       delete distribRouter.server;
     }
-    distribRouters.forEach((distribRouter) => {
-      distribRouter.closeConnections();
-      delete distribRouter.connections;
+  }
+
+  bindEvent() {
+    const {
+      options: {
+        logPath,
+      },
+    } = this;
+    process.on('uncaughtException', async (error, origin) => {
+      logUncaughtException(logPath, error);
+      throw error;
     });
+  }
+
+  async close() {
+    const { ip, port, } = this;
+    await this.removeRouterDistrib([ip, port]);
+    this.closeClients();
+    this.closeConnections();
+    this.closeServer();
   }
 
   getAckPromises(callback) {
@@ -598,6 +620,17 @@ class DistribRouter extends Router {
               return new Function('return ' + segment.toString())();
           }
         });
+        break;
+      case 7:
+        params = segments.map((segment, index) => {
+          switch (index) {
+            case 0:
+              return segment.toString();
+            case 1:
+              return Number(nonZeroByteArray.toInt(segment));
+          }
+        });
+        break;
     }
     switch (code) {
       case 0: {
@@ -712,8 +745,17 @@ class DistribRouter extends Router {
         socket.write(addBufferFlag(0, Buffer.from('ack')));
         break;
       }
+      case 7: {
+        if (params.length !== 2) {
+          throw new Error('[Error] The parameter length should be equal to two.');
+        }
+        const router = params;
+        this.removeRouter(router);
+        socket.write(addBufferFlag(0, Buffer.from('ack')))
+        break;
+      }
       default:
-        throw new Error('[Error] The code value should be in the range [0, 5]');
+        throw new Error('[Error] The code value should be in the range [0, 7]');
     }
   }
 
@@ -757,6 +799,17 @@ class DistribRouter extends Router {
     } catch (error) {
       this.outputDistribFunction('remove connection', error);
     }
+  }
+
+  removeRouter([ip, port]) {
+    const { routers, } = this;
+    this.routers = routers.filter(([rIp, rPort]) => {
+      if (rIp === ip && rPort === port) {
+        return false;
+      } else {
+        return true;
+      }
+    });
   }
 
   checkCombine() {
@@ -894,6 +947,21 @@ class DistribRouter extends Router {
       this.outputDistribFunction('addSystemNotice distrib');
     } catch (error) {
       this.outputDistribFunctionError('addSystemNotice distrib', error);
+    }
+  }
+
+  async removeRouterDistrib(router) {
+    try {
+      this.checkCombine();
+      this.removeRouter(router);
+      const [ip, port] = router;
+      const ackPromises = this.getAckPromises((socket) => {
+        socket.write(addBufferFlag(1, getBinBuf([7, ip, port])));
+      });
+      await Promise.all(ackPromises);
+      this.outputDistribFunction('removeRouter distrib');
+    } catch (error) {
+      this.outputDistribFunctionError('removeRouter distrib', error);
     }
   }
 }
