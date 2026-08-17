@@ -117,6 +117,7 @@ class DistribRouter extends Router {
       },
     } = this;
     process.on('uncaughtException', async (error, origin) => {
+      await this.close();
       logUncaughtException(logPath, error);
       throw error;
     });
