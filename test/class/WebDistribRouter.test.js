@@ -422,8 +422,11 @@ describe('[Class] WebDistribRouter;', () => {
     }, 8027, routers);
     await WebDistribRouter.combine([webDistribRouter1, webDistribRouter2, webDistribRouter3]);
     await webDistribRouter2.close();
-    expect(JSON.stringify(webDistribRouter1.routers)).toMatch('[[\"192.168.1.4\",8027,2]]');
-    expect(JSON.stringify(webDistribRouter3.routers)).toMatch('[[\"192.168.1.4\",8025,0]]');
+    expect(JSON.stringify(webDistribRouter1.routers)).toMatch(`[[\"${ipv4}\",8027,2]]`);
+    expect(JSON.stringify(webDistribRouter3.routers)).toMatch(`[[\"${ipv4}\",8025,0]]`);
+    await webDistribRouter3.attachDistrib('/operation/simulation', { operation: 'simulation', });
+    expect(JSON.stringify(webDistribRouter1.gain('/operation/simulation'))).toMatch('{\"content\":{\"operation\":\"simulation\"},\"queryParams\":{},\"pathVariables\":{}}');
+    expect(JSON.stringify(webDistribRouter3.gain('/operation/simulation'))).toMatch('{\"content\":{\"operation\":\"simulation\"},\"queryParams\":{},\"pathVariables\":{}}');
     await WebDistribRouter.release([webDistribRouter1, webDistribRouter3]);
   });
 });

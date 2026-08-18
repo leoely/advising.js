@@ -51,6 +51,8 @@ function addBufferFlag(flag, buffer) {
   return Buffer.concat([fbytes, buffer]);
 }
 
+const bindedEventKey = Symbol('bindedEvent');
+
 class DistribRouter extends Router {
   constructor(options, port, allRouters) {
     super(options);
@@ -64,22 +66,6 @@ class DistribRouter extends Router {
     this.checkMemory();
   }
 
-  static async combine(distribRouters) {
-    if (!Array.isArray(distribRouters)) {
-      throw new Error('[Error] The parameter distribRouters should be of array type.');
-    }
-    const serverPromises = distribRouters.map((distribRouter) => {
-      return distribRouter.setUpServer();
-    });
-    const clientsPromises = distribRouters.map((distribRouter) => {
-      return distribRouter.setUpClients();
-    });
-    await Promise.all(serverPromises.concat(clientsPromises));
-    distribRouters.forEach((distribRouter) => {
-      distribRouter.setUpSockets(true);
-    });
-  }
-
   static async join(newDistribRouters, originDistribRouters, allRouters) {
     originDistribRouters.forEach((originDistribRouter) => {
       originDistribRouter.setAllRouters(allRouters);
@@ -89,6 +75,16 @@ class DistribRouter extends Router {
       distribRouter.index = index;
     });
     await DistribRouter.combine(newDistribRouters);
+  }
+
+  static async combine(distribRouters) {
+    if (!Array.isArray(distribRouters)) {
+      throw new Error('[Error] The parameter distribRouters should be of array type.');
+    }
+    const startPromises = distribRouters.map((distribRouter) => {
+      return distribRouter.start();
+    });
+    await Promise.all(startPromises);
   }
 
   static async release(distribRouters) {
@@ -116,22 +112,46 @@ class DistribRouter extends Router {
         logPath,
       },
     } = this;
-    process.on('uncaughtException', async (error, origin) => {
-      await this.close();
-      logUncaughtException(logPath, error);
-      throw error;
-    });
+    if (process[bindedEventKey] !== true) {
+      process.once('uncaughtException', async (error, origin) => {
+        await this.close();
+        logUncaughtException(logPath, error);
+        throw error;
+      });
+      process.once('exit', async (code) => {
+        await this.close();
+      });
+      process[bindedEventKey] = true;
+    }
   }
 
   async close() {
-    const { ip, port, } = this;
-    await this.removeRouterDistrib([ip, port]);
-    this.closeClients();
-    delete this.clients;
-    this.closeConnections();
-    delete this.connections;
-    this.closeServer();
-    delete this.server;
+    try {
+      const { ip, port, } = this;
+      await this.removeRouterDistrib([ip, port]);
+      this.closeClients();
+      delete this.clients;
+      this.closeConnections();
+      delete this.connections;
+      this.closeServer();
+      delete this.server;
+      this.outputDistribFunction('close');
+    } catch (error) {
+      this.outputDistribFunctionError('close', error);
+    }
+  }
+
+  async start() {
+    try {
+      const serverPromise = this.setUpServer();
+      const clientsPromise = this.setUpClients();
+      await Promise.all([serverPromise, clientsPromise]);
+      this.setUpSockets(true);
+      this.checkMemory();
+      this.outputDistribFunction('start');
+    } catch (error) {
+      this.outputDistribFunctionError('start', error);
+    }
   }
 
   getAckPromises(callback) {
