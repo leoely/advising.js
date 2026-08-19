@@ -815,6 +815,7 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
     router.add('/errorThrow', ['errorThrow'], { situation: 'errorThrow', level:29, });
     router.add('/error', ['error'], { situation: 'error', level: 42 });
     expect(Array.isArray(router.root.hash[4][17][17][14][17].getBlend())).toBe(true);
+    expect(JSON.stringify(router.keys())).toMatch('[[\"errorDeal\"],[\"errorLocate\"],[\"errorReason\"],[\"errorThrow\"],[\"error\"]]');
   });
 
   test('Router can handle adding in truncated class.', () => {
@@ -972,5 +973,41 @@ describe('[Class] Router: Miscellaneous test cases;', () => {
     expect(() => router.add('/letters/s#&3*vfs', ['letters', 's#&3*vfs'], { content: 's#&3*vfs', })).toThrow('[Error] The current cluster is a plain text but cannot be converted into a full hash.');
     expect(JSON.stringify(router.match('/letters/sbd', ['letters', 'sbd']))).toMatch('{\"content\":\"sdb\"}');
     expect(JSON.stringify(router.match('/letters/abc', ['letters', 'abc']))).toMatch('{\"content\":\"abc\"}');
+  });
+  test('Router should be able to retrieve all existing keys.', () => {
+    const router = new Router({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 7,
+      logInterval: 5,
+      interception: 5,
+      hideError: true,
+      debug: false,
+    });
+    router.add('/before/someone/tom', ['before', 'someone', 'tom'], { name: 'tom', });
+    router.add('/someone/john', ['someone', 'john'], { name: 'john', });
+    router.add('/sam', ['sam'], { name: 'sam', });
+    router.add('/before/someone/velma', ['before', 'someone', 'velma'], { name: 'velma', });
+    router.add('/anyone/lee', ['anyone', 'lee'], { name: 'lee', });
+    router.add('/gene', ['gene'], { name: 'gene', });
+    router.add('before/connecticut/someone/laren', ['before', 'connecticut', 'someone', 'laren'], { name: 'laren', });
+    expect(JSON.stringify(router.match('/anyone/lee', ['anyone', 'lee']))).toMatch('{\"name\":\"lee\"}');
+    expect(JSON.stringify(router.match('/anyone/lee', ['anyone', 'lee']))).toMatch('{\"name\":\"lee\"}');
+    expect(JSON.stringify(router.match('/sam', ['sam']))).toMatch('{\"name\":\"sam\"}');
+    expect(JSON.stringify(router.match('/sam', ['sam']))).toMatch('{\"name\":\"sam\"}');
+    expect(JSON.stringify(router.match('/sam', ['sam']))).toMatch('{\"name\":\"sam\"}');
+    expect(JSON.stringify(router.match('/before/connecticut/someone/laren', ['before', 'connecticut', 'someone', 'laren']))).toMatch('{\"name\":\"laren\"}');
+    expect(JSON.stringify(router.match('/someone/john', ['someone', 'john']))).toMatch('{\"name\":\"john\"}');
+    expect(JSON.stringify(router.match('/someone/john', ['someone', 'john']))).toMatch('{\"name\":\"john\"}');
+    expect(JSON.stringify(router.match('/someone/john', ['someone', 'john']))).toMatch('{\"name\":\"john\"}');
+    expect(JSON.stringify(router.match('/someone/john', ['someone', 'john']))).toMatch('{\"name\":\"john\"}');
+    expect(JSON.stringify(router.match('/someone/john', ['someone', 'john']))).toMatch('{\"name\":\"john\"}');
+    expect(JSON.stringify(router.match('/gene', ['gene']))).toMatch('{\"name\":\"gene\"}');
+    expect(JSON.stringify(router.match('/before/someone/tom', ['before', 'someone', 'tom']))).toMatch('{\"name\":\"tom\"}');
+    expect(JSON.stringify(router.match('/before/someone/tom', ['before', 'someone', 'tom']))).toMatch('{\"name\":\"tom\"}');
+    expect(JSON.stringify(router.match('/before/someone/tom', ['before', 'someone', 'tom']))).toMatch('{\"name\":\"tom\"}');
+    expect(JSON.stringify(router.keys())).toMatch('[[\"before\",\"someone\",\"tom\"],[\"before\",\"someone\",\"velma\"],[\"before\",\"connecticut\",\"someone\",\"laren\"],[\"someone\",\"john\"],[\"sam\"],[\"anyone\",\"lee\"],[\"gene\"]]');
   });
 });

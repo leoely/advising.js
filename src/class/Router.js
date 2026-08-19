@@ -8,6 +8,50 @@ import Thing from '~/class/Thing';
 import WebThing from '~/class/WebThing';
 import Mixture from '~/class/Mixture';
 
+function keysRecursion(node, paths, total, keys, changeCount) {
+  const branches = node.getBranches();
+  branches.forEach((branch) => {
+    const { length: length1, } = paths;
+    const nextPaths = paths.slice(0, length1);
+    nextPaths.push(branch);
+    const { length: length2, } = nextPaths;
+    if (node.mixture instanceof Mixture) {
+      const {
+        mixture,
+      } = node;
+      keys.push(paths.slice(0, length));
+      node = mixture.getCluster();
+      if (changeCount === true) {
+        keyRecursion(node.get(branch, total), nextPaths.slice(0, length2), total, keys, changeCount);
+      } else {
+        keysRecursion(node.find(branch), nextPaths.slice(0, length2), total, keys, changeCount);
+      }
+    } else {
+      const nextNode = node.find(branch);
+      const {
+        constructor: {
+          name,
+        },
+      } = nextNode;
+      switch (name) {
+        case 'WebThing':
+        case 'Thing': {
+          keys.push(nextPaths.slice(0, length2));
+          break;
+        }
+        case 'Cluster': {
+          if (changeCount === true) {
+            keyRecursion(node.get(branch, total), nextPaths.slice(0, length2), total, keys, changeCount);
+          } else {
+            keysRecursion(nextNode, nextPaths.slice(0, length2), total, keys, changeCount);
+          }
+          break;
+        }
+      }
+    }
+  });
+}
+
 function matchRecursion(node, index, paths, total, needThing, changeCount, hideError) {
   if (!(node instanceof Node)) {
     if (hideError === true) {
@@ -394,6 +438,29 @@ class Router extends Outputable {
     return Thing;
   }
 
+  keys(changeCount) {
+    try {
+      this.total += 1;
+      const {
+        total,
+        root,
+      } = this;
+      const keys = [];
+      keysRecursion(root, [], total, keys, changeCount);
+      this.outputOperate('keys', '[All]');
+      const {
+        separator,
+      } = this;
+      if (typeof separator === 'string') {
+        return keys.map((key) => key.join(separator));
+      } else {
+        return keys;
+      }
+    } catch (error) {
+      this.outputOperateError('keys', ['[All]'], error);
+    }
+  }
+
   match(location, paths, needThing, changeCount) {
     try {
       this.total += 1;
@@ -418,7 +485,7 @@ class Router extends Outputable {
           return thing.getContent(total, location);
         }
       }
-      this.debugInfo('successfully matched');
+      this.outputOperate('match', location);
     } catch (error) {
       this.outputOperateError('match', [location], error);
     }

@@ -4,6 +4,7 @@ import Webing from '~/class/Webing';
 class WebDistribRouter extends DistribRouter {
   constructor(...param) {
     super(...param);
+    this.separator = '/';
     const {
       getPathsFromLocation,
       getThingClass,

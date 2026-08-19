@@ -4,6 +4,7 @@ import Webing from '~/class/Webing';
 class WebRouter extends Router {
   constructor(options = {}) {
     super(options);
+    this.separator = '/';
     const {
       getPathsFromLocation,
       getThingClass,

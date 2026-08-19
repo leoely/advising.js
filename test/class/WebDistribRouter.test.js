@@ -382,7 +382,7 @@ describe('[Class] WebDistribRouter;', () => {
     await WebDistribRouter.release([webDistribRouter1, webDistribRouter2]);
   });
 
-  test('DistribRouter should be able to be deleted correctly.', async () => {
+  test('WebDistribRouter should be able to be deleted correctly.', async () => {
     const [ipAddress] = getOwnIpAddresses();
     const { ipv4, ipv6, } = ipAddress;
     let routers = [
@@ -428,5 +428,55 @@ describe('[Class] WebDistribRouter;', () => {
     expect(JSON.stringify(webDistribRouter1.gain('/operation/simulation'))).toMatch('{\"content\":{\"operation\":\"simulation\"},\"queryParams\":{},\"pathVariables\":{}}');
     expect(JSON.stringify(webDistribRouter3.gain('/operation/simulation'))).toMatch('{\"content\":{\"operation\":\"simulation\"},\"queryParams\":{},\"pathVariables\":{}}');
     await WebDistribRouter.release([webDistribRouter1, webDistribRouter3]);
+  });
+
+  test('WebDistribRouter should be able to display the processed keys.', async () => {
+    const [ipAddress] = getOwnIpAddresses();
+    const { ipv4, ipv6, } = ipAddress;
+    let routers = [
+      [ipv4, 8028],
+      [ipv4, 8029],
+    ];
+    const webDistribRouter1 = new WebDistribRouter({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 8,
+      logInterval: 5,
+      interception: undefined,
+      debug: false,
+    }, 8028, routers);
+    const webDistribRouter2 = new WebDistribRouter({
+      threshold: 0.5,
+      number: 1,
+      bond: 5,
+      dutyCycle: 5,
+      logLevel: 8,
+      logInterval: 5,
+      interception: undefined,
+      debug: false,
+    }, 8029, routers);
+    await WebDistribRouter.combine([webDistribRouter1, webDistribRouter2]);
+    await webDistribRouter1.attachDistrib('/someone/tim', { name: 'tim', });
+    await webDistribRouter2.attachDistrib('/jack', { name: 'jack', });
+    await webDistribRouter1.attachDistrib('/before/anyone/angie', { name: 'angie', });
+    expect(JSON.stringify(webDistribRouter1.gain('/jack'))).toMatch('{\"content\":{\"name\":\"jack\"},\"queryParams\":{},\"pathVariables\":{}}');
+    expect(JSON.stringify(webDistribRouter1.gain('/jack'))).toMatch('{\"content\":{\"name\":\"jack\"},\"queryParams\":{},\"pathVariables\":{}}');
+    expect(JSON.stringify(webDistribRouter1.gain('/someone/tim'))).toMatch('{\"content\":{\"name\":\"tim\"},\"queryParams\":{},\"pathVariables\":{}}');
+    expect(JSON.stringify(webDistribRouter2.gain('/someone/tim'))).toMatch('{\"content\":{\"name\":\"tim\"},\"queryParams\":{},\"pathVariables\":{}}');
+    expect(JSON.stringify(webDistribRouter1.gain('/someone/tim'))).toMatch('{\"content\":{\"name\":\"tim\"},\"queryParams\":{},\"pathVariables\":{}}');
+    expect(JSON.stringify(webDistribRouter2.gain('/someone/tim'))).toMatch('{\"content\":{\"name\":\"tim\"},\"queryParams\":{},\"pathVariables\":{}}');
+    expect(JSON.stringify(webDistribRouter1.gain('/before/anyone/angie'))).toMatch('{\"content\":{\"name\":\"angie\"},\"queryParams\":{},\"pathVariables\":{}}');
+    expect(JSON.stringify(webDistribRouter2.gain('/before/anyone/angie'))).toMatch('{\"content\":{\"name\":\"angie\"},\"queryParams\":{},\"pathVariables\":{}}');
+    expect(JSON.stringify(webDistribRouter1.gain('/before/anyone/angie'))).toMatch('{\"content\":{\"name\":\"angie\"},\"queryParams\":{},\"pathVariables\":{}}');
+    expect(JSON.stringify(webDistribRouter2.gain('/before/anyone/angie'))).toMatch('{\"content\":{\"name\":\"angie\"},\"queryParams\":{},\"pathVariables\":{}}');
+    expect(JSON.stringify(webDistribRouter1.gain('/before/anyone/angie'))).toMatch('{\"content\":{\"name\":\"angie\"},\"queryParams\":{},\"pathVariables\":{}}');
+    expect(JSON.stringify(webDistribRouter2.gain('/before/anyone/angie'))).toMatch('{\"content\":{\"name\":\"angie\"},\"queryParams\":{},\"pathVariables\":{}}');
+    expect(JSON.stringify(webDistribRouter1.gain('/before/anyone/angie'))).toMatch('{\"content\":{\"name\":\"angie\"},\"queryParams\":{},\"pathVariables\":{}}');
+    expect(JSON.stringify(webDistribRouter2.gain('/before/anyone/angie'))).toMatch('{\"content\":{\"name\":\"angie\"},\"queryParams\":{},\"pathVariables\":{}}');
+    expect(JSON.stringify(webDistribRouter1.keys())).toMatch('[\"someone/tim\",\"jack\",\"before/anyone/angie\"]');
+    expect(JSON.stringify(webDistribRouter2.keys())).toMatch('[\"someone/tim\",\"jack\",\"before/anyone/angie\"]');
+    await WebDistribRouter.release([webDistribRouter1, webDistribRouter2]);
   });
 });
