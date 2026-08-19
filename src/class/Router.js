@@ -447,7 +447,7 @@ class Router extends Outputable {
       } = this;
       const keys = [];
       keysRecursion(root, [], total, keys, changeCount);
-      this.outputOperate('keys', '[All]');
+      this.outputOperate('keys', '"[All"]');
       const {
         separator,
       } = this;
@@ -457,7 +457,7 @@ class Router extends Outputable {
         return keys;
       }
     } catch (error) {
-      this.outputOperateError('keys', ['[All]'], error);
+      this.outputOperateError('keys', ['"[All"]'], error);
     }
   }
 
