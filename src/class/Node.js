@@ -8,7 +8,7 @@ class Node extends Outputable {
     this.startTime = Date.now();
     this.options = options;
     this.rate = 0;
-    this.count = 0;
+    this.count = 0n;
   }
 
   getDutyCycle() {
@@ -17,7 +17,13 @@ class Node extends Outputable {
       startTime,
     } = this;
     const nowTime = Date.now();
-    return count * 1000 * 60 * 60 / (nowTime - startTime);
+    const nowTimeBigInt = BigInt(nowTime);
+    const startTimeBigInt = BigInt(startTime);
+    if (nowTimeBigInt - startTimeBigInt === 0n) {
+      return Infinity;
+    } else {
+      return (count * 1000n * 60n * 60n) / (nowTimeBigInt - startTimeBigInt);
+    }
   }
 };
 

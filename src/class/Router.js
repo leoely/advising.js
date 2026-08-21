@@ -235,7 +235,7 @@ class Router extends Outputable {
     defaultOptions.bitWidth = getBitWidth();
     this.options = Object.assign(defaultOptions, options);
     this.dealOptions(options);
-    this.total = 0;
+    this.total = 0n;
     this.root = new Cluster(this.options,  true);
     const {
       logPath,
@@ -440,7 +440,7 @@ class Router extends Outputable {
 
   keys(changeCount) {
     try {
-      this.total += 1;
+      this.total += 1n;
       const {
         total,
         root,
@@ -463,7 +463,7 @@ class Router extends Outputable {
 
   match(location, paths, needThing, changeCount) {
     try {
-      this.total += 1;
+      this.total += 1n;
       const {
         total,
         root,

@@ -84,10 +84,10 @@ describe('[Class] WebRouter;', () => {
     expect(JSON.stringify(webRouter.matchInner('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(webRouter.matchInner('/male/david'))).toMatch('{\"name\":\"david\",\"age\":40}');
     webRouter.ruin('/male/john');
-    expect(webRouter.root.count).toBe(2);
+    expect(webRouter.root.count).toBe(2n);
     webRouter.ruin('/male/robert');
-    expect(webRouter.root.count).toBe(1);
-    expect(webRouter.root.find('male').count).toBe(1);
+    expect(webRouter.root.count).toBe(1n);
+    expect(webRouter.root.find('male').count).toBe(1n);
     webRouter.ruin('/male/david');
   });
 
@@ -109,9 +109,9 @@ describe('[Class] WebRouter;', () => {
     expect(JSON.stringify(webRouter.matchInner('/male/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
     expect(JSON.stringify(webRouter.matchInner('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(webRouter.matchInner('/male/david'))).toMatch('{\"name\":\"david\",\"age\":40}');
-    expect(webRouter.root.count).toBe(3);
-    expect(webRouter.root.find('male').count).toBe(3);
-    expect(webRouter.root.find('male').find('john').count).toBe(1);
+    expect(webRouter.root.count).toBe(3n);
+    expect(webRouter.root.find('male').count).toBe(3n);
+    expect(webRouter.root.find('male').find('john').count).toBe(1n);
     webRouter.ruinAll([
       '/male/john',
       '/male/robert',
@@ -133,7 +133,7 @@ describe('[Class] WebRouter;', () => {
     webRouter.attach('/world/male', ['john', 'robert', 'david']);
     expect(JSON.stringify(webRouter.matchInner('/world/male'))).toMatch('[\"john\",\"robert\",\"david\"]');
     webRouter.replace('/world/male', ['jason', 'kevin', 'eric']);
-    expect(webRouter.root.count).toBe(0);
+    expect(webRouter.root.count).toBe(0n);
     expect(JSON.stringify(webRouter.matchInner('/world/male'))).toMatch('[\"jason\",\"kevin\",\"eric\"]');
     expect(() => webRouter.replace('/world/female', ['amani', 'tiffany', 'carolyn'])).toThrow('[Error] Router matching the location does not exist.');
   });
@@ -155,9 +155,9 @@ describe('[Class] WebRouter;', () => {
     expect(JSON.stringify(webRouter.matchInner('/male/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
     expect(JSON.stringify(webRouter.matchInner('/male/robert'))).toMatch('{\"name\":\"robert\",\"age\":18}');
     webRouter.exchange('/male/john', '/male/robert');
-    expect(webRouter.root.find('male').find('john').count).toBe(1);
-    expect(webRouter.root.find('male').find('robert').count).toBe(2);
-    expect(webRouter.root.find('male').count).toBe(3);
+    expect(webRouter.root.find('male').find('john').count).toBe(1n);
+    expect(webRouter.root.find('male').find('robert').count).toBe(2n);
+    expect(webRouter.root.find('male').count).toBe(3n);
     expect(JSON.stringify(webRouter.matchInner('/male/john'))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(webRouter.matchInner('/male/robert'))).toMatch('{\"name\":\"john\",\"age\":22}');
   });
@@ -180,8 +180,8 @@ describe('[Class] WebRouter;', () => {
     expect(JSON.stringify(webRouter.matchInner('/male/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
     expect(JSON.stringify(webRouter.matchInner('/male/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
     expect(JSON.stringify(webRouter.matchInner('/male/john'))).toMatch('{\"name\":\"john\",\"age\":22}');
-    expect(webRouter.root.find('male').find('john').count).toBe(5);
-    expect(webRouter.root.find('male').count).toBe(5);
+    expect(webRouter.root.find('male').find('john').count).toBe(5n);
+    expect(webRouter.root.find('male').count).toBe(5n);
   });
 
   test('WebRouter should adapt the ruin method along with the URL paramter.', () => {
@@ -203,10 +203,10 @@ describe('[Class] WebRouter;', () => {
     expect(JSON.stringify(webRouter.gain('/male/robert//hat'))).toMatch('{\"content\":{\"name\":\"robert\",\"age\":18},\"queryParams\":{},\"pathVariables\":{\"belongings\":\"hat\"}}');
     expect(JSON.stringify(webRouter.gain('/male/david//hat'))).toMatch('{\"content\":{\"name\":\"david\",\"age\":40},\"queryParams\":{},\"pathVariables\":{\"belongings\":\"hat\"}}');
     webRouter.ruin('/male/john');
-    expect(webRouter.root.count).toBe(2);
+    expect(webRouter.root.count).toBe(2n);
     webRouter.ruin('/male/robert');
-    expect(webRouter.root.count).toBe(1);
-    expect(webRouter.root.find('male').count).toBe(1);
+    expect(webRouter.root.count).toBe(1n);
+    expect(webRouter.root.find('male').count).toBe(1n);
     webRouter.ruin('/male/david');
   });
 
@@ -224,7 +224,7 @@ describe('[Class] WebRouter;', () => {
     webRouter.attach('/world/male//{belongings}', ['john', 'robert', 'david'], true);
     expect(JSON.stringify(webRouter.gain('/world/male//hat'))).toMatch('{\"content\":[\"john\",\"robert\",\"david\"],\"queryParams\":{},\"pathVariables\":{\"belongings\":\"hat\"}}');
     webRouter.replace('/world/male//{belongings}', ['jason', 'kevin', 'eric']);
-    expect(webRouter.root.count).toBe(0);
+    expect(webRouter.root.count).toBe(0n);
     expect(JSON.stringify(webRouter.gain('/world/male//hat'))).toMatch('{\"content\":[\"jason\",\"kevin\",\"eric\"],\"queryParams\":{},\"pathVariables\":{\"belongings\":\"hat\"}}');
     expect(() => webRouter.replace('/world/female', ['amani', 'tiffany', 'carolyn'])).toThrow('[Error] Router matching the location does not exist.');
   });
@@ -246,9 +246,9 @@ describe('[Class] WebRouter;', () => {
     expect(JSON.stringify(webRouter.gain('/male/john//hat'))).toMatch('{\"content\":{\"name\":\"john\",\"age\":22},\"queryParams\":{},\"pathVariables\":{\"belongings\":\"hat\"}}');
     expect(JSON.stringify(webRouter.gain('/male/robert//hat'))).toMatch('{\"content\":{\"name\":\"robert\",\"age\":18},\"queryParams\":{},\"pathVariables\":{\"belongings\":\"hat\"}}');
     webRouter.exchange('/male/john', '/male/robert');
-    expect(webRouter.root.find('male').find('john').count).toBe(1);
-    expect(webRouter.root.find('male').find('robert').count).toBe(2);
-    expect(webRouter.root.find('male').count).toBe(3);
+    expect(webRouter.root.find('male').find('john').count).toBe(1n);
+    expect(webRouter.root.find('male').find('robert').count).toBe(2n);
+    expect(webRouter.root.find('male').count).toBe(3n);
     expect(JSON.stringify(webRouter.gain('/male/john//hat'))).toMatch('{\"content\":{\"name\":\"robert\",\"age\":18},\"queryParams\":{},\"pathVariables\":{\"belongings\":\"hat\"}}');
     expect(JSON.stringify(webRouter.gain('/male/robert//hat'))).toMatch('{\"content\":{\"name\":\"john\",\"age\":22},\"queryParams\":{},\"pathVariables\":{\"belongings\":\"hat\"}}');
   });
@@ -271,8 +271,8 @@ describe('[Class] WebRouter;', () => {
     expect(JSON.stringify(webRouter.gain('/male/john//hat'))).toMatch('{\"content\":{\"name\":\"john\",\"age\":22},\"queryParams\":{},\"pathVariables\":{\"belongings\":\"hat\"}}');
     expect(JSON.stringify(webRouter.gain('/male/john//hat'))).toMatch('{\"content\":{\"name\":\"john\",\"age\":22},\"queryParams\":{},\"pathVariables\":{\"belongings\":\"hat\"}}');
     expect(JSON.stringify(webRouter.gain('/male/john//hat'))).toMatch('{\"content\":{\"name\":\"john\",\"age\":22},\"queryParams\":{},\"pathVariables\":{\"belongings\":\"hat\"}}');
-    expect(webRouter.root.find('male').find('john').count).toBe(5);
-    expect(webRouter.root.find('male').count).toBe(5);
+    expect(webRouter.root.find('male').find('john').count).toBe(5n);
+    expect(webRouter.root.find('male').count).toBe(5n);
   });
 
   test('WebRouter should be able to tolerate errors', () => {

@@ -51,9 +51,9 @@ describe('[Class] Router: Time complexity test cases;', () => {
     expect(JSON.stringify(router.match('/male/robert', ['male', 'robert']))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(router.match('/male/robert', ['male', 'robert']))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(router.match('/male/robert', ['male', 'robert']))).toMatch('{\"name\":\"robert\",\"age\":18}');
-    expect(router.root.count).toBe(17);
-    expect(router.root.find('male').count).toBe(17);
-    expect(router.root.find('male').find('john').count).toBe(5);
+    expect(router.root.count).toBe(17n);
+    expect(router.root.find('male').count).toBe(17n);
+    expect(router.root.find('male').find('john').count).toBe(5n);
     router.delete('/male/david', ['male', 'david']);
   });
 
@@ -317,10 +317,10 @@ describe('[Class] Router: Space complexity test cases;', () => {
     expect(JSON.stringify(router.match('/male/robert', ['male', 'robert']))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(router.match('/male/david', ['male', 'david']))).toMatch('{\"name\":\"david\",\"age\":40}');
     router.delete('/male/john', ['male', 'john']);
-    expect(router.root.count).toBe(2);
+    expect(router.root.count).toBe(2n);
     router.delete('/male/robert', ['male', 'robert']);
-    expect(router.root.count).toBe(1);
-    expect(router.root.find('male').count).toBe(1);
+    expect(router.root.count).toBe(1n);
+    expect(router.root.find('male').count).toBe(1n);
     router.delete('/male/david', ['male', 'david']);
   });
 
@@ -359,7 +359,7 @@ describe('[Class] Router: Space complexity test cases;', () => {
     router.add('/world/male', ['world', 'male'], ['john', 'robert', 'david']);
     expect(JSON.stringify(router.match('/world/male', ['world', 'male']))).toMatch('[\"john\",\"robert\",\"david\"]');
     router.update('/world/male', ['world', 'male'], ['jason', 'kevin', 'eric']);
-    expect(router.root.count).toBe(0);
+    expect(router.root.count).toBe(0n);
     expect(JSON.stringify(router.match('/world/male', ['world', 'male']))).toMatch('[\"jason\",\"kevin\",\"eric\"]');
     expect(() => router.update('/world/female', ['world', 'female'], ['amani', 'tiffany', 'carolyn'])).toThrow('[Error] Router matching the location does not exist.');
   });
@@ -381,9 +381,9 @@ describe('[Class] Router: Space complexity test cases;', () => {
     expect(JSON.stringify(router.match('/male/john', ['male', 'john']))).toMatch('{\"name\":\"john\",\"age\":22}');
     expect(JSON.stringify(router.match('/male/robert', ['male', 'robert']))).toMatch('{\"name\":\"robert\",\"age\":18}');
     router.swap('/male/john', '/male/robert', ['male', 'john'], ['male', 'robert']);
-    expect(router.root.find('male').find('john').count).toBe(1);
-    expect(router.root.find('male').find('robert').count).toBe(2);
-    expect(router.root.find('male').count).toBe(3);
+    expect(router.root.find('male').find('john').count).toBe(1n);
+    expect(router.root.find('male').find('robert').count).toBe(2n);
+    expect(router.root.find('male').count).toBe(3n);
     expect(JSON.stringify(router.match('/male/john', ['male', 'john']))).toMatch('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(router.match('/male/robert', ['male', 'robert']))).toMatch('{\"name\":\"john\",\"age\":22}');
   });
@@ -406,8 +406,8 @@ describe('[Class] Router: Space complexity test cases;', () => {
     expect(JSON.stringify(router.match('/male/john', ['male', 'john']))).toMatch('{\"name\":\"john\",\"age\":22}');
     expect(JSON.stringify(router.match('/male/john', ['male', 'john']))).toMatch('{\"name\":\"john\",\"age\":22}');
     expect(JSON.stringify(router.match('/male/john', ['male', 'john']))).toMatch('{\"name\":\"john\",\"age\":22}');
-    expect(router.root.find('male').find('john').count).toBe(5);
-    expect(router.root.find('male').count).toBe(5);
+    expect(router.root.find('male').find('john').count).toBe(5n);
+    expect(router.root.find('male').count).toBe(5n);
   });
 
   test('Router truncation function should work correctly.', () => {

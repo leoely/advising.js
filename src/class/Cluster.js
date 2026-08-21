@@ -649,7 +649,7 @@ class Cluster extends Node {
       }
     }
     const { count, } = value;
-    if (count !== 0) {
+    if (count !== 0n) {
       this.addCount(count);
     }
     this.checkMemory();
@@ -916,9 +916,9 @@ class Cluster extends Node {
   }
 
   subtractCount(count, uncheck) {
-    if (!Number.isInteger(count)) {
+    if (typeof count !== 'bigint') {
       throw new Error(
-        '[Error] Count of arguments to subtractCount function be a integer.'
+        '[Error] Count of arguments to subtractCount function be a bigInt.'
       );
     } else {
       this.count -= count;
@@ -927,9 +927,9 @@ class Cluster extends Node {
   }
 
   addCount(count) {
-    if (!Number.isInteger(count)) {
+    if (typeof count !== 'bigint') {
       throw new Error(
-        '[Error] Count of arguments to addCount function be a integer.'
+        '[Error] Count of arguments to addCount function be a bigInt.'
       );
     } else {
       this.count += count;
@@ -1413,10 +1413,10 @@ class Cluster extends Node {
         throw new Error('[Error] Cluster hash is empty,please add a route first.');
       }
     }
-    if (typeof total !== 'number') {
-      throw new Error('[Error] Cluster acquisition method needs to pass numeric type paramter total.');
+    if (typeof total !== 'bigint') {
+      throw new Error('[Error] Cluster acquisition method needs to pass BigInt type paramter total.');
     }
-    this.count += 1;
+    this.count += 1n;
     const { count, } = this;
     this.rate = count / total;
     this.adjust();

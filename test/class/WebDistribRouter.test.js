@@ -204,10 +204,10 @@ describe('[Class] WebDistribRouter;', () => {
     await WebDistribRouter.combine([webDistribRouter1, webDistribRouter2]);
     await webDistribRouter1.replaceDistrib('/male/john', { name: 'david', age: 40 });
     expect(JSON.stringify(webDistribRouter1.matchInner('/male/john'))).toBe('{\"name\":\"david\",\"age\":40}');
-    expect(webDistribRouter1.root.find('male').find('john').count).toBe(1);
+    expect(webDistribRouter1.root.find('male').find('john').count).toBe(1n);
     expect(JSON.stringify(webDistribRouter1.matchInner('/male/robert'))).toBe('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(webDistribRouter2.matchInner('/male/john'))).toBe('{\"name\":\"david\",\"age\":40}');
-    expect(webDistribRouter2.root.find('male').find('john').count).toBe(1);
+    expect(webDistribRouter2.root.find('male').find('john').count).toBe(1n);
     expect(JSON.stringify(webDistribRouter2.matchInner('/male/robert'))).toBe('{\"name\":\"robert\",\"age\":18}');
     await WebDistribRouter.release([webDistribRouter1, webDistribRouter2]);
   });
@@ -253,10 +253,10 @@ describe('[Class] WebDistribRouter;', () => {
     await WebDistribRouter.combine([webDistribRouter1, webDistribRouter2]);
     await webDistribRouter1.reviseDistrib('/male/john', { name: 'david', age: 40 });
     expect(JSON.stringify(webDistribRouter1.matchInner('/male/john'))).toBe('{\"name\":\"david\",\"age\":40}');
-    expect(webDistribRouter1.root.find('male').find('john').count).toBe(3);
+    expect(webDistribRouter1.root.find('male').find('john').count).toBe(3n);
     expect(JSON.stringify(webDistribRouter1.matchInner('/male/robert'))).toBe('{\"name\":\"robert\",\"age\":18}');
     expect(JSON.stringify(webDistribRouter2.matchInner('/male/john'))).toBe('{\"name\":\"david\",\"age\":40}');
-    expect(webDistribRouter2.root.find('male').find('john').count).toBe(4);
+    expect(webDistribRouter2.root.find('male').find('john').count).toBe(4n);
     expect(JSON.stringify(webDistribRouter2.matchInner('/male/robert'))).toBe('{\"name\":\"robert\",\"age\":18}');
     await WebDistribRouter.release([webDistribRouter1, webDistribRouter2]);
   });

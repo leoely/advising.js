@@ -17,9 +17,9 @@ describe('[Class] FileRouter;', () => {
     fileRouter.attach('../../demo.sh', { name: 'demo', suffix: 'sh', });
     expect(JSON.stringify(fileRouter.gain('../.../test.js'))).toMatch('{\"name\":\"test\",\"suffix\":\"js\"}');
     expect(JSON.stringify(fileRouter.gain('../../demo.sh'))).toMatch('{\"name\":\"demo\",\"suffix\":\"sh\"}');
-    expect(fileRouter.root.find('..').count).toBe(2);
-    expect(fileRouter.root.find('..').find('...').find('js').find('test').count).toBe(1);
-    expect(fileRouter.root.find('..').find('..').find('sh').find('demo').count).toBe(1);
+    expect(fileRouter.root.find('..').count).toBe(2n);
+    expect(fileRouter.root.find('..').find('...').find('js').find('test').count).toBe(1n);
+    expect(fileRouter.root.find('..').find('..').find('sh').find('demo').count).toBe(1n);
   });
 
   test('FileRouter should be able to hanlde network relative paths.', () => {
@@ -37,9 +37,9 @@ describe('[Class] FileRouter;', () => {
     fileRouter.attach('/main.js', { name: 'main', suffix: 'js', });
     expect(JSON.stringify(fileRouter.gain('/index.html'))).toMatch('{\"name\":\"index\",\"suffix\":\"html\"}');
     expect(JSON.stringify(fileRouter.gain('/main.js'))).toMatch('{\"name\":\"main\",\"suffix\":\"js\"}');
-    expect(fileRouter.root.count).toBe(2);
-    expect(fileRouter.root.find('js').find('main').count).toBe(1);
-    expect(fileRouter.root.find('html').find('index').count).toBe(1);
+    expect(fileRouter.root.count).toBe(2n);
+    expect(fileRouter.root.find('js').find('main').count).toBe(1n);
+    expect(fileRouter.root.find('html').find('index').count).toBe(1n);
   });
 
   test('FileRouter should support absolute paths.', () => {
@@ -57,10 +57,10 @@ describe('[Class] FileRouter;', () => {
     fileRouter.attach('/var/log/2025', { name: '2025', description: 2, });
     expect(JSON.stringify(fileRouter.gain('/var/log/2015'))).toMatch('{\"name\":\"2015\",\"description\":1}');
     expect(JSON.stringify(fileRouter.gain('/var/log/2025'))).toMatch('{\"name\":\"2025\",\"description\":2}');
-    expect(fileRouter.root.find('var').count).toBe(2);
-    expect(fileRouter.root.find('var').find('log').count).toBe(2);
-    expect(fileRouter.root.find('var').find('log').find('2015').count).toBe(1);
-    expect(fileRouter.root.find('var').find('log').find('2025').count).toBe(1);
+    expect(fileRouter.root.find('var').count).toBe(2n);
+    expect(fileRouter.root.find('var').find('log').count).toBe(2n);
+    expect(fileRouter.root.find('var').find('log').find('2015').count).toBe(1n);
+    expect(fileRouter.root.find('var').find('log').find('2025').count).toBe(1n);
   });
 
   test('FileRouter should support multi-level file names.', () => {
@@ -78,9 +78,9 @@ describe('[Class] FileRouter;', () => {
     fileRouter.attach('/main.bundle.js', { type: 'bundle', name: 'main', });
     expect(JSON.stringify(fileRouter.gain('/445.chunk.js'))).toMatch('{\"type\":\"chunk\",\"name\":\"445\"}');
     expect(JSON.stringify(fileRouter.gain('/main.bundle.js'))).toMatch('{\"type\":\"bundle\",\"name\":\"main\"}');
-    expect(fileRouter.root.find('js').count).toBe(2);
-    expect(fileRouter.root.find('js').find('chunk').count).toBe(1);
-    expect(fileRouter.root.find('js').find('bundle').count).toBe(1);
+    expect(fileRouter.root.find('js').count).toBe(2n);
+    expect(fileRouter.root.find('js').find('chunk').count).toBe(1n);
+    expect(fileRouter.root.find('js').find('bundle').count).toBe(1n);
   });
 
   test('FileRouter is set to be hidden without error.', () => {
@@ -120,8 +120,8 @@ describe('[Class] FileRouter;', () => {
     fileRouter.attach('main.bundle.js', { type: 'bundle', name: 'main', });
     expect(JSON.stringify(fileRouter.gain('445.chunk.js'))).toMatch('{\"type\":\"chunk\",\"name\":\"445\"}');
     expect(JSON.stringify(fileRouter.gain('main.bundle.js'))).toMatch('{\"type\":\"bundle\",\"name\":\"main\"}');
-    expect(fileRouter.root.find('js').count).toBe(2);
-    expect(fileRouter.root.find('js').find('chunk').count).toBe(1);
-    expect(fileRouter.root.find('js').find('bundle').count).toBe(1);
+    expect(fileRouter.root.find('js').count).toBe(2n);
+    expect(fileRouter.root.find('js').find('chunk').count).toBe(1n);
+    expect(fileRouter.root.find('js').find('bundle').count).toBe(1n);
   });
 });

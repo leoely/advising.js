@@ -79,7 +79,7 @@ class Thing extends Node {
   }
 
   match(total, location) {
-    this.count += 1
+    this.count += 1n;
     const { count, } = this;
     this.rate = count / total;
     this.interval += 1;
@@ -104,8 +104,8 @@ class Thing extends Node {
   }
 
   getContent(total, location) {
-    if (typeof total !== 'number') {
-      throw new Error('[Error] Get content parameter total should be a numberic type.');
+    if (typeof total !== 'bigint') {
+      throw new Error('[Error] Get content parameter total should be a BigInt type.');
     }
     if (typeof location !== 'string' && typeof location !== 'number') {
       throw new Error('[Error] Get content parameter location should be a string type.');
