@@ -27,5 +27,6 @@ describe('[Class] IntegerRouter;', () => {
     expect(JSON.stringify(integerRouter.gain(42342))).toMatch('{\"value\":42342}');
     expect(JSON.stringify(integerRouter.gain(42342))).toMatch('{\"value\":42342}');
     expect(JSON.stringify(integerRouter.gain(42342))).toMatch('{\"value\":42342}');
+    expect(JSON.stringify(integerRouter.keys())).toMatch('[\"3849\",\"8942\",\"42342\",\"53982\"]');
   });
 });

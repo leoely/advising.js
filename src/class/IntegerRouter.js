@@ -9,6 +9,7 @@ function getPathsFromIntegerString(integerString) {
 class IntegerRouter extends Router {
   constructor(options = {}) {
     super(options);
+    this.separator = '';
   }
 
   getPathsFromLocation(location) {
